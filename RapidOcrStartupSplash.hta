@@ -1,0 +1,191 @@
+<html>
+<head>
+  <title>RapidOCR Loading</title>
+  <hta:application
+    applicationname="RapidOCRLoading"
+    border="thin"
+    borderstyle="normal"
+    caption="yes"
+    contextmenu="no"
+    maximizebutton="no"
+    minimizebutton="no"
+    navigable="no"
+    scroll="no"
+    showintaskbar="yes"
+    singleinstance="yes"
+    sysmenu="no"
+    windowstate="normal" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #08111f;
+      color: #f3f7ff;
+      overflow: hidden;
+    }
+    .backdrop {
+      position: absolute;
+      left: -80px;
+      top: -80px;
+      width: 640px;
+      height: 320px;
+      background: radial-gradient(circle, #1d4ed8 0%, #0f172a 55%, #08111f 100%);
+      filter: progid:DXImageTransform.Microsoft.Blur(pixelradius=0);
+      opacity: 0.96;
+    }
+    .glowA {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      right: -50px;
+      top: -30px;
+      background: #22d3ee;
+      filter: alpha(opacity=18);
+      opacity: 0.18;
+      border-radius: 999px;
+    }
+    .glowB {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      left: -40px;
+      bottom: -50px;
+      background: #f97316;
+      filter: alpha(opacity=16);
+      opacity: 0.16;
+      border-radius: 999px;
+    }
+    .wrap {
+      position: relative;
+      z-index: 2;
+      padding: 22px 24px 18px 24px;
+    }
+    .eyebrow {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #0f274d;
+      border: 1px solid #2f68d8;
+      color: #9ec7ff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .title {
+      font-size: 27px;
+      font-weight: 800;
+      margin: 14px 0 6px 0;
+      letter-spacing: 0.3px;
+    }
+    .sub {
+      font-size: 14px;
+      color: #c0d2f2;
+      margin: 0 0 16px 0;
+      line-height: 1.45;
+    }
+    .meter {
+      height: 18px;
+      border: 1px solid #31538f;
+      background: #0b1730;
+      padding: 3px;
+    }
+    .bar {
+      position: relative;
+      width: 100%;
+      height: 10px;
+      overflow: hidden;
+      background: #10203f;
+    }
+    .fill {
+      width: 38%;
+      height: 10px;
+      background: #60a5fa;
+      background-image: linear-gradient(90deg, #22d3ee 0%, #60a5fa 35%, #2563eb 68%, #f97316 100%);
+      position: absolute;
+      left: -14%;
+      top: 0;
+    }
+    .shine {
+      position: absolute;
+      width: 90px;
+      height: 10px;
+      top: 0;
+      left: -100px;
+      background: #ffffff;
+      filter: alpha(opacity=28);
+      opacity: 0.28;
+    }
+    .footer {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #8ea5c9;
+    }
+    .pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 8px;
+      background: #22d3ee;
+      border-radius: 999px;
+    }
+  </style>
+  <script language="javascript">
+    var pos = -60;
+    var dir = 1;
+    var shinePos = -120;
+    var pulseOn = true;
+    var dotCount = 0;
+
+    function tick() {
+      var fill = document.getElementById("fill");
+      var shine = document.getElementById("shine");
+      var pulse = document.getElementById("pulse");
+      var status = document.getElementById("status");
+
+      pos += (dir * 6);
+      if (pos >= 68) { dir = -1; }
+      if (pos <= -16) { dir = 1; }
+      fill.style.left = pos + "%";
+
+      shinePos += 18;
+      if (shinePos > 440) { shinePos = -140; }
+      shine.style.left = shinePos + "px";
+
+      pulseOn = !pulseOn;
+      pulse.style.visibility = pulseOn ? "visible" : "hidden";
+
+      dotCount = (dotCount + 1) % 4;
+      var dots = "";
+      for (var i = 0; i < dotCount; i++) { dots += "."; }
+      status.innerHTML = "Loading application, please wait" + dots;
+    }
+
+    function init() {
+      try {
+        window.resizeTo(520, 240);
+        var left = Math.max(0, (screen.availWidth - 520) / 2);
+        var top = Math.max(0, (screen.availHeight - 240) / 2);
+        window.moveTo(left, top);
+      } catch (e) {}
+      window.setInterval(tick, 120);
+    }
+  </script>
+</head>
+<body onload="init()">
+  <div class="backdrop"></div>
+  <div class="glowA"></div>
+  <div class="glowB"></div>
+  <div class="wrap">
+    <div class="eyebrow">Boot Sequence</div>
+    <div class="title">RapidOCR PDF Scan Tool</div>
+    <div class="sub" id="status">Loading application, please wait...</div>
+    <div class="meter">
+      <div class="bar">
+        <div class="fill" id="fill"></div>
+        <div class="shine" id="shine"></div>
+      </div>
+    </div>
+    <div class="footer"><span class="pulse" id="pulse"></span>Initializing OCR engines, UI shell, and session state</div>
+  </div>
+</body>
+</html>
