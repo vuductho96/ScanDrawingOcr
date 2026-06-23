@@ -398,34 +398,6 @@ Run-RapidOcrProUpdate-PS7.bat
 
 ---
 
-# Git Policy
-
-The repository intentionally excludes large runtime data:
-
-```text
-tools/
-SecureBuild/
-TrainingDataset/
-PreparedDataset/
-ocrtool-pdfscan-sessions/
-ocrtool-pdfscan-render-cache/
-```
-
-and generated files:
-
-```text
-*.png
-*.jpg
-*.jpeg
-*.pdf
-*.xlsm
-*.zip
-*.clixml
-*.json
-*.lnk
-```
-
----
 
 # Intended Users
 
