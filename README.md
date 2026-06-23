@@ -1,3 +1,8 @@
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/40e08bfd-c50b-4892-a2cb-20e898ea1bcc" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/e244b75b-5040-48f2-a530-96d49e93da32" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/9d8a82b3-3d72-4ec7-afa7-8bebabf02ca5" />
+
+
 # ScanDrawingOcr
 
 PowerShell-based OCR and inspection assistant for technical drawings.
