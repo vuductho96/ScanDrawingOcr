@@ -6,7 +6,7 @@ scriptDir = fso.GetParentFolderName(WScript.ScriptFullName)
 splashPath = scriptDir & "\RapidOcrStartupSplash.hta"
 
 pwsh = "pwsh"
-command = """" & pwsh & """ -NoProfile -ExecutionPolicy Bypass -File """ & scriptDir & "\RapidOcrProUpdate.ps1"""
+command = """" & pwsh & """ -NoProfile -ExecutionPolicy Bypass -STA -File """ & scriptDir & "\RapidOcrProUpdate.ps1"""
 
 shell.CurrentDirectory = scriptDir
 If fso.FileExists(splashPath) Then

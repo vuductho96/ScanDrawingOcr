@@ -116,6 +116,7 @@ $script:ShowPdfTextZones = $false
 $script:PdfTextLayerZones = @()
 $script:TextZoneCacheKey = $null
 $script:TextZoneCacheResolved = $false
+$script:TextZoneCacheSchemaVersion = "tz-v2"
 $script:SelectedTextZoneIndex = -1
 $script:IsDraggingTextZone = $false
 $script:TextZoneDragMode = $null
@@ -124,6 +125,17 @@ $script:TextZoneDragStartRect = $null
 $script:ImageOcrAutoCacheKey = $null
 $script:ImageOcrAutoCandidates = @()
 $script:ImageOcrAutoZones = @()
+$script:AutoMapRegionMode = $false
+$script:AutoMapRegions = @()
+$script:AutoMapPreparedCandidates = @()
+$script:AutoMapPreparedBlocks = @()
+$script:AutoMapPreparedMode = ""
+$script:AutoMapRegionDuplicateWarnings = @()
+$script:AutoMapRegionForm = $null
+$script:AutoMapRegionStatusLabel = $null
+$script:AutoMapRegionTextZonesButton = $null
+$script:AutoMapRegionCopyViewButton = $null
+$script:AutoMapRegionBalloonColorButton = $null
 $script:HiddenTextZoneHoverIndex = -1
 $script:HiddenTextZoneHoverCandidate = $null
 $script:HiddenTextZoneMinScore = 12.0
@@ -1031,7 +1043,6 @@ $form.Add_Shown({
     Update-TrainingReadinessUi
     Update-CopyViewButton
     Update-PdfTextZonesButton
-    Update-TranslateLensButton
     Update-ZoomStatus
     Update-CanvasCursor
 
@@ -1675,6 +1686,8 @@ $script:AppStateFilePath = Join-Path $script:AppRoot "ocrtool-pdfscan-app-state.
 $script:SessionStoreDir = Join-Path $script:AppRoot "ocrtool-pdfscan-sessions"
 $script:RenderCacheRoot = Join-Path $script:AppRoot "ocrtool-pdfscan-render-cache"
 $script:TrainingDatasetRoot = Join-Path $script:AppRoot "TrainingDataset"
+$script:GlobalSettingsDir = Join-Path ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::ApplicationData)) "RapidOcrProUpdate"
+$script:GlobalSettingsPath = Join-Path $script:GlobalSettingsDir "rapidocr-global-settings.clixml"
 $script:TrainingMetricsPath = Join-Path $script:TrainingDatasetRoot "training-metrics.clixml"
 $script:TrainingEventsPath = Join-Path $script:TrainingDatasetRoot "training-events.jsonl"
 $script:TrainingManifestPath = Join-Path $script:TrainingDatasetRoot "manifest.json"
@@ -2046,82 +2059,9 @@ function Update-InspectionSampleAutoFillButton{
     }
 }
 
-function Update-TranslateLensButton{
-    if(!$btnTranslateLens){ return }
-    $btnTranslateLens.Text = "Translator"
-    $btnTranslateLens.BackColor = [System.Drawing.SystemColors]::Control
-    if($miAdvanceTranslate){
-        if($script:TranslateLensEnabled){
-            $miAdvanceTranslate.Text = "Translate On"
-            $miAdvanceTranslate.Checked = $true
-        }
-        else{
-            $miAdvanceTranslate.Text = "Translate"
-            $miAdvanceTranslate.Checked = $false
-        }
-    }
-}
-
-function Clear-TranslateLensResult{
-    $script:TranslateLensRect = $null
-    $script:TranslateLensPendingRect = $null
-    $script:TranslateLensResult = $null
-    $script:TranslateLensPoint = $null
-    $script:TranslateLensLastRectKey = ""
-    $script:TranslateLensPendingRectKey = ""
-    if($script:TranslateLensTimer){ $script:TranslateLensTimer.Stop() }
-}
-
-function Start-WindowTranslator{
-    $launcherPath = Join-Path $PSScriptRoot 'Launch-WindowTranslator.ps1'
-    $exePath = Join-Path $PSScriptRoot 'tools\WindowTranslator\WindowTranslator-full-0.9.21\WindowTranslator.exe'
-
-    try{
-        if(Test-Path $launcherPath){
-            Start-Process -FilePath 'powershell.exe' -WorkingDirectory $PSScriptRoot -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',$launcherPath) | Out-Null
-            Write-OcrDebug "WindowTranslator launched."
-            return $true
-        }
-
-        if(Test-Path $exePath){
-            Start-Process -FilePath $exePath -WorkingDirectory (Split-Path -Parent $exePath) | Out-Null
-            Write-OcrDebug "WindowTranslator launched."
-            return $true
-        }
-    }
-    catch{
-        Write-OcrDebug ("WindowTranslator launch failed: " + $_.Exception.Message)
-        return $false
-    }
-
-    Write-OcrDebug "WindowTranslator not found."
-    return $false
-}
-
-function Set-TranslateLensEnabled([bool]$enabled){
-    $script:TranslateLensEnabled = $enabled
-    if($enabled){
-        if($script:selectionRect){
-            $script:selectionRect = $null
-            Clear-PreviewImage
-        }
-        if($script:CurrentSourcePath -and $script:sourceBitmap){
-            try{ Ensure-HiddenTextZonesLoaded | Out-Null } catch{}
-        }
-        if($txtOcrDebug){
-            $txtOcrDebug.Text = "Translate lens ready. Hover only the small area you want to translate."
-        }
-    }
-    else{
-        Clear-TranslateLensResult
-        if($txtOcrDebug){
-            $txtOcrDebug.Text = "Translate lens off."
-        }
-    }
-    Update-TranslateLensButton
-    Update-CanvasCursor
-    Request-CanvasRedraw
-}
+function Clear-TranslateLensResult{}
+function Start-WindowTranslator{ return $false }
+function Set-TranslateLensEnabled([bool]$enabled){ $script:TranslateLensEnabled = $false }
 
 function Update-AnnotationToolButtons{
     if($btnYellowPen){
@@ -2158,7 +2098,7 @@ function Get-BalloonStrokeColor{
 
 function Update-BalloonColorMenuState{
     if($miAdvanceBalloonColor){
-        $miAdvanceBalloonColor.Text = "Balloon Color: $($script:BalloonColorPreset)"
+        $miAdvanceBalloonColor.Text = "Auto Balloon Color: $($script:BalloonColorPreset)"
     }
 
     foreach($itemInfo in @(
@@ -2181,6 +2121,9 @@ function Set-BalloonColorPreset($preset){
 
     $script:BalloonColorPreset = $normalized
     Update-BalloonColorMenuState
+    if(Get-Command Update-AutoMapRegionToolButtons -ErrorAction SilentlyContinue){
+        Update-AutoMapRegionToolButtons
+    }
     Request-CanvasRedraw
     Save-SessionState
 }
@@ -2283,106 +2226,6 @@ function Set-AnnotationToolMode([string]$mode){
     Update-AnnotationToolButtons
     Update-CanvasCursor
     Request-CanvasRedraw
-}
-
-function Get-TranslateLensRectAtPoint($imagePoint){
-    if(!$script:sourceBitmap -or !$imagePoint){ return $null }
-    $zoomSafe = [Math]::Max($script:zoom,0.0001)
-    $imageWidth = [double]$script:TranslateLensPixelWidth / $zoomSafe
-    $imageHeight = [double]$script:TranslateLensPixelHeight / $zoomSafe
-    $x = [double]$imagePoint.X - ($imageWidth / 2.0)
-    $y = [double]$imagePoint.Y - ($imageHeight / 2.0)
-    $x = [Math]::Max(0,[Math]::Min(($script:sourceBitmap.Width - $imageWidth),$x))
-    $y = [Math]::Max(0,[Math]::Min(($script:sourceBitmap.Height - $imageHeight),$y))
-    return New-Object Drawing.RectangleF([float]$x,[float]$y,[float]$imageWidth,[float]$imageHeight)
-}
-
-function Get-TranslateLensRectKey($rect){
-    if(!$rect){ return "" }
-    return ("{0}:{1}:{2}:{3}:{4}" -f [Math]::Round($rect.X,1),[Math]::Round($rect.Y,1),[Math]::Round($rect.Width,1),[Math]::Round($rect.Height,1),$script:SelectedPageIndex)
-}
-
-function Request-TranslateLensRefresh($imagePoint){
-    if(-not $script:TranslateLensEnabled -or !$script:sourceBitmap){ return }
-    $rect = Get-TranslateLensRectAtPoint $imagePoint
-    if(!$rect){ return }
-
-    $rectKey = Get-TranslateLensRectKey $rect
-    $script:TranslateLensPoint = $imagePoint
-
-    if($script:TranslateLensResult -and $script:TranslateLensRect){
-        try{
-            if($script:TranslateLensRect.Contains([int]$imagePoint.X,[int]$imagePoint.Y)){
-                return
-            }
-        }
-        catch{}
-    }
-
-    if(
-        $rectKey -eq $script:TranslateLensLastRectKey -or
-        $rectKey -eq $script:TranslateLensPendingRectKey
-    ){
-        return
-    }
-
-    $script:TranslateLensRect = $rect
-    $script:TranslateLensPendingRect = $rect
-    $script:TranslateLensPendingRectKey = $rectKey
-    if($script:TranslateLensTimer){
-        $script:TranslateLensTimer.Stop()
-        $script:TranslateLensTimer.Start()
-    }
-    Request-CanvasRedraw
-}
-
-function Normalize-TranslateLensSourceText($text){
-    if([string]::IsNullOrWhiteSpace([string]$text)){ return "" }
-    $value = [string]$text
-    $value = $value -replace "\r\n?","`n"
-    $value = $value -replace "[`t ]{2,}"," "
-    $value = $value -replace " ?`n ?","`n"
-    return $value.Trim()
-}
-
-function Get-TranslateLensDictionary{
-    if($script:TranslateLensDictionary){ return $script:TranslateLensDictionary }
-    $script:TranslateLensDictionary = [ordered]@{
-        "バリ無きこと" = "Khong duoc co ba via"
-        "バリなし" = "Khong co ba via"
-        "バリ" = "Ba via"
-        "面取り" = "Vat mep"
-        "テーパー" = "Con / taper"
-        "アンダーカット" = "Undercut"
-        "ストレート部" = "Phan thang"
-        "品番" = "Ma hang"
-        "個数" = "So luong"
-        "尺度" = "Ty le"
-        "詳細" = "Chi tiet"
-        "参考" = "Tham khao"
-        "コーナー" = "Goc"
-        "NO BURR" = "Khong duoc co ba via"
-        "REMOVE BURRS" = "Loai bo ba via"
-        "BREAK SHARP EDGES" = "Pha canh sac"
-        "CHAMFER" = "Vat mep"
-        "UNDERCUT" = "Undercut"
-        "TAPER" = "Con"
-        "DETAIL" = "Chi tiet"
-        "SCALE" = "Ty le"
-        "PART NO" = "Ma hang"
-        "QTY" = "So luong"
-        "MATERIAL" = "Vat lieu"
-        "SURFACE ROUGHNESS" = "Do nham be mat"
-        "TOLERANCE" = "Dung sai"
-        "REFERENCE" = "Tham khao"
-        "MAX" = "Lon nhat"
-        "MIN" = "Nho nhat"
-        "CONTROLLED" = "Kiem soat"
-        "INTERNAL USE" = "Noi bo"
-        "ORIGINAL" = "Ban goc"
-        "INSPECTION REPORT" = "Bao cao kiem tra"
-    }
-    return $script:TranslateLensDictionary
 }
 
 function Normalize-DrawingMetadataText($value){
@@ -3122,76 +2965,7 @@ function Update-TranslateLensFromRect($rect){
     Request-CanvasRedraw
 }
 
-function Draw-TranslateLensOverlay($graphics){
-    if(!$graphics -or -not $script:TranslateLensEnabled -or !$script:sourceBitmap){ return }
-    if(!$script:TranslateLensRect){ return }
-
-    $topLeft = Convert-ImagePointToScreenPoint $script:TranslateLensRect.X $script:TranslateLensRect.Y
-    $bottomRight = Convert-ImagePointToScreenPoint ($script:TranslateLensRect.X + $script:TranslateLensRect.Width) ($script:TranslateLensRect.Y + $script:TranslateLensRect.Height)
-    $screenRect = New-Object Drawing.RectangleF(
-        [float]$topLeft.X,
-        [float]$topLeft.Y,
-        [float]([Math]::Max(1.0,($bottomRight.X - $topLeft.X))),
-        [float]([Math]::Max(1.0,($bottomRight.Y - $topLeft.Y)))
-    )
-
-    $lensFill = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(26,40,180,120))
-    $lensPen = New-Object Drawing.Pen([Drawing.Color]::FromArgb(220,35,150,95),2.0)
-    $popupBack = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(236,255,255,245))
-    $popupBorder = New-Object Drawing.Pen([Drawing.Color]::FromArgb(210,35,150,95),1.3)
-    $titleBrush = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(220,20,80,55))
-    $textBrush = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(230,40,40,40))
-    $smallBrush = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(180,80,80,80))
-    $titleFont = New-Object Drawing.Font("Segoe UI",9,[Drawing.FontStyle]::Bold)
-    $textFont = New-Object Drawing.Font("Segoe UI",8.5,[Drawing.FontStyle]::Regular)
-
-    try{
-        $graphics.FillRectangle($lensFill,$screenRect)
-        $graphics.DrawRectangle($lensPen,$screenRect.X,$screenRect.Y,$screenRect.Width,$screenRect.Height)
-
-        $result = $script:TranslateLensResult
-        $popupWidth = [float][Math]::Min(300,[Math]::Max(220,($picture.ClientSize.Width * 0.32)))
-        $popupHeight = 108.0
-        $popupX = [float]($screenRect.Right + 10)
-        $popupY = [float]$screenRect.Top
-        if(($popupX + $popupWidth) -gt ($picture.ClientSize.Width - 8)){
-            $popupX = [float][Math]::Max(8,($screenRect.Left - $popupWidth - 10))
-        }
-        if(($popupY + $popupHeight) -gt ($picture.ClientSize.Height - 8)){
-            $popupY = [float][Math]::Max(8,($picture.ClientSize.Height - $popupHeight - 8))
-        }
-
-        $popupRect = New-Object Drawing.RectangleF($popupX,$popupY,$popupWidth,$popupHeight)
-        $graphics.FillRectangle($popupBack,$popupRect)
-        $graphics.DrawRectangle($popupBorder,$popupRect.X,$popupRect.Y,$popupRect.Width,$popupRect.Height)
-
-        $title = "Translate Lens"
-        $meta = "Scanning..."
-        $original = ""
-        $translated = ""
-        if($result){
-            $meta = ("{0} / {1}" -f [string]$result.Source,[string]$result.Language)
-            $original = if([string]::IsNullOrWhiteSpace([string]$result.Original)){ "(no text)" } else { [string]$result.Original }
-            $translated = if([string]::IsNullOrWhiteSpace([string]$result.Translation)){ $original } else { [string]$result.Translation }
-            $original = (($original -replace "\r\n?","`n").Split("`n") | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 2) -join " / "
-            $translated = (($translated -replace "\r\n?","`n").Split("`n") | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 2) -join " / "
-            if($original.Length -gt 54){ $original = $original.Substring(0,54) + "..." }
-            if($translated.Length -gt 54){ $translated = $translated.Substring(0,54) + "..." }
-        }
-
-        $graphics.DrawString($title,$titleFont,$titleBrush,[float]($popupRect.X + 8),[float]($popupRect.Y + 6))
-        $graphics.DrawString($meta,$textFont,$smallBrush,[float]($popupRect.X + 120),[float]($popupRect.Y + 7))
-        $graphics.DrawString("Original",$titleFont,$titleBrush,[float]($popupRect.X + 8),[float]($popupRect.Y + 28))
-        $graphics.DrawString($original,$textFont,$textBrush,(New-Object Drawing.RectangleF([float]($popupRect.X + 8),[float]($popupRect.Y + 46),[float]($popupRect.Width - 16),24.0)))
-        $graphics.DrawString("VI",$titleFont,$titleBrush,[float]($popupRect.X + 8),[float]($popupRect.Y + 68))
-        $graphics.DrawString($translated,$textFont,$textBrush,(New-Object Drawing.RectangleF([float]($popupRect.X + 34),[float]($popupRect.Y + 68),[float]($popupRect.Width - 42),30.0)))
-    }
-    finally{
-        foreach($d in @($lensFill,$lensPen,$popupBack,$popupBorder,$titleBrush,$textBrush,$smallBrush,$titleFont,$textFont)){
-            if($d){ $d.Dispose() }
-        }
-    }
-}
+function Draw-TranslateLensOverlay($graphics){ return }
 
 function Clear-UiCopiedMarks{
 
@@ -5661,6 +5435,49 @@ function Get-JpegBytesFromBitmap($bitmap,$quality = $null){
     }
 }
 
+function Convert-BitmapToPrintBlackWhite($bitmap){
+    if(!$bitmap){ return $null }
+
+    $converted = New-Object System.Drawing.Bitmap([int]$bitmap.Width,[int]$bitmap.Height,[System.Drawing.Imaging.PixelFormat]::Format24bppRgb)
+    $graphics = $null
+    $attributes = $null
+    try{
+        $graphics = [System.Drawing.Graphics]::FromImage($converted)
+        $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
+        $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+        $graphics.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+        $graphics.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
+
+        $matrix = New-Object System.Drawing.Imaging.ColorMatrix
+        $matrix.Matrix00 = 0.299
+        $matrix.Matrix01 = 0.299
+        $matrix.Matrix02 = 0.299
+        $matrix.Matrix10 = 0.587
+        $matrix.Matrix11 = 0.587
+        $matrix.Matrix12 = 0.587
+        $matrix.Matrix20 = 0.114
+        $matrix.Matrix21 = 0.114
+        $matrix.Matrix22 = 0.114
+        $matrix.Matrix33 = 1.0
+        $matrix.Matrix44 = 1.0
+
+        $attributes = New-Object System.Drawing.Imaging.ImageAttributes
+        $attributes.SetColorMatrix($matrix)
+
+        $destRect = New-Object System.Drawing.Rectangle(0,0,[int]$bitmap.Width,[int]$bitmap.Height)
+        $graphics.DrawImage($bitmap,$destRect,0,0,[int]$bitmap.Width,[int]$bitmap.Height,[System.Drawing.GraphicsUnit]::Pixel,$attributes)
+        return $converted
+    }
+    catch{
+        if($converted){ $converted.Dispose() }
+        throw
+    }
+    finally{
+        if($attributes){ $attributes.Dispose() }
+        if($graphics){ $graphics.Dispose() }
+    }
+}
+
 function Get-PdfContentStreamTextCommands($page,$pageWidth,$pageHeight){
     $items = @(Get-PagePdfTextLayerItems $page)
     if($items.Count -le 0){ return "" }
@@ -5725,7 +5542,7 @@ function Write-PdfStreamObjectToStream($stream,$objectId,$dictionaryBody,$stream
     $stream.Write($objFooter,0,$objFooter.Length)
 }
 
-function Write-MarkStepPdfWithTextLayer($outputPdfPath,$pageExportPages,$includeImportantHighlights = $false,$jpegQuality = $null){
+function Write-MarkStepPdfWithTextLayer($outputPdfPath,$pageExportPages,$includeImportantHighlights = $false,$jpegQuality = $null,$printColorMode = "Color"){
     if([string]::IsNullOrWhiteSpace([string]$outputPdfPath)){ throw "Output PDF path is empty." }
     if(!$pageExportPages -or $pageExportPages.Count -le 0){ throw "No pages are available for PDF export." }
 
@@ -5793,9 +5610,18 @@ function Write-MarkStepPdfWithTextLayer($outputPdfPath,$pageExportPages,$include
         foreach($pageInfo in @($pageInfos)){
             $page = $pageExportPages[$pageInfo.Index]
             $bitmap = $null
+            $blackWhiteBitmap = $null
             try{
                 $bitmap = New-MarkedPageBitmap $page $includeImportantHighlights
                 if(!$bitmap){ throw "Failed to render marked page bitmap for PDF export." }
+                if([string]::Equals([string]$printColorMode,"BlackWhite",[System.StringComparison]::OrdinalIgnoreCase)){
+                    $blackWhiteBitmap = Convert-BitmapToPrintBlackWhite $bitmap
+                    if($blackWhiteBitmap){
+                        $bitmap.Dispose()
+                        $bitmap = $blackWhiteBitmap
+                        $blackWhiteBitmap = $null
+                    }
+                }
 
                 $pageWidth = [double]$bitmap.Width
                 $pageHeight = [double]$bitmap.Height
@@ -5838,6 +5664,7 @@ function Write-MarkStepPdfWithTextLayer($outputPdfPath,$pageExportPages,$include
                 Write-PdfObjectToStream $stream $pageInfo.PageObjectId (Get-AsciiBytes $pageObjectText) $offsets
             }
             finally{
+                if($blackWhiteBitmap){ $blackWhiteBitmap.Dispose() }
                 if($bitmap){ $bitmap.Dispose() }
             }
         }
@@ -5914,7 +5741,7 @@ function Draw-PdfSelectableTextLayer($graphics,$page,$posX,$posY,$ratio){
     }
 }
 
-function Export-MarkedDocumentPdf($outputPdfPath,$includeImportantHighlights = $false,$jpegQuality = $null){
+function Export-MarkedDocumentPdf($outputPdfPath,$includeImportantHighlights = $false,$jpegQuality = $null,$printColorMode = "Color"){
 
     Save-CurrentPageState
     Validate-StepState
@@ -5931,12 +5758,446 @@ function Export-MarkedDocumentPdf($outputPdfPath,$includeImportantHighlights = $
         throw "No pages are available for PDF export."
     }
 
-    return (Write-MarkStepPdfWithTextLayer $outputPdfPath $pageExportPages $includeImportantHighlights $jpegQuality)
+    return (Write-MarkStepPdfWithTextLayer $outputPdfPath $pageExportPages $includeImportantHighlights $jpegQuality $printColorMode)
 }
 
 function Get-ImportantMarkedPdfPath($jobFolder,$jobName){
 
     return (Join-Path $jobFolder ("MarkStep Important " + $jobName + ".pdf"))
+}
+
+function Get-GlobalRapidOcrSettings{
+    if([string]::IsNullOrWhiteSpace([string]$script:GlobalSettingsPath)){ return @{} }
+    if(!(Test-Path -LiteralPath $script:GlobalSettingsPath)){ return @{} }
+
+    try{
+        $settings = Import-Clixml -LiteralPath $script:GlobalSettingsPath -ErrorAction Stop
+        if($settings){ return $settings }
+    }
+    catch{}
+
+    return @{}
+}
+
+function Save-GlobalRapidOcrSettings($settings){
+    if([string]::IsNullOrWhiteSpace([string]$script:GlobalSettingsPath)){ return }
+
+    try{
+        if(!(Test-Path -LiteralPath $script:GlobalSettingsDir)){
+            New-Item -ItemType Directory -Path $script:GlobalSettingsDir -Force | Out-Null
+        }
+        $settings | Export-Clixml -LiteralPath $script:GlobalSettingsPath -Force
+    }
+    catch{}
+}
+
+function Load-GlobalExcelTemplate{
+    $settings = Get-GlobalRapidOcrSettings
+    $templatePath = $null
+
+    try{ $templatePath = [string]$settings.ExcelTemplate } catch{}
+    if([string]::IsNullOrWhiteSpace($templatePath)){ return $false }
+    if(!(Test-Path -LiteralPath $templatePath)){ return $false }
+
+    $script:ExcelTemplate = [string]$templatePath
+    return $true
+}
+
+function Save-GlobalExcelTemplate([string]$templatePath){
+    if([string]::IsNullOrWhiteSpace($templatePath)){ return }
+    if(!(Test-Path -LiteralPath $templatePath)){ return }
+
+    $settings = Get-GlobalRapidOcrSettings
+    $ordered = [ordered]@{}
+
+    if($settings -is [System.Collections.IDictionary]){
+        foreach($key in @($settings.Keys)){
+            if([string]$key -ne "ExcelTemplate"){
+                $ordered[[string]$key] = $settings[$key]
+            }
+        }
+    }
+    else{
+        foreach($property in @($settings.PSObject.Properties)){
+            if($property.Name -ne "ExcelTemplate"){
+                $ordered[$property.Name] = $property.Value
+            }
+        }
+    }
+
+    $ordered["ExcelTemplate"] = [string]$templatePath
+    $ordered["ExcelTemplateSavedAt"] = [DateTime]::Now
+    Save-GlobalRapidOcrSettings ([PSCustomObject]$ordered)
+}
+
+function Select-ExcelTemplateOnce{
+    $dialog = New-Object Windows.Forms.OpenFileDialog
+    $dialog.Title = "Choose Excel template"
+    $dialog.Filter = "Excel Files|*.xlsx;*.xlsm;*.xls;*.xlsb;*.xltx;*.xltm;*.xlt|Excel Template and Workbook|*.xlsx;*.xlsm;*.xls;*.xlsb;*.xltx;*.xltm;*.xlt"
+
+    if($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK){ return $false }
+    if([string]::IsNullOrWhiteSpace([string]$dialog.FileName)){ return $false }
+
+    $script:ExcelTemplate = [string]$dialog.FileName
+    Save-GlobalExcelTemplate $script:ExcelTemplate
+    Save-SessionState
+    return $true
+}
+
+function Ensure-ExcelTemplateSelectedOnce{
+    if(-not [string]::IsNullOrWhiteSpace([string]$script:ExcelTemplate) -and (Test-Path -LiteralPath ([string]$script:ExcelTemplate))){
+        Save-GlobalExcelTemplate ([string]$script:ExcelTemplate)
+        return $true
+    }
+
+    if(Load-GlobalExcelTemplate){
+        Save-SessionState
+        return $true
+    }
+
+    return (Select-ExcelTemplateOnce)
+}
+
+function Get-GlobalSettingValue($settings,[string]$name,$fallback = $null){
+    if(!$settings -or [string]::IsNullOrWhiteSpace($name)){ return $fallback }
+    try{
+        if($settings -is [System.Collections.IDictionary] -and $settings.Contains($name)){
+            return $settings[$name]
+        }
+    }
+    catch{}
+    try{
+        $property = $settings.PSObject.Properties[$name]
+        if($property){ return $property.Value }
+    }
+    catch{}
+    return $fallback
+}
+
+function Get-SavedAiPromptArea{
+    $settings = Get-GlobalRapidOcrSettings
+    $xRatio = Get-GlobalSettingValue $settings "AiPromptAreaXRatio" $null
+    $yRatio = Get-GlobalSettingValue $settings "AiPromptAreaYRatio" $null
+
+    if($null -eq $xRatio -or $null -eq $yRatio){ return $null }
+
+    try{
+        $x = [double]$xRatio
+        $y = [double]$yRatio
+        if($x -lt 0.0 -or $x -gt 1.0 -or $y -lt 0.0 -or $y -gt 1.0){ return $null }
+        return [PSCustomObject]@{ XRatio = $x; YRatio = $y }
+    }
+    catch{
+        return $null
+    }
+}
+
+function Save-AiPromptArea([double]$xRatio,[double]$yRatio){
+    if($xRatio -lt 0.0 -or $xRatio -gt 1.0 -or $yRatio -lt 0.0 -or $yRatio -gt 1.0){
+        throw "Prompt area is outside Chrome window."
+    }
+
+    $settings = Get-GlobalRapidOcrSettings
+    $ordered = [ordered]@{}
+
+    if($settings -is [System.Collections.IDictionary]){
+        foreach($key in @($settings.Keys)){
+            $keyText = [string]$key
+            if($keyText -notin @("AiPromptAreaXRatio","AiPromptAreaYRatio","AiPromptAreaSavedAt")){
+                $ordered[$keyText] = $settings[$key]
+            }
+        }
+    }
+    else{
+        foreach($property in @($settings.PSObject.Properties)){
+            if($property.Name -notin @("AiPromptAreaXRatio","AiPromptAreaYRatio","AiPromptAreaSavedAt")){
+                $ordered[$property.Name] = $property.Value
+            }
+        }
+    }
+
+    $ordered["AiPromptAreaXRatio"] = [double]$xRatio
+    $ordered["AiPromptAreaYRatio"] = [double]$yRatio
+    $ordered["AiPromptAreaSavedAt"] = [DateTime]::Now
+    Save-GlobalRapidOcrSettings ([PSCustomObject]$ordered)
+}
+
+function Get-MarkStepCurrentPrintFolder{
+    $root = Join-Path ([System.IO.Path]::GetTempPath()) "RapidOcrProUpdate-Print"
+    $jobName = Get-SafeWindowsPathComponent (Get-PreferredExportJobName) "InspectionJob"
+    $folder = Join-Path $root $jobName
+
+    if(!(Test-Path -LiteralPath $folder)){
+        New-Item -ItemType Directory -Path $folder -Force | Out-Null
+    }
+
+    return $folder
+}
+
+function Show-PrintMarkedDrawingOptionsDialog{
+    $dialog = New-Object System.Windows.Forms.Form
+    $dialog.Text = "Print Current Drawing"
+    $dialog.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterParent
+    $dialog.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+    $dialog.MinimizeBox = $false
+    $dialog.MaximizeBox = $false
+    $dialog.ClientSize = New-Object System.Drawing.Size(310,148)
+
+    $label = New-Object System.Windows.Forms.Label
+    $label.Text = "Print mode"
+    $label.AutoSize = $true
+    $label.Location = New-Object System.Drawing.Point(16,14)
+    $dialog.Controls.Add($label)
+
+    $rbColor = New-Object System.Windows.Forms.RadioButton
+    $rbColor.Text = "Color"
+    $rbColor.Checked = $true
+    $rbColor.AutoSize = $true
+    $rbColor.Location = New-Object System.Drawing.Point(22,42)
+    $dialog.Controls.Add($rbColor)
+
+    $rbBlackWhite = New-Object System.Windows.Forms.RadioButton
+    $rbBlackWhite.Text = "Black and white"
+    $rbBlackWhite.AutoSize = $true
+    $rbBlackWhite.Location = New-Object System.Drawing.Point(22,68)
+    $dialog.Controls.Add($rbBlackWhite)
+
+    $quality = New-Object System.Windows.Forms.Label
+    $quality.Text = "High quality scale"
+    $quality.AutoSize = $true
+    $quality.ForeColor = [System.Drawing.Color]::DimGray
+    $quality.Location = New-Object System.Drawing.Point(158,43)
+    $dialog.Controls.Add($quality)
+
+    $btnPrint = New-Object System.Windows.Forms.Button
+    $btnPrint.Text = "Print"
+    $btnPrint.Location = New-Object System.Drawing.Point(134,106)
+    $btnPrint.Size = New-Object System.Drawing.Size(78,28)
+    $btnPrint.DialogResult = [System.Windows.Forms.DialogResult]::OK
+    $dialog.AcceptButton = $btnPrint
+    $dialog.Controls.Add($btnPrint)
+
+    $btnCancel = New-Object System.Windows.Forms.Button
+    $btnCancel.Text = "Cancel"
+    $btnCancel.Location = New-Object System.Drawing.Point(218,106)
+    $btnCancel.Size = New-Object System.Drawing.Size(78,28)
+    $btnCancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+    $dialog.CancelButton = $btnCancel
+    $dialog.Controls.Add($btnCancel)
+
+    try{
+        $result = $dialog.ShowDialog($form)
+        if($result -ne [System.Windows.Forms.DialogResult]::OK){ return $null }
+        if($rbBlackWhite.Checked){ return "BlackWhite" }
+        return "Color"
+    }
+    finally{
+        $dialog.Dispose()
+    }
+}
+
+function Invoke-DirectPrintMarkedDocument([string]$printColorMode){
+    Save-CurrentPageState
+    Validate-StepState
+
+    $pageExportPages = @()
+    foreach($page in @($script:DocumentPages)){
+        if($page -and $page.Bitmap){
+            $pageExportPages += $page
+        }
+    }
+    if($pageExportPages.Count -eq 0){
+        throw "No pages are available for printing."
+    }
+
+    $isColorPrint = -not [string]::Equals([string]$printColorMode,"BlackWhite",[System.StringComparison]::OrdinalIgnoreCase)
+    $printDoc = New-Object System.Drawing.Printing.PrintDocument
+    $printDoc.DocumentName = "RapidOCR MarkStep"
+    $printDoc.PrintController = New-Object System.Drawing.Printing.StandardPrintController
+    $printDoc.PrinterSettings.DefaultPageSettings.Color = [bool]$isColorPrint
+    $printDoc.DefaultPageSettings.Color = [bool]$isColorPrint
+
+    $pageIndex = 0
+    $currentBitmap = $null
+
+    $printDoc.add_QueryPageSettings({
+        if($pageIndex -ge 0 -and $pageIndex -lt $pageExportPages.Count){
+            $page = $pageExportPages[$pageIndex]
+            if($page -and $page.Bitmap){
+                $_.PageSettings.Landscape = ([int]$page.Bitmap.Width -gt [int]$page.Bitmap.Height)
+                $_.PageSettings.Color = [bool]$isColorPrint
+            }
+        }
+    })
+
+    $printDoc.add_PrintPage({
+        if($currentBitmap){
+            try{ $currentBitmap.Dispose() } catch{}
+            $currentBitmap = $null
+        }
+
+        if($pageIndex -ge $pageExportPages.Count){
+            $_.HasMorePages = $false
+            return
+        }
+
+        $bitmap = New-MarkedPageBitmap $pageExportPages[$pageIndex] $false
+        if(!$bitmap){ throw "Failed to render marked page for printing." }
+
+        if(-not $isColorPrint){
+            $converted = Convert-BitmapToPrintBlackWhite $bitmap
+            $bitmap.Dispose()
+            $bitmap = $converted
+        }
+        $currentBitmap = $bitmap
+
+        $graphics = $_.Graphics
+        $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
+        $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+        $graphics.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+        $graphics.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
+
+        $bounds = $_.MarginBounds
+        if($bounds.Width -le 0 -or $bounds.Height -le 0){
+            $bounds = $_.PageBounds
+        }
+
+        $scale = [Math]::Min(([double]$bounds.Width / [double]$bitmap.Width),([double]$bounds.Height / [double]$bitmap.Height))
+        if($scale -le 0){ $scale = 1.0 }
+        $drawW = [int][Math]::Max(1,[Math]::Round([double]$bitmap.Width * $scale))
+        $drawH = [int][Math]::Max(1,[Math]::Round([double]$bitmap.Height * $scale))
+        $drawX = [int]($bounds.Left + (($bounds.Width - $drawW) / 2))
+        $drawY = [int]($bounds.Top + (($bounds.Height - $drawH) / 2))
+        $destRect = New-Object System.Drawing.Rectangle($drawX,$drawY,$drawW,$drawH)
+
+        $graphics.DrawImage($bitmap,$destRect)
+
+        $pageIndex++
+        $_.HasMorePages = ($pageIndex -lt $pageExportPages.Count)
+    })
+
+    try{
+        $printDoc.Print()
+    }
+    finally{
+        if($currentBitmap){
+            try{ $currentBitmap.Dispose() } catch{}
+            $currentBitmap = $null
+        }
+        if($printDoc){ $printDoc.Dispose() }
+    }
+}
+
+function Invoke-PrintCurrentMarkedDrawing{
+    if($script:IsExportInProgress){ return }
+
+    if(@($script:DocumentPages).Count -eq 0){
+        [System.Windows.Forms.MessageBox]::Show("Open a drawing before printing.","Print Current Drawing",[System.Windows.Forms.MessageBoxButtons]::OK,[System.Windows.Forms.MessageBoxIcon]::Information) | Out-Null
+        return
+    }
+
+    $printColorMode = Show-PrintMarkedDrawingOptionsDialog
+    if([string]::IsNullOrWhiteSpace([string]$printColorMode)){ return }
+
+    $script:IsExportInProgress = $true
+    if($btnSave){ $btnSave.Enabled = $false }
+    if($btnExcel){ $btnExcel.Enabled = $false }
+
+    try{
+        if($script:CurrentSourcePath){
+            [void](Ensure-CanonicalSessionFileForSource $script:CurrentSourcePath $null -PreferCurrentState)
+        }
+        Save-SessionState
+
+        Invoke-DirectPrintMarkedDocument $printColorMode
+        $modeText = if([string]::Equals([string]$printColorMode,"BlackWhite",[System.StringComparison]::OrdinalIgnoreCase)){ "black and white" } else { "color" }
+        [System.Windows.Forms.MessageBox]::Show(("Current marked drawing was sent to the default printer in " + $modeText + " mode."),"Print Current Drawing",[System.Windows.Forms.MessageBoxButtons]::OK,[System.Windows.Forms.MessageBoxIcon]::Information) | Out-Null
+    }
+    catch{
+        [System.Windows.Forms.MessageBox]::Show(("Print current drawing failed:`r`n" + $_.Exception.Message),"Print Current Drawing",[System.Windows.Forms.MessageBoxButtons]::OK,[System.Windows.Forms.MessageBoxIcon]::Error) | Out-Null
+    }
+    finally{
+        $script:IsExportInProgress = $false
+        if($btnSave){ $btnSave.Enabled = $true }
+        if($btnExcel){ $btnExcel.Enabled = $true }
+    }
+}
+
+function Show-ExportProgress([string]$title = "Exporting"){
+    try{
+        if($script:ExportProgressForm){
+            return
+        }
+
+        $progressForm = New-Object System.Windows.Forms.Form
+        $progressForm.Text = [string]$title
+        $progressForm.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterParent
+        $progressForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+        $progressForm.MinimizeBox = $false
+        $progressForm.MaximizeBox = $false
+        $progressForm.ControlBox = $false
+        $progressForm.TopMost = $true
+        $progressForm.ClientSize = New-Object System.Drawing.Size(360,92)
+
+        $label = New-Object System.Windows.Forms.Label
+        $label.Location = New-Object System.Drawing.Point(14,14)
+        $label.Size = New-Object System.Drawing.Size(332,22)
+        $label.Text = "Starting..."
+        $progressForm.Controls.Add($label)
+
+        $bar = New-Object System.Windows.Forms.ProgressBar
+        $bar.Location = New-Object System.Drawing.Point(14,46)
+        $bar.Size = New-Object System.Drawing.Size(332,20)
+        $bar.Minimum = 0
+        $bar.Maximum = 100
+        $bar.Value = 0
+        $bar.Style = [System.Windows.Forms.ProgressBarStyle]::Continuous
+        $progressForm.Controls.Add($bar)
+
+        $script:ExportProgressForm = $progressForm
+        $script:ExportProgressLabel = $label
+        $script:ExportProgressBar = $bar
+        $progressForm.Show($form)
+        [System.Windows.Forms.Application]::DoEvents()
+    }
+    catch{}
+}
+
+function Update-ExportProgress([string]$message,[int]$percent = -1){
+    try{
+        if(!$script:ExportProgressForm){ return }
+        if($script:ExportProgressLabel){
+            $script:ExportProgressLabel.Text = [string]$message
+        }
+        if($script:ExportProgressBar){
+            if($percent -lt 0){
+                $script:ExportProgressBar.Style = [System.Windows.Forms.ProgressBarStyle]::Marquee
+            }
+            else{
+                $script:ExportProgressBar.Style = [System.Windows.Forms.ProgressBarStyle]::Continuous
+                $safePercent = [Math]::Max(0,[Math]::Min(100,[int]$percent))
+                $script:ExportProgressBar.Value = [int]$safePercent
+            }
+        }
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = [string]$message
+        }
+        [System.Windows.Forms.Application]::DoEvents()
+    }
+    catch{}
+}
+
+function Close-ExportProgress{
+    try{
+        if($script:ExportProgressForm){
+            $script:ExportProgressForm.Close()
+            $script:ExportProgressForm.Dispose()
+        }
+    }
+    catch{}
+    $script:ExportProgressForm = $null
+    $script:ExportProgressLabel = $null
+    $script:ExportProgressBar = $null
 }
 
 function Get-WritablePdfOutputPath($requestedPdfPath){
@@ -9018,6 +9279,7 @@ function Remove-GrayTextZones{
     $script:PdfTextLayerZones = @($script:PdfTextLayerZones | Where-Object { $_ -and $_.IsDimension })
     $script:SelectedTextZoneIndex = -1
     Save-CurrentPageTextZoneCache
+    if($script:AutoMapRegionMode){ Refresh-AutoMapPreparedCandidatesFromCurrentZones }
     Request-CanvasRedraw
     return ($before - @($script:PdfTextLayerZones).Count)
 }
@@ -9290,10 +9552,18 @@ if($btnToggleSidePanel){
 
 $miAdvanceRotatePage = $null
 $miAdvanceSampleAutoFill = $null
+$miAdvanceBulkAiRecovery = $null
+$miAdvanceCapturePromptArea = $null
 if($advanceMenu){
     $miAdvanceSampleAutoFill = New-Object System.Windows.Forms.ToolStripMenuItem("Sample Auto Fill On")
     if($miAdvanceOcrMenu){ [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceSampleAutoFill) }
     else{ [void]$advanceMenu.Items.Add($miAdvanceSampleAutoFill) }
+    $miAdvanceBulkAiRecovery = New-Object System.Windows.Forms.ToolStripMenuItem("Bulk Google AI Recovery")
+    if($miAdvanceOcrMenu){ [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceBulkAiRecovery) }
+    else{ [void]$advanceMenu.Items.Add($miAdvanceBulkAiRecovery) }
+    $miAdvanceCapturePromptArea = New-Object System.Windows.Forms.ToolStripMenuItem("Capture Google AI Prompt Area")
+    if($miAdvanceOcrMenu){ [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceCapturePromptArea) }
+    else{ [void]$advanceMenu.Items.Add($miAdvanceCapturePromptArea) }
     $miAdvanceRotatePage = New-Object System.Windows.Forms.ToolStripMenuItem("Rotate Drawing 90°")
     $miAdvanceRotatePage.ShortcutKeyDisplayString = "Ctrl+Shift+R"
     if($miAdvanceViewMenu){ [void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceRotatePage) }
@@ -9307,48 +9577,25 @@ if($advanceMenu){
     }
 }
 
-$btnAiUseEnv.Add_Click({
-    Invoke-AiVisionRescanSelectedStep
-})
+$btnAiUseEnv.Enabled = $false
 
 $chkAiTestOnly.Add_CheckedChanged({
-    $script:AiTestOnlyEnabled = [bool]$chkAiTestOnly.Checked
-    if($script:AiTestOnlyEnabled){
-        Append-AiVisionLog ("AI test only enabled: " + [string]$cmbAiModel.Text)
-    }
-    else{
-        Append-AiVisionLog "AI test only disabled."
-    }
+    $script:AiTestOnlyEnabled = $false
+    $chkAiTestOnly.Checked = $false
 })
 
-$btnAiTest.Add_Click({
-    $selectedModel = if($cmbAiModel){ [string]$cmbAiModel.Text } else { "" }
-    if($selectedModel.StartsWith("ollama:",[System.StringComparison]::OrdinalIgnoreCase) -and -not $script:AiVisionBusy){
-        [void](Warm-OllamaVisionModel $selectedModel)
-    }
-    Invoke-AiVisionForSelection
-})
+$btnAiTest.Enabled = $false
 
-$btnAiAccept.Add_Click({
-    Accept-AiVisionResult
-})
+$btnAiAccept.Enabled = $false
 
 $btnAiClear.Add_Click({
     if($txtAiResult){ $txtAiResult.Text = "" }
     Clear-AiVisionResult
 })
 
-if($miAdvanceAiModelQwen){
-    $miAdvanceAiModelQwen.Add_Click({
-        Set-AiVisionModelSelection "ollama:qwen2.5vl:3b"
-    })
-}
-
-if($miAdvanceAiModelMiniCpm){
-    $miAdvanceAiModelMiniCpm.Add_Click({
-        Set-AiVisionModelSelection "ollama:minicpm-v"
-    })
-}
+if($miAdvanceAiModel){ $miAdvanceAiModel.Visible = $false }
+if($miAdvanceAiModelQwen){ $miAdvanceAiModelQwen.Enabled = $false }
+if($miAdvanceAiModelMiniCpm){ $miAdvanceAiModelMiniCpm.Enabled = $false }
 
 $btnCopyView.Add_Click({
     $script:CopyViewOnly = -not $script:CopyViewOnly
@@ -9360,16 +9607,8 @@ $btnAutoMapPdf.Add_Click({
     Invoke-AutoMapPdfTextLayer
 })
 
-$btnTranslateLens.Add_Click({
-    if($script:TranslateLensEnabled){
-        Set-TranslateLensEnabled $false
-    }
-    else{
-        Clear-TranslateLensResult
-    }
-
-    [void](Start-WindowTranslator)
-})
+$btnTranslateLens.Enabled = $false
+$btnTranslateLens.Visible = $false
 
 $btnPdfTextZones.Add_Click({
     $script:ShowPdfTextZones = -not $script:ShowPdfTextZones
@@ -9399,18 +9638,56 @@ $btnClearGrayZones.Add_Click({
     }
 })
 
+function Update-AutoMapRegionToolButtons{
+    if($script:AutoMapRegionTextZonesButton){
+        $script:AutoMapRegionTextZonesButton.Text = if($script:ShowPdfTextZones){ "Text Zones On (T)" } else { "Text Zones Off (T)" }
+        $script:AutoMapRegionTextZonesButton.BackColor = if($script:ShowPdfTextZones){ [System.Drawing.Color]::FromArgb(214,238,255) } else { [System.Drawing.SystemColors]::Control }
+    }
+    if($script:AutoMapRegionCopyViewButton){
+        $script:AutoMapRegionCopyViewButton.Text = if($script:CopyViewOnly){ "Copy View On (C)" } else { "Copy View Off (C)" }
+        $script:AutoMapRegionCopyViewButton.BackColor = if($script:CopyViewOnly){ [System.Drawing.Color]::FromArgb(214,238,255) } else { [System.Drawing.SystemColors]::Control }
+    }
+    if($script:AutoMapRegionBalloonColorButton){
+        $script:AutoMapRegionBalloonColorButton.Text = "Auto Balloon: " + [string]$script:BalloonColorPreset
+    }
+}
+
+function Toggle-QuickTextZoneView{
+    if($btnPdfTextZones){
+        $btnPdfTextZones.PerformClick()
+    }
+    else{
+        $script:ShowPdfTextZones = -not $script:ShowPdfTextZones
+        Update-PdfTextZonesButton
+        Request-CanvasRedraw
+    }
+    if($script:AutoMapRegionMode){
+        Refresh-AutoMapPreparedCandidatesFromCurrentZones
+    }
+    Update-AutoMapRegionToolButtons
+}
+
+function Toggle-QuickCopyView{
+    $script:CopyViewOnly = -not $script:CopyViewOnly
+    Update-CopyViewButton
+    Update-AutoMapRegionToolButtons
+    Request-CanvasRedraw
+}
+
+function Cycle-AutoBalloonColorPreset{
+    $presets = @("White","Yellow","Blue","Green","Orange")
+    $currentIndex = [Array]::IndexOf($presets,[string]$script:BalloonColorPreset)
+    if($currentIndex -lt 0){ $currentIndex = 0 }
+    $nextIndex = ($currentIndex + 1) % $presets.Count
+    Set-BalloonColorPreset $presets[$nextIndex]
+}
+
 if($miAdvanceTemplate){
     $miAdvanceTemplate.Add_Click({ $btnTemplate.PerformClick() })
 }
 if($miAdvanceTranslate){
-    $miAdvanceTranslate.Add_Click({
-        if($script:TranslateLensEnabled){
-            Set-TranslateLensEnabled $false
-        }
-        else{
-            Set-TranslateLensEnabled $true
-        }
-    })
+    $miAdvanceTranslate.Visible = $false
+    $miAdvanceTranslate.Enabled = $false
 }
 if($miAdvanceEditSteps){
     $miAdvanceEditSteps.Add_Click({ $btnEditStep.PerformClick() })
@@ -9438,6 +9715,21 @@ if($miAdvanceSampleAutoFill){
         $script:InspectionSampleAutoFillEnabled = -not $script:InspectionSampleAutoFillEnabled
         Update-InspectionSampleAutoFillButton
         Save-SessionState
+    })
+}
+if($miAdvanceBulkAiRecovery){
+    $miAdvanceBulkAiRecovery.Add_Click({
+        try{
+            Show-BulkAiRecoveryWindow
+        }
+        catch{
+            Show-BulkAiRecoveryError "Bulk recovery menu click" $_.Exception
+        }
+    })
+}
+if($miAdvanceCapturePromptArea){
+    $miAdvanceCapturePromptArea.Add_Click({
+        Capture-GoogleAiPromptArea
     })
 }
 if($miAdvanceRotatePage){
@@ -9488,12 +9780,6 @@ $form.Add_KeyDown({
             return
         }
 
-        if($script:TranslateLensEnabled){
-            Set-TranslateLensEnabled $false
-            $_.SuppressKeyPress = $true
-            return
-        }
-
         if($script:selectionRect){
             $script:selectionRect = $null
             Clear-PreviewImage
@@ -9528,14 +9814,6 @@ $form.Add_KeyDown({
         }
     }
 
-    if((-not (Test-TextInputActive)) -and $_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::R){
-        if($table.SelectedRows.Count -gt 0){
-            Invoke-AiVisionRescanSelectedStep
-            $_.SuppressKeyPress = $true
-            return
-        }
-    }
-
     if((-not (Test-TextInputActive)) -and $_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::B){
         Toggle-DrawSidePanel
         $_.SuppressKeyPress = $true
@@ -9548,6 +9826,12 @@ $form.Add_KeyDown({
             $_.SuppressKeyPress = $true
             return
         }
+    }
+
+    if((-not (Test-TextInputActive)) -and $_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::P){
+        Invoke-PrintCurrentMarkedDrawing
+        $_.SuppressKeyPress = $true
+        return
     }
 
     if($_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::Z){
@@ -9601,15 +9885,21 @@ $form.Add_KeyDown({
         }
     }
 
+    if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::T){
+        Toggle-QuickTextZoneView
+        $_.SuppressKeyPress = $true
+        return
+    }
+
+    if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::C){
+        Toggle-QuickCopyView
+        $_.SuppressKeyPress = $true
+        return
+    }
+
     if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt){
         if($_.KeyCode -eq [System.Windows.Forms.Keys]::B){
             if(Set-SelectedStepToolState "B"){
-                $_.SuppressKeyPress = $true
-                return
-            }
-        }
-        if($_.KeyCode -eq [System.Windows.Forms.Keys]::C){
-            if(Set-SelectedStepToolState "C"){
                 $_.SuppressKeyPress = $true
                 return
             }
@@ -9672,10 +9962,6 @@ $picture.Add_MouseEnter({
 })
 
 $picture.Add_MouseLeave({
-    if($script:TranslateLensEnabled){
-        Clear-TranslateLensResult
-        Request-CanvasRedraw
-    }
     if(-not $script:isPanning){
         Update-CanvasCursor
     }
@@ -9725,8 +10011,37 @@ $picture.Add_MouseDown({
     $mx = $imagePoint.X
     $my = $imagePoint.Y
 
-    if($script:TranslateLensEnabled){
-        Request-TranslateLensRefresh $imagePoint
+    if($script:AutoMapRegionMode -and $_.Button -eq [System.Windows.Forms.MouseButtons]::Left){
+        if($script:ShowPdfTextZones){
+            $zoneHit = Get-TextZoneHit $imagePoint
+            if($zoneHit){
+                $script:SelectedTextZoneIndex = [int]$zoneHit.Index
+                $script:IsDraggingTextZone = $true
+                $script:TextZoneDragMode = [string]$zoneHit.Mode
+                $script:TextZoneDragStartPoint = $imagePoint
+                $zoneRect = $script:PdfTextLayerZones[$script:SelectedTextZoneIndex].Rect
+                $script:TextZoneDragStartRect = New-Object Drawing.Rectangle($zoneRect.X,$zoneRect.Y,$zoneRect.Width,$zoneRect.Height)
+                Set-InteractiveCanvasMode $true
+                $picture.Capture = $true
+                Request-CanvasRedraw
+                return
+            }
+        }
+
+        Set-InteractiveCanvasMode $true
+        Clear-SelectedMark
+        Clear-HiddenTextZoneHover
+        $script:dragging = $true
+        $script:startPoint = $imagePoint
+        $script:endPoint = $imagePoint
+        $picture.Capture = $true
+        $script:selectionRect = New-Object Drawing.RectangleF(
+            [float]$imagePoint.X,
+            [float]$imagePoint.Y,
+            0.0,
+            0.0
+        )
+        Request-CanvasRedraw
         return
     }
 
@@ -9972,10 +10287,6 @@ $picture.Add_MouseMove({
     }
     else{
         $imagePoint = Clamp-ImagePointToBitmap (Convert-ScreenPointToImagePoint $_.Location)
-        if($script:TranslateLensEnabled){
-            Request-TranslateLensRefresh $imagePoint
-            return
-        }
         Update-HiddenTextZoneHoverFromPoint $imagePoint
     }
 
@@ -9984,7 +10295,6 @@ $picture.Add_MouseMove({
 
 $picture.Add_MouseDoubleClick({
     if(!$script:sourceBitmap){ return }
-    if($script:TranslateLensEnabled){ return }
     if($_.Button -ne [System.Windows.Forms.MouseButtons]::Left){ return }
     $imagePoint = Clamp-ImagePointToBitmap (Convert-ScreenPointToImagePoint $_.Location)
     Update-HiddenTextZoneHoverFromPoint $imagePoint
@@ -10063,8 +10373,23 @@ $picture.Add_MouseUp({
         Set-InteractiveCanvasMode $false
         $picture.Capture = $false
         if($script:SelectedTextZoneIndex -ge 0 -and $script:SelectedTextZoneIndex -lt @($script:PdfTextLayerZones).Count){
-            Update-TextZoneReviewAtIndex $script:SelectedTextZoneIndex -ForceFresh
+            Save-CurrentPageTextZoneCache
+            Queue-SessionStateSave
         }
+        Refresh-AutoMapPreparedCandidatesFromCurrentZones
+        Request-CanvasRedraw
+        return
+    }
+
+    if($script:AutoMapRegionMode){
+        if($runSelectionAction){
+            Add-AutoMapRegionFromSelection $script:selectionRect
+        }
+        else{
+            $script:selectionRect = $null
+        }
+        Clear-PreviewImage
+        Update-CanvasCursor
         Request-CanvasRedraw
         return
     }
@@ -10118,6 +10443,7 @@ $picture.Add_Paint({
     )
 
     Draw-PdfTextLayerZones $g
+    Draw-AutoMapRegionDuplicateWarnings $g
     Draw-HiddenTextZoneSuggestion $g
     if($script:CurrentHighlightStroke){
         $previewStroke = @($script:HighlightStrokes)
@@ -10137,10 +10463,12 @@ $picture.Add_Paint({
 
     $overlayWidth = [float][Math]::Max(1.0,(2.25 / [Math]::Max($script:zoom,0.0001)))
 
+    Draw-AutoMapRegions $g
+
     # ===== DRAW OCR SELECTION RECTANGLE =====
     if($script:selectionRect){
 
-        $selectionColor = [Drawing.Color]::Red
+        $selectionColor = if($script:AutoMapRegionMode){ [Drawing.Color]::DodgerBlue } else { [Drawing.Color]::Red }
         $fillBrush = New-Object Drawing.SolidBrush ([Drawing.Color]::FromArgb(38,$selectionColor))
         $pen = New-Object Drawing.Pen($selectionColor,$overlayWidth)
         $pen.LineJoin = [Drawing.Drawing2D.LineJoin]::Round
@@ -10203,7 +10531,6 @@ $picture.Add_Paint({
     # Draw balloons in image space; the active transform turns them into a WYSIWYG zoomed preview.
     Draw-MarkBalloons $g 1.0 $true $script:CopyViewOnly
     $g.ResetTransform()
-    Draw-TranslateLensOverlay $g
     $matrix.Dispose()
 })
 # =========================
@@ -12341,6 +12668,14 @@ function Initialize-RapidOcrNetForAutoOcr{
             }
         }
 
+        $nativeSearchParts = @($nativeRoot,$skiaNativeRoot) | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) -and (Test-Path -LiteralPath $_) }
+        foreach($nativeSearchPart in $nativeSearchParts){
+            if((";" + [string]$env:PATH + ";") -notlike ("*;" + [string]$nativeSearchPart + ";*")){
+                $env:PATH = [string]$nativeSearchPart + ";" + [string]$env:PATH
+            }
+        }
+        try{ [System.IO.Directory]::SetCurrentDirectory($script:AppRoot) } catch{}
+
         [System.Runtime.InteropServices.NativeLibrary]::Load((Join-Path $nativeRoot "onnxruntime_providers_shared.dll")) | Out-Null
         [System.Runtime.InteropServices.NativeLibrary]::Load((Join-Path $nativeRoot "onnxruntime.dll")) | Out-Null
         [System.Runtime.InteropServices.NativeLibrary]::Load((Join-Path $skiaNativeRoot "libSkiaSharp.dll")) | Out-Null
@@ -13150,7 +13485,8 @@ function Get-AutoOcrMapRectKey($mapRect){
         }
     }
 
-    return ("{0}:{1},{2},{3},{4}" -f $pagePart,[int]$mapRect.X,[int]$mapRect.Y,[int]$mapRect.Width,[int]$mapRect.Height)
+    $schemaPart = if([string]::IsNullOrWhiteSpace([string]$script:TextZoneCacheSchemaVersion)){ "tz-v1" } else { [string]$script:TextZoneCacheSchemaVersion }
+    return ("{0}:{1}:{2},{3},{4},{5}" -f $schemaPart,$pagePart,[int]$mapRect.X,[int]$mapRect.Y,[int]$mapRect.Width,[int]$mapRect.Height)
 }
 
 function Clear-ImageOcrAutoCache{
@@ -13240,7 +13576,7 @@ function Convert-PdfTextLayerBlocksToZones($blocks){
         }
     }
 
-    return @($zones)
+    return @(Compress-PdfTextLayerZones $zones)
 }
 
 function Convert-ImageOcrCandidatesToZones($candidates){
@@ -13277,6 +13613,13 @@ function Convert-TextZonesToAutoMapCandidates($zones){
         }
         else{
             ""
+        }
+        if($zoneSource -eq "MarkStep"){ continue }
+        if(
+            $zone.PSObject.Properties.Name -contains "HiddenSuggestAccepted" -and
+            [bool]$zone.HiddenSuggestAccepted
+        ){
+            continue
         }
         $zoneOriginalSource = if($zone.PSObject.Properties.Name -contains "OriginalZoneSource" -and -not [string]::IsNullOrWhiteSpace([string]$zone.OriginalZoneSource)){
             [string]$zone.OriginalZoneSource
@@ -13359,6 +13702,7 @@ function Convert-TextZonesToAutoMapCandidates($zones){
             Tolerance = $tolerance
             Source = "TextZoneLabel"
             OriginalZoneSource = $zoneOriginalSource
+            ZoneIndex = [int](@($zones).IndexOf($zone))
         }
     }
 
@@ -13419,6 +13763,15 @@ function Add-OrUpdate-MarkStepTextZone($row,$stepIndex,$rect,$nominal,$rawText,$
     foreach($existing in @($script:PdfTextLayerZones)){
         if(
             $existing -and
+            $existing.Rect -and
+            $existing.PSObject.Properties.Name -contains "Source" -and
+            [string]$existing.Source -ne "MarkStep" -and
+            (Test-RectSameRegion $existing.Rect $rect 0.60)
+        ){
+            $existing | Add-Member -NotePropertyName HiddenSuggestAccepted -NotePropertyValue $true -Force
+        }
+        if(
+            $existing -and
             $existing.PSObject.Properties.Name -contains "Source" -and [string]$existing.Source -eq "MarkStep" -and
             $existing.PSObject.Properties.Name -contains "MarkStepIndex" -and [int]$existing.MarkStepIndex -eq [int]$stepIndex
         ){
@@ -13433,6 +13786,42 @@ function Add-OrUpdate-MarkStepTextZone($row,$stepIndex,$rect,$nominal,$rawText,$
     $script:PdfTextLayerZones = @($newZones)
     Save-CurrentPageTextZoneCache
     return $true
+}
+
+function Hide-AcceptedTextZonesCoveredByMarkSteps{
+    if(!$script:PdfTextLayerZones -or @($script:PdfTextLayerZones).Count -le 0){ return 0 }
+
+    $markZones = @(
+        $script:PdfTextLayerZones |
+        Where-Object {
+            $_ -and $_.Rect -and
+            $_.PSObject.Properties.Name -contains "Source" -and
+            [string]$_.Source -eq "MarkStep"
+        }
+    )
+    if($markZones.Count -le 0){ return 0 }
+
+    $updated = 0
+    foreach($zone in @($script:PdfTextLayerZones)){
+        if(!$zone -or !$zone.Rect){ continue }
+        $zoneSource = if($zone.PSObject.Properties.Name -contains "Source"){ [string]$zone.Source } else { "" }
+        if($zoneSource -eq "MarkStep"){ continue }
+        if($zone.PSObject.Properties.Name -contains "HiddenSuggestAccepted" -and [bool]$zone.HiddenSuggestAccepted){ continue }
+
+        foreach($markZone in @($markZones)){
+            $compareRect = if($markZone.PSObject.Properties.Name -contains "OriginalRect" -and $markZone.OriginalRect){ $markZone.OriginalRect } else { $markZone.Rect }
+            if(Test-RectSameRegion $zone.Rect $compareRect 0.60){
+                $zone | Add-Member -NotePropertyName HiddenSuggestAccepted -NotePropertyValue $true -Force
+                $updated++
+                break
+            }
+        }
+    }
+
+    if($updated -gt 0){
+        Save-CurrentPageTextZoneCache
+    }
+    return $updated
 }
 
 function Convert-MarkStepToleranceCellToDouble($value){
@@ -13854,6 +14243,9 @@ function Set-HiddenCandidateDuplicateInfo($candidate){
     }
 
     $match = Get-CandidateTableDuplicateMatch $candidate
+    if(!$match -and $script:AutoMapRegionMode){
+        $match = Get-AutoMapRegionDuplicateMatch $candidate
+    }
     if($match){
         $candidate | Add-Member -NotePropertyName DuplicateMatch -NotePropertyValue $match -Force
         $script:SelectedDuplicateAnchorStep = [string]$match.Step
@@ -14523,6 +14915,99 @@ function Test-TextZonePreviewDuplicate($candidate,$existingZones){
     return $false
 }
 
+function Get-PdfTextLayerZoneScore($zone){
+    if(!$zone){ return -1000000.0 }
+
+    $score = 0.0
+    $text = if($zone.PSObject.Properties.Name -contains "Text"){ [string]$zone.Text } else { "" }
+    $nominal = if($zone.PSObject.Properties.Name -contains "Nominal"){ [string]$zone.Nominal } else { "" }
+    $isDimension = ($zone.PSObject.Properties.Name -contains "IsDimension" -and [bool]$zone.IsDimension)
+
+    if($isDimension){ $score += 80.0 }
+    if(-not [string]::IsNullOrWhiteSpace($nominal)){ $score += 30.0 }
+    if(Test-ExplicitToleranceText $text){ $score += 25.0 }
+    if($zone.PSObject.Properties.Name -contains "Tolerance" -and $zone.Tolerance -and $zone.Tolerance.Detected){ $score += 22.0 }
+    if($text -match '[±]'){ $score += 18.0 }
+    if($text -match '[+\-]\s*0?\.\d+'){ $score += 12.0 }
+
+    if($zone.Rect){
+        $area = [double]$zone.Rect.Width * [double]$zone.Rect.Height
+        $score += [Math]::Min(18.0,($area / 6500.0))
+    }
+
+    $plainNominal = ([string]$nominal) -replace '^[RCØΦ]',''
+    $nominalValue = 0.0
+    if([double]::TryParse($plainNominal,[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$nominalValue)){
+        if([Math]::Abs($nominalValue) -lt 0.1 -and $text -match '[+\-±]'){
+            $score -= 22.0
+        }
+    }
+
+    return $score
+}
+
+function Test-PdfTextLayerZoneDuplicate($candidate,$existing){
+    if(!$candidate -or !$candidate.Rect -or !$existing -or !$existing.Rect){ return $false }
+
+    $left = [Math]::Max($existing.Rect.Left,$candidate.Rect.Left)
+    $top = [Math]::Max($existing.Rect.Top,$candidate.Rect.Top)
+    $right = [Math]::Min($existing.Rect.Right,$candidate.Rect.Right)
+    $bottom = [Math]::Min($existing.Rect.Bottom,$candidate.Rect.Bottom)
+    $intersection = [Math]::Max(0,($right - $left)) * [Math]::Max(0,($bottom - $top))
+    if($intersection -le 0){ return $false }
+
+    $candidateArea = [Math]::Max(1.0,([double]$candidate.Rect.Width * [double]$candidate.Rect.Height))
+    $existingArea = [Math]::Max(1.0,([double]$existing.Rect.Width * [double]$existing.Rect.Height))
+    $overlapSmaller = $intersection / [Math]::Max(1.0,[Math]::Min($candidateArea,$existingArea))
+    $candidateCovered = $intersection / $candidateArea
+    $existingCovered = $intersection / $existingArea
+
+    $candidateNominal = if($candidate.PSObject.Properties.Name -contains "Nominal"){ ([string]$candidate.Nominal).Trim().ToUpperInvariant() } else { "" }
+    $existingNominal = if($existing.PSObject.Properties.Name -contains "Nominal"){ ([string]$existing.Nominal).Trim().ToUpperInvariant() } else { "" }
+    $sameNominal = (-not [string]::IsNullOrWhiteSpace($candidateNominal) -and $candidateNominal -eq $existingNominal)
+
+    $candidateCenterX = [double]$candidate.Rect.Left + ([double]$candidate.Rect.Width / 2.0)
+    $candidateCenterY = [double]$candidate.Rect.Top + ([double]$candidate.Rect.Height / 2.0)
+    $existingCenterX = [double]$existing.Rect.Left + ([double]$existing.Rect.Width / 2.0)
+    $existingCenterY = [double]$existing.Rect.Top + ([double]$existing.Rect.Height / 2.0)
+    $centerDistance = [Math]::Sqrt([Math]::Pow(($candidateCenterX - $existingCenterX),2.0) + [Math]::Pow(($candidateCenterY - $existingCenterY),2.0))
+    $nearDistance = [Math]::Max(18.0,[Math]::Min(70.0,([Math]::Max($candidate.Rect.Width,$existing.Rect.Width) * 0.45)))
+
+    if($sameNominal -and ($overlapSmaller -gt 0.28 -or $centerDistance -lt $nearDistance)){ return $true }
+    if($overlapSmaller -gt 0.72){ return $true }
+    if($candidateCovered -gt 0.68 -and $existingArea -ge ($candidateArea * 1.25)){ return $true }
+    if($existingCovered -gt 0.68 -and $candidateArea -ge ($existingArea * 1.25)){ return $true }
+
+    return $false
+}
+
+function Compress-PdfTextLayerZones($zones){
+    $kept = @()
+    $ordered = @(
+        $zones |
+        Where-Object { $_ -and $_.Rect } |
+        Sort-Object @{ Expression = { Get-PdfTextLayerZoneScore $_ }; Descending = $true }, @{ Expression = { if($_.Rect){ [double]$_.Rect.Width * [double]$_.Rect.Height } else { 0 } }; Descending = $true }
+    )
+
+    foreach($zone in $ordered){
+        $isDuplicate = $false
+        foreach($existing in @($kept)){
+            if(Test-PdfTextLayerZoneDuplicate $zone $existing){
+                $isDuplicate = $true
+                break
+            }
+        }
+        if(-not $isDuplicate){
+            $kept += $zone
+        }
+    }
+
+    return @(
+        $kept |
+        Sort-Object @{ Expression = { $_.Rect.Y }; Descending = $false }, @{ Expression = { $_.Rect.X }; Descending = $false }
+    )
+}
+
 function Get-UnionTextZoneRect($a,$b,$pad = 6){
 
     if(!$a -or !$b){ return $null }
@@ -15023,6 +15508,14 @@ function Draw-PdfTextLayerZones($graphics){
             $zoneSource = ""
             if($zone.PSObject.Properties.Name -contains "Source"){
                 $zoneSource = [string]$zone.Source
+            }
+
+            if(
+                $zoneSource -ne "MarkStep" -and
+                $zone.PSObject.Properties.Name -contains "HiddenSuggestAccepted" -and
+                [bool]$zone.HiddenSuggestAccepted
+            ){
+                continue
             }
 
             if($zone.IsDimension){
@@ -15571,12 +16064,79 @@ function Get-ReviewedTextZoneData($rect,$previousReview = $null){
     }
 }
 
+function Update-PdfBackedTextZoneFromOriginalLabel($zone,$previousSource = ""){
+    if(!$zone){ return $false }
+
+    $labelText = ""
+    if($zone.PSObject.Properties.Name -contains "Text" -and -not [string]::IsNullOrWhiteSpace([string]$zone.Text)){
+        $labelText = [string]$zone.Text
+    }
+    elseif($zone.PSObject.Properties.Name -contains "RawText" -and -not [string]::IsNullOrWhiteSpace([string]$zone.RawText)){
+        $labelText = [string]$zone.RawText
+    }
+
+    $rawText = if($zone.PSObject.Properties.Name -contains "RawText" -and -not [string]::IsNullOrWhiteSpace([string]$zone.RawText)){
+        [string]$zone.RawText
+    }
+    else{
+        $labelText
+    }
+
+    $nominal = ""
+    if($zone.PSObject.Properties.Name -contains "Nominal" -and -not [string]::IsNullOrWhiteSpace([string]$zone.Nominal)){
+        $nominal = [string]$zone.Nominal
+    }
+    if([string]::IsNullOrWhiteSpace($nominal)){
+        $nominal = Get-PdfTextLayerNominal $labelText
+    }
+    if([string]::IsNullOrWhiteSpace($nominal)){
+        $nominal = Get-PdfTextLayerNominal $rawText
+    }
+    $nominal = Normalize-DegreeNominalSign $nominal
+
+    $tolerance = $null
+    if(-not [string]::IsNullOrWhiteSpace($nominal)){
+        if($zone.PSObject.Properties.Name -contains "Tolerance" -and $zone.Tolerance){
+            $tolerance = $zone.Tolerance
+        }
+        $tolerance = Get-PreferredTolerance $tolerance $rawText $nominal
+    }
+
+    if([string]::IsNullOrWhiteSpace($labelText)){
+        $labelText = if([string]::IsNullOrWhiteSpace($nominal)){ "Text" } else { $nominal }
+    }
+
+    $zone.Text = [string]$labelText
+    $zone.RawText = [string]$rawText
+    $zone.IsDimension = -not [string]::IsNullOrWhiteSpace($nominal)
+    $zone | Add-Member -NotePropertyName Nominal -NotePropertyValue ([string]$nominal) -Force
+    $zone | Add-Member -NotePropertyName Tolerance -NotePropertyValue $tolerance -Force
+    $zone | Add-Member -NotePropertyName ReadRect -NotePropertyValue $zone.Rect -Force
+    $zone | Add-Member -NotePropertyName Orientation -NotePropertyValue "PdfTextLayer" -Force
+    $zone | Add-Member -NotePropertyName StableScore -NotePropertyValue (Get-PdfTextLayerZoneScore $zone) -Force
+    if(-not ($zone.PSObject.Properties.Name -contains "OriginalZoneSource")){
+        $zone | Add-Member -NotePropertyName OriginalZoneSource -NotePropertyValue $(if([string]::IsNullOrWhiteSpace($previousSource)){ "PdfTextLayer" } else { [string]$previousSource }) -Force
+    }
+    elseif([string]::IsNullOrWhiteSpace([string]$zone.OriginalZoneSource)){
+        $zone.OriginalZoneSource = if([string]::IsNullOrWhiteSpace($previousSource)){ "PdfTextLayer" } else { [string]$previousSource }
+    }
+
+    if([string]::IsNullOrWhiteSpace([string]$zone.Source) -or [string]$zone.Source -eq "EditedTextZone"){
+        $zone.Source = "PdfTextLayer"
+    }
+
+    return $true
+}
+
 function Update-TextZoneReviewAtIndex($index,[switch]$ForceFresh){
     if($index -lt 0 -or $index -ge @($script:PdfTextLayerZones).Count){ return $false }
     $zone = $script:PdfTextLayerZones[$index]
     if(!$zone -or !$zone.Rect){ return $false }
     $wasPdfTextLayerBacked = Test-IsPdfTextLayerBackedZone $zone
     $previousSource = if($zone.PSObject.Properties.Name -contains "Source"){ [string]$zone.Source } else { "" }
+    if($wasPdfTextLayerBacked){
+        return (Update-PdfBackedTextZoneFromOriginalLabel $zone $previousSource)
+    }
     $previousReview = $null
     if((-not $ForceFresh) -and ($zone.PSObject.Properties.Name -contains "StableScore")){
         $previousReview = [PSCustomObject]@{
@@ -15662,10 +16222,12 @@ function Duplicate-SelectedTextZone{
         Orientation = if($zone.PSObject.Properties.Name -contains "Orientation"){ [string]$zone.Orientation } else { "Unknown" }
         StableScore = if($zone.PSObject.Properties.Name -contains "StableScore"){ [double]$zone.StableScore } else { 0 }
         Source = "DuplicatedTextZone"
+        OriginalZoneSource = if($zone.PSObject.Properties.Name -contains "OriginalZoneSource"){ [string]$zone.OriginalZoneSource } else { if($zone.PSObject.Properties.Name -contains "Source"){ [string]$zone.Source } else { "" } }
+        Nominal = if($zone.PSObject.Properties.Name -contains "Nominal"){ [string]$zone.Nominal } else { "" }
+        Tolerance = if($zone.PSObject.Properties.Name -contains "Tolerance"){ $zone.Tolerance } else { $null }
     }
     $script:SelectedTextZoneIndex = @($script:PdfTextLayerZones).Count - 1
     Save-CurrentPageTextZoneCache
-    Update-TextZoneReviewAtIndex $script:SelectedTextZoneIndex -ForceFresh | Out-Null
     Request-CanvasRedraw
     return $true
 }
@@ -15687,6 +16249,7 @@ function Remove-SelectedTextZone{
     $script:SelectedTextZoneIndex = -1
     Save-CurrentPageTextZoneCache
     Queue-SessionStateSave
+    if($script:AutoMapRegionMode){ Refresh-AutoMapPreparedCandidatesFromCurrentZones }
     Request-CanvasRedraw
     return $true
 }
@@ -15799,6 +16362,12 @@ function Add-OcrCandidateToTable($candidate){
     $table.Rows[$row].Cells[7].Value = "C"
     $table.Rows[$row].Cells[8].Value = $false
     Add-OrUpdate-MarkStepTextZone $row $index $realRect ([string]$candidate.Nominal) ([string]$candidate.RawText) $tolMinus $tolPlus | Out-Null
+    if($candidate.PSObject.Properties.Name -contains "ZoneIndex"){
+        $ziAccepted = [int]$candidate.ZoneIndex
+        if($ziAccepted -ge 0 -and $ziAccepted -lt @($script:PdfTextLayerZones).Count){
+            $script:PdfTextLayerZones[$ziAccepted] | Add-Member -NotePropertyName HiddenSuggestAccepted -NotePropertyValue $true -Force
+        }
+    }
 
     $preferTextMapBalloon = (
         $candidate.PSObject.Properties.Name -contains "Source" -and
@@ -15865,49 +16434,824 @@ function Sort-AutoMapCandidatesReadingOrder($candidates){
         24.0
     }
     $rowTolerance = [Math]::Max(18.0,[Math]::Min(72.0,($medianHeight * 1.15)))
-
-    $rows = @()
-    foreach($item in @(
+    $widths = @(
         $items |
-        Sort-Object `
-            @{ Expression = { [double]$_.Rect.Y + ([double]$_.Rect.Height / 2.0) }; Descending = $false }, `
-            @{ Expression = { [double]$_.Rect.X + ([double]$_.Rect.Width / 2.0) }; Descending = $false }
-    )){
-        $centerY = [double]$item.Rect.Y + ([double]$item.Rect.Height / 2.0)
-        $targetRow = $null
-        foreach($row in @($rows)){
-            if([Math]::Abs($centerY - [double]$row.CenterY) -le $rowTolerance){
-                $targetRow = $row
+        ForEach-Object { [double]$_.Rect.Width } |
+        Where-Object { $_ -gt 0 } |
+        Sort-Object
+    )
+    $medianWidth = if($widths.Count -gt 0){
+        [double]$widths[[int][Math]::Floor(($widths.Count - 1) / 2.0)]
+    }
+    else{
+        48.0
+    }
+
+    $clusterPadX = [Math]::Max(95.0,[Math]::Min(260.0,($medianWidth * 3.8)))
+    $clusterPadY = [Math]::Max(72.0,[Math]::Min(190.0,($medianHeight * 5.2)))
+    $nearCenterX = [Math]::Max(125.0,[Math]::Min(320.0,($medianWidth * 5.0)))
+    $nearCenterY = [Math]::Max(88.0,[Math]::Min(230.0,($medianHeight * 6.2)))
+
+    $nodes = @()
+    for($i = 0; $i -lt $items.Count; $i++){
+        $rect = $items[$i].Rect
+        $nodes += [PSCustomObject]@{
+            Index = [int]$i
+            Item = $items[$i]
+            Parent = [int]$i
+            Left = [double]$rect.Left
+            Top = [double]$rect.Top
+            Right = [double]$rect.Right
+            Bottom = [double]$rect.Bottom
+            CenterX = [double]$rect.X + ([double]$rect.Width / 2.0)
+            CenterY = [double]$rect.Y + ([double]$rect.Height / 2.0)
+            Expanded = New-Object Drawing.RectangleF(
+                [float]([double]$rect.Left - $clusterPadX),
+                [float]([double]$rect.Top - $clusterPadY),
+                [float]([double]$rect.Width + ($clusterPadX * 2.0)),
+                [float]([double]$rect.Height + ($clusterPadY * 2.0))
+            )
+        }
+    }
+
+    $findRoot = {
+        param([int]$idx)
+        while([int]$nodes[$idx].Parent -ne $idx){
+            $nodes[$idx].Parent = [int]$nodes[[int]$nodes[$idx].Parent].Parent
+            $idx = [int]$nodes[$idx].Parent
+        }
+        return [int]$idx
+    }
+    $unionNodes = {
+        param([int]$a,[int]$b)
+        $ra = & $findRoot $a
+        $rb = & $findRoot $b
+        if($ra -ne $rb){
+            $nodes[$rb].Parent = [int]$ra
+        }
+    }
+
+    for($i = 0; $i -lt $nodes.Count; $i++){
+        for($j = $i + 1; $j -lt $nodes.Count; $j++){
+            $dx = [Math]::Abs([double]$nodes[$i].CenterX - [double]$nodes[$j].CenterX)
+            $dy = [Math]::Abs([double]$nodes[$i].CenterY - [double]$nodes[$j].CenterY)
+            $expandedTouches = [bool]$nodes[$i].Expanded.IntersectsWith($nodes[$j].Expanded)
+            $nearSameDrawingArea = [bool]($dx -le $nearCenterX -and $dy -le $nearCenterY)
+            if($expandedTouches -or $nearSameDrawingArea){
+                & $unionNodes $i $j
+            }
+        }
+    }
+
+    $clusterMap = @{}
+    foreach($node in @($nodes)){
+        $root = [string](& $findRoot ([int]$node.Index))
+        if(-not $clusterMap.ContainsKey($root)){
+            $clusterMap[$root] = [PSCustomObject]@{
+                MinX = [double]$node.Left
+                MinY = [double]$node.Top
+                MaxX = [double]$node.Right
+                MaxY = [double]$node.Bottom
+                CenterX = [double]$node.CenterX
+                CenterY = [double]$node.CenterY
+                Items = @()
+            }
+        }
+        $cluster = $clusterMap[$root]
+        $cluster.Items += $node.Item
+        $cluster.MinX = [Math]::Min([double]$cluster.MinX,[double]$node.Left)
+        $cluster.MinY = [Math]::Min([double]$cluster.MinY,[double]$node.Top)
+        $cluster.MaxX = [Math]::Max([double]$cluster.MaxX,[double]$node.Right)
+        $cluster.MaxY = [Math]::Max([double]$cluster.MaxY,[double]$node.Bottom)
+        $cluster.CenterX = ([double]$cluster.MinX + [double]$cluster.MaxX) / 2.0
+        $cluster.CenterY = ([double]$cluster.MinY + [double]$cluster.MaxY) / 2.0
+    }
+
+    $regionRows = @()
+    $clusterRowTolerance = [Math]::Max(130.0,[Math]::Min(280.0,($medianHeight * 8.0)))
+    foreach($cluster in @($clusterMap.Values | Sort-Object MinY, MinX)){
+        $row = $null
+        foreach($candidateRow in @($regionRows)){
+            $verticalOverlap = [Math]::Min([double]$candidateRow.MaxY,[double]$cluster.MaxY) - [Math]::Max([double]$candidateRow.MinY,[double]$cluster.MinY)
+            $centerDelta = [Math]::Abs([double]$cluster.CenterY - [double]$candidateRow.CenterY)
+            if($verticalOverlap -gt 0 -or $centerDelta -le $clusterRowTolerance){
+                $row = $candidateRow
                 break
             }
         }
-        if(!$targetRow){
-            $targetRow = [PSCustomObject]@{
-                CenterY = $centerY
-                Items = @()
+        if(!$row){
+            $row = [PSCustomObject]@{
+                MinY = [double]$cluster.MinY
+                MaxY = [double]$cluster.MaxY
+                CenterY = [double]$cluster.CenterY
+                Clusters = @()
             }
-            $rows += $targetRow
+            $regionRows += $row
         }
-        $targetRow.Items += $item
-        $targetRow.CenterY = (@($targetRow.Items | ForEach-Object { [double]$_.Rect.Y + ([double]$_.Rect.Height / 2.0) }) | Measure-Object -Average).Average
+        $row.Clusters += $cluster
+        $row.MinY = [Math]::Min([double]$row.MinY,[double]$cluster.MinY)
+        $row.MaxY = [Math]::Max([double]$row.MaxY,[double]$cluster.MaxY)
+        $row.CenterY = ([double]$row.MinY + [double]$row.MaxY) / 2.0
     }
 
     $ordered = @()
-    foreach($row in @($rows | Sort-Object CenterY)){
-        $ordered += @(
-            $row.Items |
+    foreach($regionRow in @($regionRows | Sort-Object MinY, CenterY)){
+        foreach($region in @($regionRow.Clusters | Sort-Object MinX, CenterX)){
+        $rows = @()
+        foreach($item in @(
+            $region.Items |
             Sort-Object `
-                @{ Expression = { [double]$_.Rect.X + ([double]$_.Rect.Width / 2.0) }; Descending = $false }, `
-                @{ Expression = {
-                    if($_.PSObject.Properties.Name -contains "BboxItemIndex"){
-                        return [int]$_.BboxItemIndex
-                    }
-                    return 0
-                }; Descending = $false }
-        )
+                @{ Expression = { [double]$_.Rect.Y + ([double]$_.Rect.Height / 2.0) }; Descending = $false }, `
+                @{ Expression = { [double]$_.Rect.X + ([double]$_.Rect.Width / 2.0) }; Descending = $false }
+        )){
+            $centerY = [double]$item.Rect.Y + ([double]$item.Rect.Height / 2.0)
+            $targetRow = $null
+            foreach($row in @($rows)){
+                if([Math]::Abs($centerY - [double]$row.CenterY) -le $rowTolerance){
+                    $targetRow = $row
+                    break
+                }
+            }
+            if(!$targetRow){
+                $targetRow = [PSCustomObject]@{
+                    CenterY = $centerY
+                    Items = @()
+                }
+                $rows += $targetRow
+            }
+            $targetRow.Items += $item
+            $targetRow.CenterY = (@($targetRow.Items | ForEach-Object { [double]$_.Rect.Y + ([double]$_.Rect.Height / 2.0) }) | Measure-Object -Average).Average
+        }
+
+        foreach($row in @($rows | Sort-Object CenterY)){
+            $ordered += @(
+                $row.Items |
+                Sort-Object `
+                    @{ Expression = { [double]$_.Rect.X + ([double]$_.Rect.Width / 2.0) }; Descending = $false }, `
+                    @{ Expression = {
+                        if($_.PSObject.Properties.Name -contains "BboxItemIndex"){
+                            return [int]$_.BboxItemIndex
+                        }
+                        return 0
+                    }; Descending = $false }
+            )
+        }
+    }
     }
 
     return @($ordered)
+}
+
+function Get-CandidateRectCenterPoint($candidate){
+    if(!$candidate -or !$candidate.Rect){ return $null }
+    return New-Object Drawing.PointF(
+        [float]([double]$candidate.Rect.X + ([double]$candidate.Rect.Width / 2.0)),
+        [float]([double]$candidate.Rect.Y + ([double]$candidate.Rect.Height / 2.0))
+    )
+}
+
+function Test-CandidateInsideAutoMapRegion($candidate,$region){
+    if(!$candidate -or !$candidate.Rect -or !$region){ return $false }
+    $center = Get-CandidateRectCenterPoint $candidate
+    if($center -and $region.Contains([float]$center.X,[float]$center.Y)){ return $true }
+
+    $candidateRect = New-Object Drawing.RectangleF(
+        [float]$candidate.Rect.X,
+        [float]$candidate.Rect.Y,
+        [float]$candidate.Rect.Width,
+        [float]$candidate.Rect.Height
+    )
+    $intersection = [Drawing.RectangleF]::Intersect($candidateRect,$region)
+    if($intersection.Width -le 0 -or $intersection.Height -le 0){ return $false }
+
+    $candidateArea = [double]([Math]::Max(1.0,$candidateRect.Width) * [Math]::Max(1.0,$candidateRect.Height))
+    $intersectionArea = [double]($intersection.Width * $intersection.Height)
+    return (($intersectionArea / $candidateArea) -ge 0.35)
+}
+
+function Get-AutoMapCandidateIdentity($candidate){
+    if(!$candidate){ return "" }
+    if($candidate.PSObject.Properties.Name -contains "ZoneIndex"){
+        return ("zone:" + [string][int]$candidate.ZoneIndex)
+    }
+    if($candidate.Rect){
+        return ("rect:{0}:{1}:{2}:{3}:{4}" -f [int]$candidate.Rect.X,[int]$candidate.Rect.Y,[int]$candidate.Rect.Width,[int]$candidate.Rect.Height,[string]$candidate.Nominal)
+    }
+    return ([string]$candidate.Nominal + "|" + [string]$candidate.RawText)
+}
+
+function Get-AutoMapCandidatesByRegions($candidates,$regions){
+    $ordered = @()
+    $seen = @{}
+    foreach($region in @($regions)){
+        $inside = @(
+            @($candidates) |
+            Where-Object { Test-CandidateInsideAutoMapRegion $_ $region }
+        )
+        $inside = @(Sort-AutoMapCandidatesReadingOrder $inside)
+        foreach($candidate in @($inside)){
+            $key = Get-AutoMapCandidateIdentity $candidate
+            if([string]::IsNullOrWhiteSpace($key)){ continue }
+            if($seen.ContainsKey($key)){ continue }
+            $seen[$key] = $true
+            $ordered += $candidate
+        }
+    }
+    return @($ordered)
+}
+
+function Test-AutoMapCandidateDuplicateVisual($candidate,$existing){
+    if(!$candidate -or !$existing -or !$candidate.Rect -or !$existing.Rect){ return $false }
+
+    $candidateKey = Get-AutoMapCandidateDuplicateKey $candidate
+    $existingKey = Get-AutoMapCandidateDuplicateKey $existing
+    if([string]::IsNullOrWhiteSpace($candidateKey) -or [string]::IsNullOrWhiteSpace($existingKey)){ return $false }
+    if($candidateKey -ne $existingKey){ return $false }
+
+    return $true
+}
+
+function Get-AutoMapCandidateDuplicateKey($candidate){
+    if(!$candidate -or [string]::IsNullOrWhiteSpace([string]$candidate.Nominal)){ return "" }
+
+    $tolMinus = $null
+    $tolPlus = $null
+    if($candidate.PSObject.Properties.Name -contains "Tolerance" -and $candidate.Tolerance -and $candidate.Tolerance.Detected){
+        $tolMinus = $candidate.Tolerance.TolMinus
+        $tolPlus = $candidate.Tolerance.TolPlus
+    }
+    else{
+        $rawText = if($candidate.PSObject.Properties.Name -contains "LabelText" -and -not [string]::IsNullOrWhiteSpace([string]$candidate.LabelText)){ [string]$candidate.LabelText } else { [string]$candidate.RawText }
+        $parsedTol = Parse-ToleranceFull $rawText ([string]$candidate.Nominal)
+        if($parsedTol -and $parsedTol.Detected){
+            $tolMinus = $parsedTol.TolMinus
+            $tolPlus = $parsedTol.TolPlus
+        }
+        else{
+            $fallbackTol = Get-GeneralToleranceForNominal ([string]$candidate.Nominal)
+            $tolMinus = $fallbackTol.TolMinus
+            $tolPlus = $fallbackTol.TolPlus
+        }
+    }
+
+    if($null -eq $tolMinus){ $tolMinus = 0 }
+    if($null -eq $tolPlus){ $tolPlus = 0 }
+
+    return (
+        ([string]$candidate.Nominal).Trim().ToUpperInvariant() +
+        [char]31 +
+        (Format-InvariantSignedTolerance $tolMinus) +
+        [char]31 +
+        (Format-InvariantSignedTolerance $tolPlus)
+    )
+}
+
+function Get-AutoMapRegionDuplicateMatch($candidate){
+    if(!$script:AutoMapRegionMode -or !$candidate -or !$candidate.Rect){ return $null }
+
+    $items = @($script:AutoMapPreparedCandidates | Where-Object { $_ -and $_.Rect })
+    if($items.Count -le 1){ return $null }
+
+    $candidateKey = Get-AutoMapCandidateIdentity $candidate
+    foreach($other in @($items)){
+        if(!$other -or !$other.Rect){ continue }
+        $otherKey = Get-AutoMapCandidateIdentity $other
+        if($candidateKey -eq $otherKey){ continue }
+        if(-not (Test-AutoMapCandidateDuplicateVisual $candidate $other)){ continue }
+
+        $label = "bbox"
+        if($other.PSObject.Properties.Name -contains "ZoneIndex"){
+            $label = "bbox " + [string]([int]$other.ZoneIndex + 1)
+        }
+
+        return [PSCustomObject]@{
+            RowIndex = -1
+            Step = $label
+            Rect = $other.Rect
+            TolMinus = if($other.PSObject.Properties.Name -contains "Tolerance" -and $other.Tolerance){ $other.Tolerance.TolMinus } else { $null }
+            TolPlus = if($other.PSObject.Properties.Name -contains "Tolerance" -and $other.Tolerance){ $other.Tolerance.TolPlus } else { $null }
+            Key = "automap-region-duplicate"
+        }
+    }
+
+    return $null
+}
+
+function Get-AutoMapRegionDuplicateWarnings{
+    if(!$script:AutoMapRegionMode){ return @() }
+
+    Refresh-AutoMapPreparedCandidatesFromCurrentZones -SkipStatus
+    $regions = @($script:AutoMapRegions)
+    $candidates = @($script:AutoMapPreparedCandidates | Where-Object { $_ -and $_.Rect })
+    if($regions.Count -le 0 -or $candidates.Count -le 1){ return @() }
+
+    $warnings = @()
+    $warned = @{}
+    for($regionIndex = 0; $regionIndex -lt $regions.Count; $regionIndex++){
+        $region = $regions[$regionIndex]
+        $inside = @($candidates | Where-Object { Test-CandidateInsideAutoMapRegion $_ $region })
+        if($inside.Count -le 1){ continue }
+
+        for($i = 0; $i -lt $inside.Count; $i++){
+            for($j = $i + 1; $j -lt $inside.Count; $j++){
+                if(-not (Test-AutoMapCandidateDuplicateVisual $inside[$i] $inside[$j])){ continue }
+
+                foreach($pair in @(
+                    @{ Candidate = $inside[$i]; Other = $inside[$j] },
+                    @{ Candidate = $inside[$j]; Other = $inside[$i] }
+                )){
+                    $candidate = $pair.Candidate
+                    $other = $pair.Other
+                    $key = ([string]$regionIndex + "|" + (Get-AutoMapCandidateIdentity $candidate))
+                    if($warned.ContainsKey($key)){ continue }
+                    $warned[$key] = $true
+
+                    $otherLabel = "bbox"
+                    if($other.PSObject.Properties.Name -contains "ZoneIndex"){
+                        $otherLabel = "bbox " + [string]([int]$other.ZoneIndex + 1)
+                    }
+
+                    $warnings += [PSCustomObject]@{
+                        RegionIndex = [int]$regionIndex
+                        Candidate = $candidate
+                        Rect = $candidate.Rect
+                        OtherRect = $other.Rect
+                        OtherLabel = $otherLabel
+                    }
+                }
+            }
+        }
+    }
+
+    return @($warnings)
+}
+
+function Update-AutoMapRegionDuplicateWarnings{
+    if(!$script:AutoMapRegionMode){
+        $script:AutoMapRegionDuplicateWarnings = @()
+        return
+    }
+    $script:AutoMapRegionDuplicateWarnings = @(Get-AutoMapRegionDuplicateWarnings)
+}
+
+function Draw-AutoMapRegionDuplicateWarnings($graphics){
+    if(!$graphics -or !$script:AutoMapRegionMode){ return }
+    $warnings = @($script:AutoMapRegionDuplicateWarnings)
+    if($warnings.Count -le 0){ return }
+
+    $zoomSafe = [Math]::Max([double]$script:zoom,0.0001)
+    $pen = New-Object Drawing.Pen([Drawing.Color]::FromArgb(255,255,112,0),[float][Math]::Max(1.8,(4.0 / $zoomSafe)))
+    $ghostPen = New-Object Drawing.Pen([Drawing.Color]::FromArgb(255,255,112,0),[float][Math]::Max(1.3,(2.8 / $zoomSafe)))
+    $brush = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(95,255,220,0))
+    $labelBack = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(235,255,112,0))
+    $labelBrush = New-Object Drawing.SolidBrush([Drawing.Color]::White)
+    $font = New-Object Drawing.Font("Segoe UI",[float][Math]::Max(7.5,(12.0 / $zoomSafe)),[Drawing.FontStyle]::Bold)
+
+    try{
+        foreach($warning in @($warnings)){
+            if(!$warning -or !$warning.Rect){ continue }
+            $r = $warning.Rect
+            $graphics.FillRectangle($brush,$r)
+            $graphics.DrawRectangle($pen,$r.X,$r.Y,$r.Width,$r.Height)
+
+            if($warning.OtherRect){
+                $graphics.DrawRectangle($ghostPen,$warning.OtherRect)
+            }
+
+            $label = "DUP " + [string]$warning.OtherLabel
+            $labelSize = $graphics.MeasureString($label,$font)
+            $pad = [float](3.0 / $zoomSafe)
+            $labelRect = New-Object Drawing.RectangleF(
+                [float]$r.X,
+                [float]([double]$r.Y - [double]$labelSize.Height - ($pad * 2.0)),
+                [float]([double]$labelSize.Width + ($pad * 2.0)),
+                [float]([double]$labelSize.Height + ($pad * 2.0))
+            )
+            if($labelRect.Y -lt 0){ $labelRect.Y = [float]$r.Y }
+            $graphics.FillRectangle($labelBack,$labelRect)
+            $graphics.DrawString($label,$font,$labelBrush,[float]($labelRect.X + $pad),[float]($labelRect.Y + $pad))
+        }
+    }
+    finally{
+        $font.Dispose()
+        $labelBrush.Dispose()
+        $labelBack.Dispose()
+        $brush.Dispose()
+        $ghostPen.Dispose()
+        $pen.Dispose()
+    }
+}
+
+function Draw-AutoMapRegions($graphics){
+    if(!$graphics -or !$script:AutoMapRegionMode){ return }
+
+    $regions = @($script:AutoMapRegions)
+    if($regions.Count -le 0){ return }
+
+    $zoomSafe = [Math]::Max([double]$script:zoom,0.0001)
+    $penWidth = [float][Math]::Max(1.4,(3.0 / $zoomSafe))
+    $fontSize = [float][Math]::Max(8.0,(13.0 / $zoomSafe))
+    $pen = New-Object Drawing.Pen([Drawing.Color]::FromArgb(255,0,120,215),$penWidth)
+    $brush = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(34,[Drawing.Color]::DodgerBlue))
+    $labelBack = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(230,[Drawing.Color]::DodgerBlue))
+    $labelBrush = New-Object Drawing.SolidBrush([Drawing.Color]::White)
+    $font = New-Object Drawing.Font("Segoe UI",$fontSize,[Drawing.FontStyle]::Bold)
+
+    try{
+        for($i = 0; $i -lt $regions.Count; $i++){
+            $r = $regions[$i]
+            if(!$r){ continue }
+            $graphics.FillRectangle($brush,$r)
+            $graphics.DrawRectangle($pen,$r.X,$r.Y,$r.Width,$r.Height)
+
+            $label = "Region " + [string]($i + 1)
+            $labelSize = $graphics.MeasureString($label,$font)
+            $pad = [float](4.0 / $zoomSafe)
+            $labelRect = New-Object Drawing.RectangleF(
+                [float]$r.X,
+                [float]([double]$r.Y - [double]$labelSize.Height - ($pad * 2.0)),
+                [float]([double]$labelSize.Width + ($pad * 2.0)),
+                [float]([double]$labelSize.Height + ($pad * 2.0))
+            )
+            if($labelRect.Y -lt 0){ $labelRect.Y = [float]$r.Y }
+            $graphics.FillRectangle($labelBack,$labelRect)
+            $graphics.DrawString($label,$font,$labelBrush,[float]($labelRect.X + $pad),[float]($labelRect.Y + $pad))
+        }
+    }
+    finally{
+        $font.Dispose()
+        $labelBrush.Dispose()
+        $labelBack.Dispose()
+        $brush.Dispose()
+        $pen.Dispose()
+    }
+}
+
+function Update-AutoMapRegionStatus{
+    if($script:AutoMapRegionStatusLabel){
+        $candidateCount = @($script:AutoMapPreparedCandidates).Count
+        $dimensionZoneCount = @($script:PdfTextLayerZones | Where-Object { $_ -and $_.IsDimension }).Count
+        $regionCount = @($script:AutoMapRegions).Count
+        $dupCount = @($script:AutoMapRegionDuplicateWarnings).Count
+        $script:AutoMapRegionStatusLabel.Text = "Regions: $regionCount    PDF boxes: $candidateCount    Visible bbox: $dimensionZoneCount    DUP in region: $dupCount"
+    }
+    if($txtOcrDebug){
+        $txtOcrDebug.Text = (
+            "Auto Map PDF region mode" + [Environment]::NewLine +
+            "Drag vùng 1, vùng 2... theo thứ tự muốn đánh số." + [Environment]::NewLine +
+            "Click bbox để chọn, Delete để xóa, Finish để map theo thứ tự vùng."
+        )
+    }
+}
+
+function Refresh-AutoMapPreparedCandidatesFromCurrentZones([switch]$SkipStatus){
+    if(!$script:AutoMapRegionMode){ return }
+    [void](Hide-AcceptedTextZonesCoveredByMarkSteps)
+    if($script:PdfTextLayerZones -and @($script:PdfTextLayerZones).Count -gt 0){
+        $script:AutoMapPreparedCandidates = @(Convert-TextZonesToAutoMapCandidates $script:PdfTextLayerZones)
+        $script:AutoMapPreparedMode = "Edited visible text zones"
+    }
+    else{
+        $script:AutoMapPreparedCandidates = @()
+    }
+    if(-not $SkipStatus){
+        Update-AutoMapRegionDuplicateWarnings
+        Update-AutoMapRegionStatus
+    }
+}
+
+function Add-AutoMapRegionFromSelection($selectionRect){
+    if(!$script:AutoMapRegionMode -or !$selectionRect){ return $false }
+    if(-not (Test-SelectionLargeEnough $selectionRect)){ return $false }
+
+    $rect = New-Object Drawing.RectangleF(
+        [float]$selectionRect.X,
+        [float]$selectionRect.Y,
+        [float]$selectionRect.Width,
+        [float]$selectionRect.Height
+    )
+    $script:AutoMapRegions += $rect
+    $script:selectionRect = $null
+    $script:ShowPdfTextZones = $true
+    if($btnPdfTextZones){ Update-PdfTextZonesButton }
+    Update-AutoMapRegionDuplicateWarnings
+    Update-AutoMapRegionStatus
+    Request-CanvasRedraw
+    return $true
+}
+
+function Close-AutoMapRegionForm{
+    if($script:AutoMapRegionForm){
+        $regionForm = $script:AutoMapRegionForm
+        $script:AutoMapRegionForm = $null
+        $script:AutoMapRegionStatusLabel = $null
+        $script:AutoMapRegionTextZonesButton = $null
+        $script:AutoMapRegionCopyViewButton = $null
+        $script:AutoMapRegionBalloonColorButton = $null
+        try{ $regionForm.Close() } catch{}
+        try{ $regionForm.Dispose() } catch{}
+    }
+}
+
+function Cancel-AutoMapRegionSelection{
+    $script:AutoMapRegionMode = $false
+    $script:AutoMapRegions = @()
+    $script:AutoMapPreparedCandidates = @()
+    $script:AutoMapPreparedBlocks = @()
+    $script:AutoMapPreparedMode = ""
+    $script:AutoMapRegionDuplicateWarnings = @()
+    $script:selectionRect = $null
+    Close-AutoMapRegionForm
+    Request-CanvasRedraw
+    if($txtOcrDebug){ $txtOcrDebug.Text = "Auto Map PDF region mode cancelled." }
+}
+
+function Finish-AutoMapRegionSelection{
+    if(!$script:AutoMapRegionMode){ return }
+    if(@($script:AutoMapRegions).Count -le 0){
+        [System.Windows.Forms.MessageBox]::Show("Please drag at least one region first.","Auto Map PDF")
+        return
+    }
+
+    $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+    try{
+        Refresh-AutoMapPreparedCandidatesFromCurrentZones
+        $candidates = @(Get-AutoMapCandidatesByRegions $script:AutoMapPreparedCandidates $script:AutoMapRegions)
+        $added = 0
+        foreach($candidate in @($candidates)){
+            $candidate | Add-Member -NotePropertyName DuplicateCheckPassed -NotePropertyValue $true -Force
+            if(Add-OcrCandidateToTable $candidate){
+                $added++
+            }
+        }
+
+        $script:AutoMapRegionMode = $false
+        $script:selectionRect = $null
+        Close-AutoMapRegionForm
+
+        if($table.Rows.Count -gt 0){
+            $lastRow = $table.Rows.Count - 1
+            $table.ClearSelection()
+            $table.Rows[$lastRow].Selected = $true
+            $table.CurrentCell = $table.Rows[$lastRow].Cells[0]
+            $table.FirstDisplayedScrollingRowIndex = $lastRow
+        }
+
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = (
+                "Mode: " + [string]$script:AutoMapPreparedMode + " + manual regions" + [Environment]::NewLine +
+                "Regions: " + [string]@($script:AutoMapRegions).Count + [Environment]::NewLine +
+                "Mapped dims: " + [string]$candidates.Count + [Environment]::NewLine +
+                "Added rows: " + [string]$added
+            )
+        }
+
+        $script:AutoMapRegions = @()
+        $script:AutoMapPreparedCandidates = @()
+        $script:AutoMapPreparedBlocks = @()
+        $script:AutoMapPreparedMode = ""
+        $script:AutoMapRegionDuplicateWarnings = @()
+        Clear-PreviewImage
+        Save-CurrentPageState
+        Validate-StepState
+        Refresh-DuplicateState
+        Apply-TableSearchFilter
+        Request-CanvasRedraw
+        Save-SessionState
+    }
+    catch{
+        [System.Windows.Forms.MessageBox]::Show("Auto Map PDF region mapping failed: $($_.Exception.Message)")
+    }
+    finally{
+        $form.Cursor = [System.Windows.Forms.Cursors]::Default
+    }
+}
+
+function Show-AutoMapRegionSelectionWindow{
+    Close-AutoMapRegionForm
+
+    $regionForm = New-Object Windows.Forms.Form
+    $regionForm.Text = "Auto Map PDF Regions"
+    $regionForm.Size = New-Object Drawing.Size(704,194)
+    $regionForm.StartPosition = [System.Windows.Forms.FormStartPosition]::Manual
+    $regionForm.TopMost = $true
+    $regionForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedToolWindow
+    $regionForm.ShowInTaskbar = $false
+    $regionForm.KeyPreview = $true
+
+    $screenPoint = if($form){ $form.PointToScreen((New-Object Drawing.Point(40,80))) } else { New-Object Drawing.Point(120,120) }
+    $regionForm.Location = $screenPoint
+
+    $hint = New-Object Windows.Forms.Label
+    $hint.Text = "Drag regions in order. T = text zones, C = copy view. Click bbox to select; Delete removes selected bbox."
+    $hint.Location = New-Object Drawing.Point(12,12)
+    $hint.Size = New-Object Drawing.Size(660,36)
+    $regionForm.Controls.Add($hint)
+
+    $status = New-Object Windows.Forms.Label
+    $status.Location = New-Object Drawing.Point(12,50)
+    $status.Size = New-Object Drawing.Size(660,20)
+    $regionForm.Controls.Add($status)
+    $script:AutoMapRegionStatusLabel = $status
+
+    $btnClear = New-Object Windows.Forms.Button
+    $btnClear.Text = "Clear Regions"
+    $btnClear.Location = New-Object Drawing.Point(12,78)
+    $btnClear.Size = New-Object Drawing.Size(92,28)
+    $btnClear.Add_Click({
+        $script:AutoMapRegions = @()
+        $script:selectionRect = $null
+        Update-AutoMapRegionDuplicateWarnings
+        Update-AutoMapRegionStatus
+        Request-CanvasRedraw
+    })
+    $regionForm.Controls.Add($btnClear)
+
+    $btnUndo = New-Object Windows.Forms.Button
+    $btnUndo.Text = "Undo"
+    $btnUndo.Location = New-Object Drawing.Point(110,78)
+    $btnUndo.Size = New-Object Drawing.Size(74,28)
+    $btnUndo.Add_Click({
+        $regions = @($script:AutoMapRegions)
+        if($regions.Count -gt 0){
+            $script:AutoMapRegions = @($regions | Select-Object -First ($regions.Count - 1))
+            Update-AutoMapRegionDuplicateWarnings
+            Update-AutoMapRegionStatus
+            Request-CanvasRedraw
+        }
+    })
+    $regionForm.Controls.Add($btnUndo)
+
+    $btnClearGray = New-Object Windows.Forms.Button
+    $btnClearGray.Text = "Clear Gray Box"
+    $btnClearGray.Location = New-Object Drawing.Point(190,78)
+    $btnClearGray.Size = New-Object Drawing.Size(104,28)
+    $btnClearGray.Add_Click({
+        $removedCount = Remove-GrayTextZones
+        $script:ShowPdfTextZones = $true
+        Refresh-AutoMapPreparedCandidatesFromCurrentZones
+        Update-AutoMapRegionDuplicateWarnings
+        if($txtOcrDebug){ $txtOcrDebug.Text = "Removed gray boxes: $removedCount" }
+        Request-CanvasRedraw
+    })
+    $regionForm.Controls.Add($btnClearGray)
+
+    $btnDeleteBox = New-Object Windows.Forms.Button
+    $btnDeleteBox.Text = "Delete BBox"
+    $btnDeleteBox.Location = New-Object Drawing.Point(300,78)
+    $btnDeleteBox.Size = New-Object Drawing.Size(86,28)
+    $btnDeleteBox.Add_Click({
+        if(Remove-SelectedTextZone){
+            Refresh-AutoMapPreparedCandidatesFromCurrentZones
+            Update-AutoMapRegionDuplicateWarnings
+        }
+    })
+    $regionForm.Controls.Add($btnDeleteBox)
+
+    $btnFinish = New-Object Windows.Forms.Button
+    $btnFinish.Text = "Finish"
+    $btnFinish.Location = New-Object Drawing.Point(430,78)
+    $btnFinish.Size = New-Object Drawing.Size(82,28)
+    $btnFinish.Add_Click({ Finish-AutoMapRegionSelection })
+    $regionForm.Controls.Add($btnFinish)
+
+    $btnCancel = New-Object Windows.Forms.Button
+    $btnCancel.Text = "Cancel"
+    $btnCancel.Location = New-Object Drawing.Point(518,78)
+    $btnCancel.Size = New-Object Drawing.Size(82,28)
+    $btnCancel.Add_Click({ Cancel-AutoMapRegionSelection })
+    $regionForm.Controls.Add($btnCancel)
+
+    $btnTextZones = New-Object Windows.Forms.Button
+    $btnTextZones.Location = New-Object Drawing.Point(12,114)
+    $btnTextZones.Size = New-Object Drawing.Size(124,28)
+    $btnTextZones.Add_Click({ Toggle-QuickTextZoneView })
+    $regionForm.Controls.Add($btnTextZones)
+    $script:AutoMapRegionTextZonesButton = $btnTextZones
+
+    $btnCopyViewRegion = New-Object Windows.Forms.Button
+    $btnCopyViewRegion.Location = New-Object Drawing.Point(142,114)
+    $btnCopyViewRegion.Size = New-Object Drawing.Size(124,28)
+    $btnCopyViewRegion.Add_Click({ Toggle-QuickCopyView })
+    $regionForm.Controls.Add($btnCopyViewRegion)
+    $script:AutoMapRegionCopyViewButton = $btnCopyViewRegion
+
+    $btnBalloonColor = New-Object Windows.Forms.Button
+    $btnBalloonColor.Location = New-Object Drawing.Point(272,114)
+    $btnBalloonColor.Size = New-Object Drawing.Size(150,28)
+    $btnBalloonColor.Add_Click({ Cycle-AutoBalloonColorPreset })
+    $regionForm.Controls.Add($btnBalloonColor)
+    $script:AutoMapRegionBalloonColorButton = $btnBalloonColor
+
+    $regionForm.Add_KeyDown({
+        if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::T){
+            Toggle-QuickTextZoneView
+            $_.SuppressKeyPress = $true
+            return
+        }
+        if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::C){
+            Toggle-QuickCopyView
+            $_.SuppressKeyPress = $true
+            return
+        }
+    })
+
+    $regionForm.Add_FormClosed({
+        if($script:AutoMapRegionMode -and $script:AutoMapRegionForm -eq $regionForm){
+            Cancel-AutoMapRegionSelection
+        }
+    })
+
+    $script:AutoMapRegionForm = $regionForm
+    Update-AutoMapRegionStatus
+    Update-AutoMapRegionToolButtons
+    $regionForm.Show($form)
+}
+
+function Start-AutoMapRegionSelection($prepared){
+    if(!$prepared -or @($prepared.Candidates).Count -le 0){
+        if($txtOcrDebug){ $txtOcrDebug.Text = "Auto Map PDF found no dimension boxes." }
+        return
+    }
+
+    $script:AutoMapRegionMode = $true
+    $script:AutoMapRegions = @()
+    $script:AutoMapPreparedCandidates = @($prepared.Candidates)
+    $script:AutoMapPreparedBlocks = @($prepared.Blocks)
+    $script:AutoMapPreparedMode = [string]$prepared.Mode
+    $script:ShowPdfTextZones = $true
+    if($btnPdfTextZones){ Update-PdfTextZonesButton }
+    Update-AutoMapRegionDuplicateWarnings
+    $script:selectionRect = $null
+    Clear-PreviewImage
+    Update-CanvasCursor
+    Show-AutoMapRegionSelectionWindow
+    Request-CanvasRedraw
+}
+
+function Get-AutoMapPdfPreparedCandidates{
+    $blocks = @()
+    $candidates = @()
+    $autoMapMode = ""
+    $currentZoneKey = Get-AutoOcrMapRectKey (New-Object Drawing.Rectangle(0,0,$script:sourceBitmap.Width,$script:sourceBitmap.Height))
+    $currentPage = Get-CurrentDocumentPage
+    $useVisibleZones = $false
+
+    if(
+        $script:ShowPdfTextZones -and
+        $script:TextZoneCacheKey -eq $currentZoneKey -and
+        $script:PdfTextLayerZones -and
+        @($script:PdfTextLayerZones).Count -gt 0
+    ){
+        $useVisibleZones = $true
+    }
+
+    if($useVisibleZones){
+        $candidates = @(Convert-TextZonesToAutoMapCandidates $script:PdfTextLayerZones)
+        $autoMapMode = "Visible text zones"
+    }
+    else{
+        $pageNumber = 1
+        if($script:SelectedPageIndex -ge 0){
+            $pageNumber = $script:SelectedPageIndex + 1
+        }
+        $blocks = @(Get-PdfTextLayerBlocks $script:CurrentSourcePath $pageNumber)
+    }
+
+    if((-not $useVisibleZones) -and @($blocks).Count -gt 0){
+        Stop-DeferredTextZoneWarmup
+        $script:PdfTextLayerZones = @(Filter-SuppressedTextZones (Convert-PdfTextLayerBlocksToZones $blocks))
+        $script:TextZoneCacheKey = $currentZoneKey
+        if($currentPage){
+            $currentPage.PdfTextLayerZones = @($script:PdfTextLayerZones)
+            $currentPage.TextZoneCacheKey = $currentZoneKey
+        }
+        Save-CurrentPageTextZoneCache
+        $candidates = @(Convert-TextZonesToAutoMapCandidates $script:PdfTextLayerZones)
+        if($candidates.Count -gt 0){
+            $autoMapMode = "PDF text layer"
+        }
+        else{
+            $mapRect = New-Object Drawing.Rectangle(0,0,$script:sourceBitmap.Width,$script:sourceBitmap.Height)
+            $candidates = @(Find-PdfTextLayerDimensionCandidates $blocks $mapRect)
+            $autoMapMode = "PDF text layer"
+        }
+    }
+    elseif(-not $useVisibleZones){
+        return [PSCustomObject]@{
+            Candidates = @()
+            Blocks = @()
+            Mode = ""
+            Message = "Auto Map PDF requires embedded PDF text layer." + [Environment]::NewLine + "No OCR fallback is used in this workflow."
+        }
+    }
+
+    return [PSCustomObject]@{
+        Candidates = @($candidates)
+        Blocks = @($blocks)
+        Mode = [string]$autoMapMode
+        Message = ""
+    }
 }
 
 function Invoke-AutoMapPdfTextLayer{
@@ -15925,99 +17269,17 @@ function Invoke-AutoMapPdfTextLayer{
         return
     }
 
-    $pageNumber = 1
-    if($script:SelectedPageIndex -ge 0){
-        $pageNumber = $script:SelectedPageIndex + 1
-    }
-
-    $mapRect = New-Object Drawing.Rectangle(0,0,$script:sourceBitmap.Width,$script:sourceBitmap.Height)
-
     $oldCursor = $form.Cursor
     $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
-    $txtOcrDebug.Text = "Auto Map PDF text layer..."
+    $txtOcrDebug.Text = "Preparing Auto Map PDF regions..."
 
     try{
-        $blocks = @()
-        $candidates = @()
-        $autoMapMode = ""
-        $currentZoneKey = Get-AutoOcrMapRectKey $mapRect
-        $currentPage = Get-CurrentDocumentPage
-        $useVisibleZones = $false
-
-        if(
-            $script:ShowPdfTextZones -and
-            $script:TextZoneCacheKey -eq $currentZoneKey -and
-            $script:PdfTextLayerZones -and
-            @($script:PdfTextLayerZones).Count -gt 0
-        ){
-            $useVisibleZones = $true
-        }
-
-        if($useVisibleZones){
-            $candidates = @(Convert-TextZonesToAutoMapCandidates $script:PdfTextLayerZones)
-            $autoMapMode = "Visible text zones"
-        }
-        else{
-            $blocks = @(Get-PdfTextLayerBlocks $script:CurrentSourcePath $pageNumber)
-        }
-
-        if((-not $useVisibleZones) -and @($blocks).Count -gt 0){
-            Stop-DeferredTextZoneWarmup
-            $script:PdfTextLayerZones = @(Filter-SuppressedTextZones (Convert-PdfTextLayerBlocksToZones $blocks))
-            $script:TextZoneCacheKey = $currentZoneKey
-            if($currentPage){
-                $currentPage.PdfTextLayerZones = @($script:PdfTextLayerZones)
-                $currentPage.TextZoneCacheKey = $currentZoneKey
-            }
-            Save-CurrentPageTextZoneCache
-            $candidates = @(Convert-TextZonesToAutoMapCandidates $script:PdfTextLayerZones)
-            if($candidates.Count -gt 0){
-                $autoMapMode = "PDF text layer"
-            }
-            else{
-                $candidates = @(Find-PdfTextLayerDimensionCandidates $blocks $mapRect)
-                $autoMapMode = "PDF text layer"
-            }
-        }
-        elseif(-not $useVisibleZones){
-            $txtOcrDebug.Text = "Auto Map PDF requires embedded PDF text layer." + [Environment]::NewLine + "No OCR fallback is used in this workflow."
+        $prepared = Get-AutoMapPdfPreparedCandidates
+        if(-not [string]::IsNullOrWhiteSpace([string]$prepared.Message)){
+            $txtOcrDebug.Text = [string]$prepared.Message
             return
         }
-        $candidates = @(Sort-AutoMapCandidatesReadingOrder $candidates)
-        $added = 0
-
-        foreach($candidate in $candidates){
-            if(Add-OcrCandidateToTable $candidate){
-                $added++
-            }
-        }
-
-        if($table.Rows.Count -gt 0){
-            $lastRow = $table.Rows.Count - 1
-            $table.ClearSelection()
-            $table.Rows[$lastRow].Selected = $true
-            $table.CurrentCell = $table.Rows[$lastRow].Cells[0]
-            $table.FirstDisplayedScrollingRowIndex = $lastRow
-        }
-
-        $txtOcrDebug.Text = (
-            "Mode: {0}" -f $autoMapMode
-        ) + [Environment]::NewLine + (
-            "PDF blocks: {0}" -f $blocks.Count
-        ) + [Environment]::NewLine + (
-            "Mapped dims: {0}" -f $candidates.Count
-        ) + [Environment]::NewLine + (
-            "Added rows: {0}" -f $added
-        )
-
-        $script:selectionRect = $null
-        Clear-PreviewImage
-        Save-CurrentPageState
-        Validate-StepState
-        Refresh-DuplicateState
-        Apply-TableSearchFilter
-        Request-CanvasRedraw
-        Save-SessionState
+        Start-AutoMapRegionSelection $prepared
     }
     catch{
         [System.Windows.Forms.MessageBox]::Show("Auto Map PDF failed: $($_.Exception.Message)")
@@ -16505,141 +17767,18 @@ function Get-HttpErrorDetail($errorRecord){
     return $null
 }
 
-function Warm-OllamaVisionModel($modelName){
-
-    if([string]::IsNullOrWhiteSpace($modelName)){ return $false }
-
-    $bareModelName = [string]$modelName
-    if($bareModelName.StartsWith("ollama:",[System.StringComparison]::OrdinalIgnoreCase)){
-        $bareModelName = $bareModelName.Substring(7)
-    }
-
-    Append-AiVisionLog ("Warmup request: " + $bareModelName)
-    $warmStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-    try{
-        $payload = @{
-            model = $bareModelName
-            prompt = ""
-            keep_alive = $script:OllamaVisionKeepAlive
-            stream = $false
-        } | ConvertTo-Json -Depth 4
-        $response = Invoke-RestMethod -Method Post -Uri ($script:OllamaVisionBaseUrl.TrimEnd('/') + "/api/generate") -ContentType "application/json" -Body $payload -TimeoutSec 180
-        $warmStopwatch.Stop()
-        $loadSeconds = if($null -ne $response.load_duration){ [Math]::Round(([double]$response.load_duration / 1000000000.0),2) } else { $null }
-        if($null -ne $loadSeconds){
-            Append-AiVisionLog ("Warmup done in " + [Math]::Round($warmStopwatch.Elapsed.TotalSeconds,2) + "s, load_duration=" + $loadSeconds + "s")
-        }
-        else{
-            Append-AiVisionLog ("Warmup done in " + [Math]::Round($warmStopwatch.Elapsed.TotalSeconds,2) + "s")
-        }
-        return $true
-    }
-    catch{
-        $errorBody = Get-HttpErrorDetail $_
-        if([string]::IsNullOrWhiteSpace($errorBody)){
-            Append-AiVisionLog ("Warmup failed: " + $_.Exception.Message)
-        }
-        else{
-            Append-AiVisionLog ("Warmup failed: " + $_.Exception.Message + " | " + $errorBody)
-        }
-        return $false
-    }
-}
-
-function Warm-StartupAiVisionModel{
-
-    $startupModel = if($cmbAiModel){ [string]$cmbAiModel.Text } else { "" }
-    if([string]::IsNullOrWhiteSpace($startupModel)){
-        $startupModel = "ollama:qwen2.5vl:3b"
-    }
-    if(-not $startupModel.StartsWith("ollama:",[System.StringComparison]::OrdinalIgnoreCase)){
-        return $false
-    }
-
-    Update-StartupSplashStatus ("Loading AI model from HDD: " + $startupModel)
-    return (Warm-OllamaVisionModel $startupModel)
-}
-
-function Get-AiVisionMechanicalPrompt{
-    return @'
-You are reading one cropped mechanical-drawing dimension.
-Return exactly one normalized dimension string only. No explanation. No markdown. No JSON.
-
-Normalization rules:
-- Keep only the final mechanical dimension text.
-- The crop may be rotated 0, 90, 180, or 270 degrees. Mentally rotate it to the correct reading direction before reading.
-- Preserve mechanical prefixes and symbols: R, C, O/, Ø, Φ, degree.
-- Add missing leading zero for decimals: .2 -> 0.2, .35 -> 0.35, 0. 5 -> 0.5.
-- Remove spacing inside decimals: 0. 012 -> 0.012, 2 . 6 -> 2.6.
-- Remove trailing garbage around the nominal when it is clearly OCR noise.
-- If tolerance is visible, preserve it in normalized mechanical form.
-- Hard rule: the nominal value is always larger than any tolerance magnitude. If one reading violates this, choose the plausible mechanical reading instead.
-- Supported tolerance forms:
-  NOMINAL
-  NOMINAL ±T
-  NOMINAL +T
-  NOMINAL -T
-  NOMINAL +A -B
-  NOMINAL ++A ++B
-  NOMINAL --A --B
-  R0.05 MAX
-  C0.2
-  45°
-
-Special cases learned from user corrections:
-- RO.03 -> R0.03
-- co.5 -> C0.5
-- CO.2 -> C0.2
-- CO 2 -> C2
-- :0.2 -> 0.2
-- .2 -> 0.2
-- 2. 6 -> 2.6
-- 0. 012 -> 0.012
-- 0.005DP -> 0.005
-- 0.100 +8.002 -> 0.100+0.002
-- 0.100 +8.8882 -> 0.100+0.002
-- C0.1 all round -> C0.1
-- 0.471- -> 0.471
-- 19.800- -> 19.800
-- 9.600- -> 9.600
-- -R0.02 MAX -> R0.02 MAX
-- 0.75 ±0.02 -> 0.75±0.02
-- 0.405+0.003 -> 0.405+0.003
-- 5.000+0.003 +0.001 -> 5.000+0.003+0.001
-- 4.000+0.003 +0.001 -> 4.000+0.003+0.001
-- If OCR mixes nominal and tolerance fragments, prefer the valid mechanical reading.
-
-Return one line only.
-'@
-}
-
-function Get-AiVisionExperimentPrompt{
-    return @'
-Extract all numbers from this dimension.
-
-Return only:
-0.200 -0.020 -0.010
-'@
-}
-
-function Test-AiVisionExperimentMode{
-
-    if($chkAiExperiment){
-        return [bool]$chkAiExperiment.Checked
-    }
-    return $false
-}
-
-function Get-AiVisionActivePrompt([switch]$ForceExperiment){
-
-    if($ForceExperiment -or (Test-AiVisionExperimentMode)){
-        return (Get-AiVisionExperimentPrompt)
-    }
-    return (Get-AiVisionMechanicalPrompt)
-}
-
 function Get-AiRecoveryPrompt{
-    return 'CHI TRA VE DUNG 1 DONG DUY NHAT. BAT BUOC BAT DAU BANG TU FINAL:. KHONG GIAI THICH. KHONG GO DAU DONG THU 2. Doc dimension co khi trong anh va suy luan dap an dung nhat theo ngu canh ban ve co khi. Neu co ky hieu co khi nhu R, C, O/, Ø, Φ, do, B, A thi giu nguyen trong Nominal. Dung dung format nay va khong duoc sai: FINAL: Nominal=<gia tri> Tol+=<gia tri> Tol-=<gia tri>'
+    return 'CHI TRA VE DUNG 1 DONG DUY NHAT. BAT BUOC BAT DAU BANG TU FINAL:. KHONG GIAI THICH. KHONG GO DAU DONG THU 2. Doc dimension co khi trong anh va suy luan dap an dung nhat theo ngu canh ban ve co khi. Nominal KHONG BAO GIO DUOC LA GIA TRI AM; neu thay dau - truoc nominal thi bo dau - do. Tol- moi duoc phep am. Neu co ky hieu co khi nhu R, C, O/, Ø, Φ, do, B, A thi giu nguyen trong Nominal. Dung dung format nay va khong duoc sai: FINAL: Nominal=<gia tri duong/khong am> Tol+=<gia tri> Tol-=<gia tri>'
+}
+
+function Normalize-AiRecoveryNominalText([string]$nominal){
+    $value = ([string]$nominal).Trim()
+    if([string]::IsNullOrWhiteSpace($value)){ return "" }
+
+    $value = $value -replace '^\s*[−–—]\s*',''
+    $value = $value -replace '^\s*-\s*(?=[RCØΦO/]*\s*\d|\.\d)',''
+    $value = $value -replace '^([RCØΦ]|O/)\s*-\s*','$1'
+    return $value.Trim()
 }
 
 function Get-ChromeExecutablePath{
@@ -16682,6 +17821,22 @@ public static class RapidOcrNativeWindow {
         public int Top;
         public int Right;
         public int Bottom;
+    }
+}
+"@
+}
+
+if(-not ("RapidOcrNativeCursor" -as [type])){
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public static class RapidOcrNativeCursor {
+    [DllImport("user32.dll")]
+    public static extern bool GetCursorPos(out POINT lpPoint);
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT {
+        public int X;
+        public int Y;
     }
 }
 "@
@@ -16827,6 +17982,98 @@ function Click-ChromeRecoveryAnswerArea{
     return $true
 }
 
+function Click-ChromeRecoveryPromptArea{
+
+    $handle = Get-AiRecoveryChromeWindowHandle
+    if($handle -eq [IntPtr]::Zero){
+        $handle = Get-ChromeMainWindowHandle
+    }
+    if($handle -eq [IntPtr]::Zero){ return $false }
+
+    $rect = New-Object RapidOcrNativeWindow+RECT
+    if(-not [RapidOcrNativeWindow]::GetWindowRect($handle,[ref]$rect)){ return $false }
+
+    $width = [Math]::Max(0,($rect.Right - $rect.Left))
+    $height = [Math]::Max(0,($rect.Bottom - $rect.Top))
+    if($width -le 0 -or $height -le 0){ return $false }
+
+    $promptArea = Get-SavedAiPromptArea
+    if($promptArea){
+        $targetX = [int]($rect.Left + ($width * [double]$promptArea.XRatio))
+        $targetY = [int]($rect.Top + ($height * [double]$promptArea.YRatio))
+        [void][RapidOcrNativeWindow]::SetCursorPos($targetX,$targetY)
+        Start-Sleep -Milliseconds 80
+        [RapidOcrNativeWindow]::mouse_event([RapidOcrNativeWindow]::MOUSEEVENTF_LEFTDOWN,0,0,0,[UIntPtr]::Zero)
+        Start-Sleep -Milliseconds 40
+        [RapidOcrNativeWindow]::mouse_event([RapidOcrNativeWindow]::MOUSEEVENTF_LEFTUP,0,0,0,[UIntPtr]::Zero)
+        Start-Sleep -Milliseconds 180
+        return $true
+    }
+
+    Send-KeysWithPause '{TAB}' 180
+    Send-KeysWithPause '+{TAB}' 180
+    return $true
+}
+
+function Capture-GoogleAiPromptArea{
+    try{
+        Open-ChromeAiRecoveryPage
+        if(-not (Wait-AiRecoveryChromeReady 9000 700)){
+            throw "Chrome AI tab was not ready."
+        }
+
+        [System.Windows.Forms.MessageBox]::Show(
+            "Move your mouse to the CENTER of the Google AI prompt input box, then click OK.`r`n`r`nAfter OK, you have 5 seconds before the app captures the position.",
+            "Capture Google AI Prompt Area",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Information
+        ) | Out-Null
+
+        for($remaining = 5; $remaining -ge 1; $remaining--){
+            if($txtOcrDebug){
+                $txtOcrDebug.Text = "Capture Google AI prompt area in " + [string]$remaining + "..."
+            }
+            [System.Windows.Forms.Application]::DoEvents()
+            Start-Sleep -Milliseconds 1000
+        }
+
+        $handle = Get-AiRecoveryChromeWindowHandle
+        if($handle -eq [IntPtr]::Zero){ $handle = Get-ChromeMainWindowHandle }
+        if($handle -eq [IntPtr]::Zero){ throw "Chrome window was not found." }
+
+        $windowRect = New-Object RapidOcrNativeWindow+RECT
+        if(-not [RapidOcrNativeWindow]::GetWindowRect($handle,[ref]$windowRect)){ throw "Could not read Chrome window bounds." }
+        $width = [Math]::Max(0,($windowRect.Right - $windowRect.Left))
+        $height = [Math]::Max(0,($windowRect.Bottom - $windowRect.Top))
+        if($width -le 0 -or $height -le 0){ throw "Chrome window size is invalid." }
+
+        $point = New-Object RapidOcrNativeCursor+POINT
+        if(-not [RapidOcrNativeCursor]::GetCursorPos([ref]$point)){ throw "Could not read mouse position." }
+
+        $xRatio = ([double]($point.X - $windowRect.Left) / [double]$width)
+        $yRatio = ([double]($point.Y - $windowRect.Top) / [double]$height)
+        Save-AiPromptArea $xRatio $yRatio
+
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = ("Google AI prompt area saved: X={0:P1}, Y={1:P1}" -f $xRatio,$yRatio)
+        }
+        [System.Windows.Forms.MessageBox]::Show(
+            ("Google AI prompt area saved.`r`nX={0:P1}, Y={1:P1}" -f $xRatio,$yRatio),
+            "Capture Google AI Prompt Area",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Information
+        ) | Out-Null
+    }
+    catch{
+        [System.Windows.Forms.MessageBox]::Show(
+            ("Capture prompt area failed:`r`n" + $_.Exception.Message),
+            "Capture Google AI Prompt Area",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Error
+        ) | Out-Null
+    }
+}
+
 function Set-AiRecoveryUiBusy([bool]$isBusy,[string]$message = ""){
 
     if($pnlAiRecoveryOverlay){
@@ -16970,7 +18217,7 @@ function Parse-AiRecoveryTriplet($text){
     $tolPlusLabeled = [regex]::Match($sourceText,'Tol\s*\+\s*=\s*([+\-]?\d+(?:\.\d+)?)','IgnoreCase')
     $tolMinusLabeled = [regex]::Match($sourceText,'Tol\s*\-\s*=\s*([+\-]?\d+(?:\.\d+)?)','IgnoreCase')
     if($nominalLabeled.Success -and $tolPlusLabeled.Success -and $tolMinusLabeled.Success){
-        $nominal = ([string]$nominalLabeled.Groups[1].Value).Trim()
+        $nominal = Normalize-AiRecoveryNominalText ([string]$nominalLabeled.Groups[1].Value)
         if([string]::IsNullOrWhiteSpace($nominal)){ return $result }
         $tolPlusText = [string]$tolPlusLabeled.Groups[1].Value
         $tolMinusText = [string]$tolMinusLabeled.Groups[1].Value
@@ -17036,8 +18283,7 @@ function Invoke-ChromeAiRecoveryTextFromImagePath($imagePath){
     }
 
     # AI Mode sometimes needs one extra click/focus cycle after navigation.
-    Send-KeysWithPause '{TAB}' 180
-    Send-KeysWithPause '+{TAB}' 180
+    [void](Click-ChromeRecoveryPromptArea)
     Send-KeysWithPause '^v' 1250
     if(-not (Set-ClipboardTextSafe (Get-AiRecoveryPrompt))){
         throw "Could not put AI recovery prompt on clipboard."
@@ -17153,372 +18399,589 @@ function Invoke-AiRecoveryModeForSelectedStep{
     }
 }
 
-function Get-AiVisionMechanicalReview($rawText,$rect,$angle,$preferredAngles){
-
-    $cleanedText = Clean-OCRText $rawText
-    $mechanicalText = Normalize-MechanicalOcrText $rawText
-    $parsedText = Parse-Dimension $mechanicalText
-    if([string]::IsNullOrWhiteSpace($parsedText)){ $parsedText = Parse-Dimension $cleanedText }
-
-    $resolvedText = Resolve-MechanicalDimensionText $mechanicalText $cleanedText $parsedText
-    $resolvedText = Repair-ManualMechanicalNominalFromRaw $resolvedText $rawText $cleanedText $rect
-    $resolvedText = Repair-ManualVerticalMissingDecimalNominal $resolvedText $rawText $cleanedText $rect
-
-    $tolerance = $null
-    if(-not [string]::IsNullOrWhiteSpace($resolvedText)){
-        $tolerance = Parse-ToleranceFull $mechanicalText $resolvedText
-        if(((-not $tolerance) -or (-not $tolerance.Detected)) -and -not [string]::IsNullOrWhiteSpace($cleanedText)){
-            $tolerance = Parse-ToleranceFull $cleanedText $resolvedText
-        }
-        if(((-not $tolerance) -or (-not $tolerance.Detected)) -and (Test-UsefulMechanicalRawText $rawText)){
-            $tolerance = Parse-ToleranceFull $rawText $resolvedText
-        }
+function Get-BulkAiRecoveryDebugPath{
+    if([string]::IsNullOrWhiteSpace([string]$script:BulkAiRecoveryDebugPath)){
+        $script:BulkAiRecoveryDebugPath = Join-Path ([System.IO.Path]::GetTempPath()) "RapidOcrBulkAiRecovery-debug.log"
     }
-
-    $score = Get-EngineeringTextReviewScore $rawText $resolvedText $tolerance $angle $preferredAngles $rect
-    if([string]::IsNullOrWhiteSpace($resolvedText)){ $score -= 20 }
-    if($tolerance -and $tolerance.Detected){
-        if(Test-MechanicalTolerancePlausible $tolerance $resolvedText){
-            $score += 10
-        }
-        else{
-            $score -= 30
-        }
-    }
-
-    return [PSCustomObject]@{
-        RawText = [string]$rawText
-        Nominal = [string]$resolvedText
-        Tolerance = $tolerance
-        Angle = [int]$angle
-        Score = [double]$score
-    }
+    return [string]$script:BulkAiRecoveryDebugPath
 }
 
-function Invoke-OllamaVisionFromSelectionRect($modelName,$realRect,[switch]$FastSingleAngle){
-
-    $orientationHint = Get-TextZoneOrientationHint $realRect
-    $preferredAngles = @($orientationHint.PreferredAngles | Select-Object -Unique)
-    if($preferredAngles.Count -le 0){
-        $preferredAngles = @(0,180,90,270)
-    }
-
-    if($FastSingleAngle){
-        $primaryAngle = if($preferredAngles.Count -gt 0){ [int]$preferredAngles[0] } else { 0 }
-        $preferredAngles = @($primaryAngle)
-    }
-
-    Append-AiVisionLog ("AI orientation: " + [string]$orientationHint.Orientation + " | angles=" + (($preferredAngles -join ",")))
-    Append-OcrDebugAiProgress ("Orientation: " + [string]$orientationHint.Orientation)
-    Append-OcrDebugAiProgress ("Angles: " + (($preferredAngles -join ",")))
-
-    $reviews = @()
-    foreach($angle in @($preferredAngles)){
-        $tempPath = Save-ManualSelectionCropToTempAtAngle $realRect $angle
-        if([string]::IsNullOrWhiteSpace([string]$tempPath)){ continue }
-
-        try{
-            Append-AiVisionLog ("AI angle " + [string]$angle + "...")
-            Append-OcrDebugAiProgress ("Running angle " + [string]$angle + "...")
-            $rawText = Invoke-OllamaVisionFromImagePath $modelName $tempPath
-            $review = Get-AiVisionMechanicalReview $rawText $realRect $angle $preferredAngles
-            $reviews += $review
-            Append-AiVisionLog ("Angle " + [string]$angle + " raw: " + [string]$review.RawText)
-            Append-AiVisionLog ("Angle " + [string]$angle + " score: " + [string][Math]::Round([double]$review.Score,1))
-            Append-OcrDebugAiProgress ("Angle " + [string]$angle + " Raw: " + [string]$review.RawText)
-            Append-OcrDebugAiProgress ("Angle " + [string]$angle + " Score: " + [string][Math]::Round([double]$review.Score,1))
-        }
-        finally{
-            try{ if(Test-Path -LiteralPath $tempPath){ Remove-Item -LiteralPath $tempPath -Force -ErrorAction SilentlyContinue } } catch{}
-        }
-    }
-
-    if($reviews.Count -le 0){
-        throw "AI vision did not return any usable result."
-    }
-
-    $bestReview = @(
-        $reviews |
-        Sort-Object @{ Expression = { [double]$_.Score }; Descending = $true }, @{ Expression = { [int]$_.Angle }; Descending = $false } |
-        Select-Object -First 1
-    )[0]
-    Append-AiVisionLog ("Best AI angle: " + [string]$bestReview.Angle)
-    Append-OcrDebugAiProgress ("Best Angle: " + [string]$bestReview.Angle)
-    return $bestReview
-}
-
-function Invoke-AiVisionFromImagePath($modelName,$imagePath,[switch]$ForceExperiment){
-
-    if([string]::IsNullOrWhiteSpace([string]$modelName)){ throw "AI model is empty." }
-
-    if($modelName.StartsWith("ollama:",[System.StringComparison]::OrdinalIgnoreCase)){
-        return (Invoke-OllamaVisionFromImagePath $modelName $imagePath)
-    }
-    if($modelName.StartsWith("gemini:",[System.StringComparison]::OrdinalIgnoreCase)){
-        return (Invoke-GeminiVisionFromImagePath $modelName $imagePath -ForceExperiment:$ForceExperiment)
-    }
-
-    throw ("Unsupported AI model: " + [string]$modelName)
-}
-
-function Invoke-AiVisionFromSelectionRect($modelName,$realRect,[switch]$FastSingleAngle,[switch]$ForceExperiment){
-
-    $orientationHint = Get-TextZoneOrientationHint $realRect
-    $preferredAngles = @($orientationHint.PreferredAngles | Select-Object -Unique)
-    if($preferredAngles.Count -le 0){
-        $preferredAngles = @(0,180,90,270)
-    }
-
-    if($FastSingleAngle -or $ForceExperiment -or (Test-AiVisionExperimentMode)){
-        $primaryAngle = if($preferredAngles.Count -gt 0){ [int]$preferredAngles[0] } else { 0 }
-        $preferredAngles = @($primaryAngle)
-    }
-
-    Append-AiVisionLog ("AI orientation: " + [string]$orientationHint.Orientation + " | angles=" + (($preferredAngles -join ",")))
-    Append-OcrDebugAiProgress ("Orientation: " + [string]$orientationHint.Orientation)
-    Append-OcrDebugAiProgress ("Angles: " + (($preferredAngles -join ",")))
-
-    $reviews = @()
-    foreach($angle in @($preferredAngles)){
-        $tempPath = Save-ManualSelectionCropToTempAtAngle $realRect $angle
-        if([string]::IsNullOrWhiteSpace([string]$tempPath)){ continue }
-
-        try{
-            Append-AiVisionLog ("AI angle " + [string]$angle + "...")
-            Append-OcrDebugAiProgress ("Running angle " + [string]$angle + "...")
-            $rawText = Invoke-AiVisionFromImagePath $modelName $tempPath -ForceExperiment:$ForceExperiment
-            $review = Get-AiVisionMechanicalReview $rawText $realRect $angle $preferredAngles
-            $reviews += $review
-            Append-AiVisionLog ("Angle " + [string]$angle + " raw: " + [string]$review.RawText)
-            Append-AiVisionLog ("Angle " + [string]$angle + " score: " + [string][Math]::Round([double]$review.Score,1))
-            Append-OcrDebugAiProgress ("Angle " + [string]$angle + " Raw: " + [string]$review.RawText)
-            Append-OcrDebugAiProgress ("Angle " + [string]$angle + " Score: " + [string][Math]::Round([double]$review.Score,1))
-        }
-        finally{
-            try{ if(Test-Path -LiteralPath $tempPath){ Remove-Item -LiteralPath $tempPath -Force -ErrorAction SilentlyContinue } } catch{}
-        }
-    }
-
-    if($reviews.Count -le 0){
-        throw "AI vision did not return any usable result."
-    }
-
-    $bestReview = @(
-        $reviews |
-        Sort-Object @{ Expression = { [double]$_.Score }; Descending = $true }, @{ Expression = { [int]$_.Angle }; Descending = $false } |
-        Select-Object -First 1
-    )[0]
-    Append-AiVisionLog ("Best AI angle: " + [string]$bestReview.Angle)
-    Append-OcrDebugAiProgress ("Best Angle: " + [string]$bestReview.Angle)
-    return $bestReview
-}
-
-function Set-AiVisionModelSelection($modelName){
-
-    $targetModel = [string]$modelName
-    if([string]::IsNullOrWhiteSpace($targetModel) -or !$cmbAiModel){ return }
-    $modelIndex = $cmbAiModel.Items.IndexOf($targetModel)
-    if($modelIndex -ge 0){
-        $cmbAiModel.SelectedIndex = $modelIndex
-    }
-    else{
-        $cmbAiModel.Text = $targetModel
-    }
-    if($miAdvanceAiModelQwen){
-        $miAdvanceAiModelQwen.Checked = ([string]$cmbAiModel.Text -eq "ollama:qwen2.5vl:3b")
-    }
-    if($miAdvanceAiModelMiniCpm){
-        $miAdvanceAiModelMiniCpm.Checked = ([string]$cmbAiModel.Text -eq "ollama:minicpm-v")
-    }
-}
-
-function Invoke-AiVisionRescanSelectedStep{
-
-    if(!$table.SelectedRows.Count -or !$script:sourceBitmap){ return }
-    $rowIndex = [int]$table.SelectedRows[0].Index
-    if($rowIndex -lt 0 -or -not $script:StepRects.ContainsKey($rowIndex)){ return }
-
-    $selectedModel = if($cmbAiModel){ [string]$cmbAiModel.Text } else { "" }
-    if([string]::IsNullOrWhiteSpace($selectedModel)){ return }
-
-    $realRect = $script:StepRects[$rowIndex]
-    if($script:AiVisionBusy){ return }
-    $script:AiVisionBusy = $true
-    Append-AiVisionLog ("Rescanning step " + [string]$table.Rows[$rowIndex].Cells[0].Value + " with " + $selectedModel)
-    Set-OcrDebugAiHeader ("AI Rescan Step " + [string]$table.Rows[$rowIndex].Cells[0].Value)
-    Append-OcrDebugAiProgress ("Model: " + $selectedModel)
+function Write-BulkAiRecoveryDebug([string]$message){
     try{
-        $visionReview = Invoke-AiVisionFromSelectionRect $selectedModel $realRect -FastSingleAngle
-        $rawText = [string]$visionReview.RawText
-        $candidate = New-ManualSelectionCandidate $realRect $rawText $rawText ("AiVision:" + $selectedModel)
-        $table.Rows[$rowIndex].Cells[1].Value = [string]$candidate.Nominal
-        $table.Rows[$rowIndex].Cells[2].Value = Format-InvariantSignedTolerance $candidate.Tolerance.TolMinus
-        $table.Rows[$rowIndex].Cells[3].Value = Format-InvariantSignedTolerance $candidate.Tolerance.TolPlus
-        Add-OrUpdate-MarkStepTextZone $rowIndex ([int]$table.Rows[$rowIndex].Cells[0].Value) $realRect ([string]$candidate.Nominal) ([string]$candidate.RawText) $candidate.Tolerance.TolMinus $candidate.Tolerance.TolPlus | Out-Null
+        $debugPath = Get-BulkAiRecoveryDebugPath
+        $sourcePath = [string]$PSCommandPath
+        if([string]::IsNullOrWhiteSpace($sourcePath)){ $sourcePath = [string]$MyInvocation.ScriptName }
+        [string]$sourceStamp = "<unknown>"
+        if(-not [string]::IsNullOrWhiteSpace($sourcePath) -and (Test-Path -LiteralPath $sourcePath)){
+            $sourceStamp = [string](Get-Item -LiteralPath $sourcePath).LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
+        }
+        $line = ("[{0}] pid={1} ps={2} src={3} stamp={4} :: {5}" -f (Get-Date).ToString("yyyy-MM-dd HH:mm:ss.fff"),[string]$PID,[string]$PSVersionTable.PSVersion,[string]$sourcePath,$sourceStamp,[string]$message)
+        Add-Content -LiteralPath $debugPath -Value $line -Encoding UTF8
+    } catch{}
+}
+
+function Set-BulkAiRecoveryStage([string]$stage,[string]$detail = ""){
+    $script:BulkAiRecoveryStage = [string]$stage
+    $script:BulkAiRecoveryDetail = [string]$detail
+    $message = "Bulk AI Recovery stage: " + [string]$stage
+    if(-not [string]::IsNullOrWhiteSpace([string]$detail)){
+        $message += [Environment]::NewLine + [string]$detail
+    }
+    Write-BulkAiRecoveryDebug ("STAGE " + [string]$stage + " | " + [string]$detail)
+    try{ if($txtOcrDebug){ $txtOcrDebug.Text = $message } } catch{}
+    try{ Append-AiVisionLog $message } catch{}
+}
+
+function Show-BulkAiRecoveryError([string]$stage,$exception){
+    $builder = New-Object System.Text.StringBuilder
+    [void]$builder.AppendLine("Bulk Google AI Recovery failed.")
+    [void]$builder.AppendLine("")
+    [void]$builder.AppendLine("Stage: " + [string]$stage)
+    [void]$builder.AppendLine("Debug log: " + (Get-BulkAiRecoveryDebugPath))
+    if(-not [string]::IsNullOrWhiteSpace([string]$script:BulkAiRecoveryStage)){
+        [void]$builder.AppendLine("Last stage: " + [string]$script:BulkAiRecoveryStage)
+    }
+    if(-not [string]::IsNullOrWhiteSpace([string]$script:BulkAiRecoveryDetail)){
+        [void]$builder.AppendLine("Detail: " + [string]$script:BulkAiRecoveryDetail)
+    }
+    if($exception){
+        [void]$builder.AppendLine("Error type: " + $exception.GetType().FullName)
+        [void]$builder.AppendLine("Message: " + [string]$exception.Message)
+        Write-BulkAiRecoveryDebug ("ERROR stage=" + [string]$stage + " type=" + [string]$exception.GetType().FullName + " message=" + [string]$exception.Message)
+        if($exception.InnerException){
+            [void]$builder.AppendLine("Inner: " + $exception.InnerException.GetType().FullName + " - " + [string]$exception.InnerException.Message)
+        }
+        if(-not [string]::IsNullOrWhiteSpace([string]$exception.StackTrace)){
+            $stackLine = (([string]$exception.StackTrace) -split "(`r`n|`n|`r)" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1)
+            if($stackLine){ [void]$builder.AppendLine("Stack: " + [string]$stackLine) }
+        }
+    }
+    $text = $builder.ToString()
+    try{ if($txtOcrDebug){ $txtOcrDebug.Text = $text } } catch{}
+    try{ Append-AiVisionLog $text } catch{}
+    try{ Set-AiRecoveryUiBusy $false } catch{}
+    [System.Windows.Forms.MessageBox]::Show($text,"Bulk AI Recovery Error",[System.Windows.Forms.MessageBoxButtons]::OK,[System.Windows.Forms.MessageBoxIcon]::Error) | Out-Null
+}
+
+function Convert-BulkAiRecoveryRectangle($rect){
+    if(!$rect){ return $null }
+    try{
+        if($rect -is [System.Drawing.Rectangle]){
+            return (New-Object System.Drawing.Rectangle([int]$rect.X,[int]$rect.Y,[int]$rect.Width,[int]$rect.Height))
+        }
+        if($rect -is [System.Drawing.RectangleF]){
+            $x = [int][Math]::Floor([double]$rect.X)
+            $y = [int][Math]::Floor([double]$rect.Y)
+            $right = [int][Math]::Ceiling([double]($rect.X + $rect.Width))
+            $bottom = [int][Math]::Ceiling([double]($rect.Y + $rect.Height))
+            return (New-Object System.Drawing.Rectangle($x,$y,[int][Math]::Max(1,($right - $x)),[int][Math]::Max(1,($bottom - $y))))
+        }
+        $x = [int][Math]::Floor([double]$rect.X)
+        $y = [int][Math]::Floor([double]$rect.Y)
+        $right = if($rect.PSObject.Properties.Name -contains "Right"){ [int][Math]::Ceiling([double]$rect.Right) } else { [int][Math]::Ceiling([double]$rect.X + [double]$rect.Width) }
+        $bottom = if($rect.PSObject.Properties.Name -contains "Bottom"){ [int][Math]::Ceiling([double]$rect.Bottom) } else { [int][Math]::Ceiling([double]$rect.Y + [double]$rect.Height) }
+        return (New-Object System.Drawing.Rectangle($x,$y,[int][Math]::Max(1,($right - $x)),[int][Math]::Max(1,($bottom - $y))))
+    }
+    catch{
+        Set-BulkAiRecoveryStage "Convert rectangle failed" ("Input type: " + $(if($rect){ $rect.GetType().FullName } else { "<null>" }) + "; " + $_.Exception.Message)
+        return $null
+    }
+}
+
+function Get-BulkAiRecoverySafeRect($rect,$bitmap){
+    $drawingRect = Convert-BulkAiRecoveryRectangle $rect
+    if(!$drawingRect -or !$bitmap){ return $null }
+    $bounds = New-Object System.Drawing.Rectangle(0,0,[int]$bitmap.Width,[int]$bitmap.Height)
+    $safeRect = [System.Drawing.Rectangle]::Intersect($drawingRect,$bounds)
+    if($safeRect.Width -le 0 -or $safeRect.Height -le 0){ return $null }
+    return $safeRect
+}
+
+function Ensure-BulkAiRecoveryImageSaver{
+    $typeName = "RapidOcrBulkAiRecoveryImageSaver"
+    if(([System.Management.Automation.PSTypeName]$typeName).Type){
+        Write-BulkAiRecoveryDebug "Image saver helper already loaded."
+        return
+    }
+
+    $drawingAssembly = [System.Drawing.Bitmap].Assembly.Location
+    if([string]::IsNullOrWhiteSpace([string]$drawingAssembly) -or !(Test-Path -LiteralPath $drawingAssembly)){
+        $drawingAssembly = "System.Drawing.Common"
+    }
+    Write-BulkAiRecoveryDebug ("Loading image saver helper; drawing assembly=" + [string]$drawingAssembly)
+
+    Add-Type -Language CSharp -ReferencedAssemblies @($drawingAssembly) -TypeDefinition @"
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+
+public static class RapidOcrBulkAiRecoveryImageSaver
+{
+    public static void SavePng(Bitmap bitmap, string path)
+    {
+        if (bitmap == null) throw new ArgumentNullException("bitmap");
+        if (String.IsNullOrWhiteSpace(path)) throw new ArgumentException("path is empty", "path");
+        string dir = Path.GetDirectoryName(path);
+        if (!String.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+        using (FileStream stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read))
+        {
+            bitmap.Save(stream, ImageFormat.Png);
+            stream.Flush();
+        }
+    }
+}
+"@
+}
+
+function New-BulkAiRecoveryContactSheet($rowIndexes){
+    Set-BulkAiRecoveryStage "Contact sheet start" ("Requested rows: " + ((@($rowIndexes) | ForEach-Object { [string]$_ }) -join ", "))
+    if(!$script:sourceBitmap){ throw "No PDF/image is loaded." }
+    $script:BulkAiRecoveryContactSheetPath = ""
+    $script:BulkAiRecoveryContactSheetItems = @()
+
+    $rows = @(
+        $rowIndexes |
+        ForEach-Object { [int]$_ } |
+        Where-Object { $_ -ge 0 -and $_ -lt $table.Rows.Count -and $script:StepRects.ContainsKey($_) } |
+        Sort-Object -Unique
+    )
+    if($rows.Count -le 0){ throw "No valid step crops to recover." }
+    Set-BulkAiRecoveryStage "Contact sheet rows filtered" ("Valid rows: " + (($rows | ForEach-Object { [string]$_ }) -join ", "))
+
+    $tileW = 520
+    $tileH = 260
+    $labelH = 34
+    $pad = 16
+    $cols = if($rows.Count -eq 1){ 1 } else { 2 }
+    $sheetRows = [int][Math]::Ceiling($rows.Count / [double]$cols)
+    $sheetW = [int](($cols * $tileW) + (($cols + 1) * $pad))
+    $sheetH = [int](($sheetRows * $tileH) + (($sheetRows + 1) * $pad))
+    Set-BulkAiRecoveryStage "Contact sheet canvas" ("Size: ${sheetW}x${sheetH}; source: $($script:sourceBitmap.Width)x$($script:sourceBitmap.Height)")
+
+    $bitmap = New-Object System.Drawing.Bitmap($sheetW,$sheetH,[System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    $labelFont = New-Object System.Drawing.Font("Segoe UI",[float]16,[System.Drawing.FontStyle]::Bold)
+    $smallFont = New-Object System.Drawing.Font("Segoe UI",[float]9,[System.Drawing.FontStyle]::Regular)
+    $labelBrush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(255,20,20,20))
+    $borderPen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(255,30,120,215),[float]2)
+    $items = New-Object System.Collections.Generic.List[object]
+    $path = Join-Path ([System.IO.Path]::GetTempPath()) ("RapidOcrBulkAiRecovery_" + [Guid]::NewGuid().ToString("N") + ".png")
+
+    try{
+        $graphics.Clear([System.Drawing.Color]::White)
+        for($i=0; $i -lt $rows.Count; $i++){
+            $rowIndex = [int]$rows[$i]
+            $stepLabel = [string]$table.Rows[$rowIndex].Cells[0].Value
+            if([string]::IsNullOrWhiteSpace($stepLabel)){ $stepLabel = [string]($rowIndex + 1) }
+            $rect = $script:StepRects[$rowIndex]
+            Set-BulkAiRecoveryStage "Contact sheet crop" ("i=$i row=$rowIndex step=$stepLabel rectType=" + $(if($rect){ $rect.GetType().FullName } else { "<null>" }))
+            $safeRect = Get-BulkAiRecoverySafeRect $rect $script:sourceBitmap
+            if(!$safeRect){
+                Set-BulkAiRecoveryStage "Contact sheet skipped crop" ("row=$rowIndex step=$stepLabel invalid/clipped rect")
+                continue
+            }
+
+            $col = $i % $cols
+            $sheetRow = [int][Math]::Floor($i / [double]$cols)
+            $x = [int]($pad + ($col * ($tileW + $pad)))
+            $y = [int]($pad + ($sheetRow * ($tileH + $pad)))
+            $graphics.DrawRectangle($borderPen,$x,$y,$tileW,$tileH)
+            $graphics.DrawString(("STEP " + $stepLabel),$labelFont,$labelBrush,[float]($x + 10),[float]($y + 5))
+
+            $crop = $null
+            try{
+                Set-BulkAiRecoveryStage "Contact sheet clone crop" ("step=$stepLabel safeRect=$($safeRect.X),$($safeRect.Y),$($safeRect.Width),$($safeRect.Height)")
+                $crop = $script:sourceBitmap.Clone($safeRect,$script:sourceBitmap.PixelFormat)
+                $maxW = $tileW - 20
+                $maxH = $tileH - $labelH - 18
+                $scale = [Math]::Min(($maxW / [double]$crop.Width),($maxH / [double]$crop.Height))
+                if($scale -le 0){ $scale = 1.0 }
+                $drawW = [int][Math]::Max(1,[Math]::Round($crop.Width * $scale))
+                $drawH = [int][Math]::Max(1,[Math]::Round($crop.Height * $scale))
+                $drawX = [int]($x + (($tileW - $drawW) / 2))
+                $drawY = [int]($y + $labelH + (($maxH - $drawH) / 2))
+                $destRect = New-Object System.Drawing.Rectangle($drawX,$drawY,$drawW,$drawH)
+                $graphics.DrawImage($crop,$destRect)
+                $graphics.DrawString(("row " + [string]($rowIndex + 1)),$smallFont,$labelBrush,[float]($x + $tileW - 72),[float]($y + 10))
+            }
+            finally{
+                if($crop){ $crop.Dispose() }
+            }
+
+            [void]$items.Add([PSCustomObject]@{ RowIndex = [int]$rowIndex; Step = [string]$stepLabel })
+        }
+        if($items.Count -le 0){ throw "No contact-sheet crops were created. Check selected step rectangles." }
+        Set-BulkAiRecoveryStage "Contact sheet save" $path
+        Ensure-BulkAiRecoveryImageSaver
+        [RapidOcrBulkAiRecoveryImageSaver]::SavePng($bitmap,[string]$path)
+        $savedInfo = Get-Item -LiteralPath $path -ErrorAction Stop
+        Write-BulkAiRecoveryDebug ("Contact sheet PNG saved: " + [string]$savedInfo.FullName + "; bytes=" + [string]$savedInfo.Length)
+        $script:BulkAiRecoveryContactSheetPath = [string]$path
+        $script:BulkAiRecoveryContactSheetItems = @($items.ToArray())
+        Write-BulkAiRecoveryDebug ("Contact sheet vars set: path=" + [string]$script:BulkAiRecoveryContactSheetPath + "; items=" + [string]@($script:BulkAiRecoveryContactSheetItems).Count)
+    }
+    finally{
+        if($graphics){ $graphics.Dispose() }
+        if($labelFont){ $labelFont.Dispose() }
+        if($smallFont){ $smallFont.Dispose() }
+        if($labelBrush){ $labelBrush.Dispose() }
+        if($borderPen){ $borderPen.Dispose() }
+        if($bitmap){ $bitmap.Dispose() }
+    }
+
+    Write-BulkAiRecoveryDebug "Contact sheet returning bool true"
+    return [bool]$true
+}
+
+function Get-BulkAiRecoveryPrompt($items){
+    $steps = (@($items) | ForEach-Object { [string]$_.Step }) -join ", "
+    return ("CHI TRA VE KET QUA CHO TAT CA CAC O ANH CO NHAN STEP. KHONG GIAI THICH. MOI STEP MOT DONG RIENG. Nominal KHONG BAO GIO DUOC LA GIA TRI AM; neu thay dau - truoc nominal thi bo dau - do. Tol- moi duoc phep am. BAT BUOC DUNG FORMAT: STEP=<step> Nominal=<gia tri duong/khong am> Tol+=<gia tri> Tol-=<gia tri>. Neu khong doc duoc thi: STEP=<step> SKIP. Cac step can doc: " + $steps)
+}
+
+function Parse-BulkAiRecoveryResponse($text){
+    $map = @{}
+    if([string]::IsNullOrWhiteSpace([string]$text)){ return $map }
+    $lines = @(([string]$text) -split "(`r`n|`n|`r)" | ForEach-Object { ([string]$_).Trim() } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    foreach($line in $lines){
+        if($line -notmatch 'STEP\s*=?\s*([^\s:;,]+)'){ continue }
+        $step = [string]$Matches[1]
+        if($line -match '\bSKIP\b'){ continue }
+        $nominalMatch = [regex]::Match($line,'Nominal\s*=\s*(.+?)(?=\s+Tol\+\s*=|\s+Tol-\s*=|$)','IgnoreCase')
+        $tolPlusMatch = [regex]::Match($line,'Tol\s*\+\s*=\s*([+\-]?\d+(?:\.\d+)?)','IgnoreCase')
+        $tolMinusMatch = [regex]::Match($line,'Tol\s*\-\s*=\s*([+\-]?\d+(?:\.\d+)?)','IgnoreCase')
+        if(-not ($nominalMatch.Success -and $tolPlusMatch.Success -and $tolMinusMatch.Success)){ continue }
+        $tolPlus = 0.0
+        $tolMinus = 0.0
+        if(-not [double]::TryParse([string]$tolPlusMatch.Groups[1].Value,[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$tolPlus)){ continue }
+        if(-not [double]::TryParse([string]$tolMinusMatch.Groups[1].Value,[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$tolMinus)){ continue }
+        $nominal = Normalize-AiRecoveryNominalText ([string]$nominalMatch.Groups[1].Value)
+        if([string]::IsNullOrWhiteSpace($nominal)){ continue }
+        $raw = "STEP=" + $step + " Nominal=" + $nominal + " Tol+=" + [string]$tolPlusMatch.Groups[1].Value + " Tol-=" + [string]$tolMinusMatch.Groups[1].Value
+        $map[$step] = [PSCustomObject]@{ Step = $step; Raw = $raw; Nominal = $nominal; TolPlus = [double]$tolPlus; TolMinus = [double]$tolMinus; Success = $true }
+    }
+    return $map
+}
+
+function Invoke-ChromeBulkAiRecoveryTextFromImagePath($imagePath,$items){
+    Set-BulkAiRecoveryStage "Send bulk image to Chrome" ("image=$imagePath; items=$(@($items).Count)")
+    if([string]::IsNullOrWhiteSpace([string]$imagePath) -or !(Test-Path -LiteralPath $imagePath)){ throw "Bulk recovery image not found." }
+    if(-not (Set-ClipboardImageFromPath $imagePath)){ throw "Could not put bulk crop image on clipboard." }
+
+    Set-BulkAiRecoveryStage "Open Chrome AI"
+    Open-ChromeAiRecoveryPage
+    if(-not (Test-AiRecoveryChromeSessionAlive)){ throw "Chrome AI recovery window was closed." }
+    if(-not (Wait-AiRecoveryChromeReady 9000 700)){ throw "Chrome AI tab was not ready for paste." }
+
+    Set-BulkAiRecoveryStage "Paste image and prompt"
+    [void](Click-ChromeRecoveryPromptArea)
+    Send-KeysWithPause '^v' 1250
+    if(-not (Set-ClipboardTextSafe (Get-BulkAiRecoveryPrompt $items))){ throw "Could not put bulk AI recovery prompt on clipboard." }
+    Send-KeysWithPause '^v' 420
+    Send-KeysWithPause '{ENTER}' 1800
+    Hide-AiRecoveryChromeTemporarily
+
+    $lastPageText = ""
+    $maxAttempts = if($script:AiRecoveryTurboMode){ 14 } else { 18 }
+    $pollDelayMs = if($script:AiRecoveryTurboMode){ 1300 } else { 1900 }
+    for($attempt = 0; $attempt -lt $maxAttempts; $attempt++){
+        Start-Sleep -Milliseconds $pollDelayMs
+        if(-not (Test-AiRecoveryChromeSessionAlive)){ throw "Chrome AI recovery window was closed." }
+        if(-not (Wait-AiRecoveryChromeReady 5000 250)){ continue }
+        [void](Click-ChromeRecoveryAnswerArea)
+        Send-KeysWithPause '^a' 120
+        Send-KeysWithPause '^c' 280
+        $pageText = Get-ClipboardTextSafe
+        $lastPageText = [string]$pageText
+        Set-BulkAiRecoveryStage "Poll Chrome response" ("attempt=$($attempt + 1); chars=$(([string]$pageText).Length)")
+        $parsedMap = Parse-BulkAiRecoveryResponse $pageText
+        if($parsedMap.Count -gt 0){ return $pageText }
+        Hide-AiRecoveryChromeTemporarily
+    }
+
+    if(-not [string]::IsNullOrWhiteSpace($lastPageText)){
+        throw ("Google AI mode did not return usable bulk result. Clipboard=" + (($lastPageText -replace '\s+',' ').Trim()))
+    }
+    throw "Google AI mode did not return usable bulk result."
+}
+
+function Invoke-BulkAiRecoveryRows($rowIndexes){
+    if($script:AiVisionBusy){ return }
+    Set-BulkAiRecoveryStage "Bulk rows start" ("Input: " + ((@($rowIndexes) | ForEach-Object { [string]$_ }) -join ", "))
+    $rows = @($rowIndexes | ForEach-Object { [int]$_ } | Where-Object { $_ -ge 0 -and $_ -lt $table.Rows.Count } | Sort-Object -Unique)
+    if($rows.Count -le 0){ return }
+
+    $script:AiVisionBusy = $true
+    $script:AiRecoverySilentMode = $false
+    $successCount = 0
+    $failures = New-Object System.Collections.Generic.List[string]
+    [string]$sheetPath = ""
+    [object[]]$sheetItems = @()
+
+    try{
+        Set-AiRecoveryUiBusy $true ("Bulk AI Recovery is preparing " + [string]$rows.Count + " crops..." + [Environment]::NewLine + "A single contact-sheet image will be sent to Google AI.")
+        [bool]$sheetCreated = [bool](New-BulkAiRecoveryContactSheet $rows)
+        Write-BulkAiRecoveryDebug ("New-BulkAiRecoveryContactSheet returned: " + [string]$sheetCreated)
+        if(-not $sheetCreated){ throw "Contact sheet was not created." }
+        $sheetPath = [string]$script:BulkAiRecoveryContactSheetPath
+        $sheetItems = @($script:BulkAiRecoveryContactSheetItems)
+        Write-BulkAiRecoveryDebug ("Contact sheet handoff: path=" + $sheetPath + "; items=" + [string]$sheetItems.Count)
+        Set-OcrDebugAiHeader "Bulk AI Recovery"
+        Append-OcrDebugAiProgress ("Sending one clipboard image with " + [string]$sheetItems.Count + " steps.")
+        Append-AiVisionLog ("Bulk AI Recovery contact sheet: " + $sheetPath)
+        $rawText = Invoke-ChromeBulkAiRecoveryTextFromImagePath $sheetPath $sheetItems
+        $resultMap = Parse-BulkAiRecoveryResponse $rawText
+
+        foreach($item in @($sheetItems)){
+            $rowIndex = [int]$item.RowIndex
+            $stepLabel = [string]$item.Step
+            try{
+                if(-not $resultMap.ContainsKey($stepLabel)){ throw "No result returned for this step." }
+                $parsed = $resultMap[$stepLabel]
+                $realRect = $script:StepRects[$rowIndex]
+                $resolvedTolMinus = [double]$parsed.TolMinus
+                $resolvedTolPlus = [double]$parsed.TolPlus
+                if($resolvedTolMinus -eq 0 -and $resolvedTolPlus -eq 0){
+                    $fallbackTolerance = Get-GeneralToleranceForNominal ([string]$parsed.Nominal)
+                    $resolvedTolMinus = [double]$fallbackTolerance.TolMinus
+                    $resolvedTolPlus = [double]$fallbackTolerance.TolPlus
+                }
+
+                $table.Rows[$rowIndex].Cells[1].Value = [string]$parsed.Nominal
+                $table.Rows[$rowIndex].Cells[2].Value = Format-InvariantSignedTolerance $resolvedTolMinus
+                $table.Rows[$rowIndex].Cells[3].Value = Format-InvariantSignedTolerance $resolvedTolPlus
+                Add-OrUpdate-MarkStepTextZone $rowIndex ([int]$table.Rows[$rowIndex].Cells[0].Value) $realRect ([string]$parsed.Nominal) ([string]$parsed.Raw) $resolvedTolMinus $resolvedTolPlus | Out-Null
+                Set-StepAiRecoveryMetadata $rowIndex "AI Fixed" "Gemini Bulk" ([string]$parsed.Raw)
+                Append-AiVisionLog ("Bulk AI Recovery step " + $stepLabel + ": " + [string]$parsed.Raw)
+                $successCount++
+            }
+            catch{
+                [void]$failures.Add(("Step " + $stepLabel + ": " + $_.Exception.Message))
+                Append-AiVisionLog ("Bulk AI Recovery failed step " + $stepLabel + ": " + $_.Exception.Message)
+                Append-OcrDebugAiProgress ("Failed step " + $stepLabel + ": " + $_.Exception.Message)
+            }
+        }
+
         Save-CurrentPageState
         Queue-SessionStateSave
         Refresh-DuplicateState
         Apply-TableSearchFilter
         Request-CanvasRedraw
-        Append-AiVisionLog ("Rescan raw: " + [string]$rawText)
-        Append-AiVisionLog ("Rescan resolved: " + [string]$candidate.Nominal)
-        Append-OcrDebugAiProgress ("Raw: " + [string]$rawText)
-        Append-OcrDebugAiProgress ("Resolved: " + [string]$candidate.Nominal)
-        Append-OcrDebugAiProgress ("Tol-: " + (Format-InvariantSignedTolerance $candidate.Tolerance.TolMinus))
-        Append-OcrDebugAiProgress ("Tol+: " + (Format-InvariantSignedTolerance $candidate.Tolerance.TolPlus))
-        if($txtAiResult){ $txtAiResult.Text = [string]$rawText }
-    }
-    catch{
-        Append-AiVisionLog ("Rescan failed: " + $_.Exception.Message)
-        Append-OcrDebugAiProgress ("Failed: " + $_.Exception.Message)
     }
     finally{
+        try{
+            if(-not [string]::IsNullOrWhiteSpace($sheetPath) -and (Test-Path -LiteralPath $sheetPath)){
+                Remove-Item -LiteralPath $sheetPath -Force -ErrorAction SilentlyContinue
+            }
+        } catch{}
+        Close-AiRecoveryChromeSession
+        Restore-RapidOcrWindowFocus
+        Set-AiRecoveryUiBusy $false
         $script:AiVisionBusy = $false
     }
+
+    $message = "Bulk Google AI Recovery finished." + [Environment]::NewLine + "Updated: " + [string]$successCount + "/" + [string]$rows.Count
+    if($failures.Count -gt 0){
+        $message += [Environment]::NewLine + [Environment]::NewLine + "Failed:" + [Environment]::NewLine + (($failures | Select-Object -First 8) -join [Environment]::NewLine)
+        if($failures.Count -gt 8){ $message += [Environment]::NewLine + "..." }
+    }
+    [System.Windows.Forms.MessageBox]::Show($message,"Bulk Google AI Recovery",[System.Windows.Forms.MessageBoxButtons]::OK,[System.Windows.Forms.MessageBoxIcon]::Information) | Out-Null
 }
 
-function Invoke-OllamaVisionFromImagePath($modelName,$imagePath){
-
-    if([string]::IsNullOrWhiteSpace($modelName)){ throw "Ollama model is empty." }
-    if([string]::IsNullOrWhiteSpace($imagePath) -or !(Test-Path -LiteralPath $imagePath)){ throw "Crop image was not created." }
-
-    $bareModelName = [string]$modelName
-    if($bareModelName.StartsWith("ollama:",[System.StringComparison]::OrdinalIgnoreCase)){
-        $bareModelName = $bareModelName.Substring(7)
+function Show-BulkAiRecoveryWindow{
+    Write-BulkAiRecoveryDebug "Show-BulkAiRecoveryWindow active copy opened"
+    if(!$table -or $table.Rows.Count -le 0){
+        [System.Windows.Forms.MessageBox]::Show("No steps to recover.","Bulk Google AI Recovery") | Out-Null
+        return
     }
 
-    $totalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-    Append-AiVisionLog ("Ollama prepare: " + $bareModelName)
+    $dlg = New-Object System.Windows.Forms.Form
+    $dlg.Text = "Bulk Google AI Recovery [debug]"
+    $dlg.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterParent
+    $dlg.Size = New-Object System.Drawing.Size(980,560)
+    $dlg.MinimizeBox = $false
+    $dlg.MaximizeBox = $false
+    $dlg.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
 
-    $ioStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-    $bytes = [System.IO.File]::ReadAllBytes($imagePath)
-    $ioStopwatch.Stop()
-    Append-AiVisionLog ("Crop read done in " + [Math]::Round($ioStopwatch.Elapsed.TotalSeconds,2) + "s")
+    $list = New-Object System.Windows.Forms.CheckedListBox
+    $list.CheckOnClick = $true
+    $list.Location = New-Object System.Drawing.Point(12,12)
+    $list.Size = New-Object System.Drawing.Size(380,410)
+    $list.Font = New-Object System.Drawing.Font("Segoe UI",10)
+    $dlg.Controls.Add($list)
 
-    $encodeStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-    $base64Image = [System.Convert]::ToBase64String($bytes)
-    $encodeStopwatch.Stop()
-    Append-AiVisionLog ("Image encode done in " + [Math]::Round($encodeStopwatch.Elapsed.TotalSeconds,2) + "s")
+    $previewBox = New-Object System.Windows.Forms.PictureBox
+    $previewBox.Location = New-Object System.Drawing.Point(410,12)
+    $previewBox.Size = New-Object System.Drawing.Size(535,410)
+    $previewBox.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+    $previewBox.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::Zoom
+    $previewBox.BackColor = [System.Drawing.Color]::White
+    $dlg.Controls.Add($previewBox)
 
-    $payload = @{
-        model = $bareModelName
-        stream = $false
-        keep_alive = $script:OllamaVisionKeepAlive
-        messages = @(
-            @{
-                role = "user"
-                content = (Get-AiVisionActivePrompt)
-                images = @($base64Image)
+    $previewStatus = New-Object System.Windows.Forms.Label
+    $previewStatus.Location = New-Object System.Drawing.Point(410,428)
+    $previewStatus.Size = New-Object System.Drawing.Size(535,22)
+    $previewStatus.Text = "Preview will show selected step crops."
+    $previewStatus.ForeColor = [System.Drawing.Color]::DimGray
+    $dlg.Controls.Add($previewStatus)
+
+    $rowMap = New-Object System.Collections.Generic.List[int]
+    $selectedRowIndex = Get-SelectedStepRowIndex
+    for($i = 0; $i -lt $table.Rows.Count; $i++){
+        $stepLabel = [string]$table.Rows[$i].Cells[0].Value
+        $nominal = [string]$table.Rows[$i].Cells[1].Value
+        if([string]::IsNullOrWhiteSpace($stepLabel)){ $stepLabel = [string]($i + 1) }
+        $label = "Step " + $stepLabel
+        if(-not [string]::IsNullOrWhiteSpace($nominal)){ $label += "    " + $nominal }
+        [void]$list.Items.Add($label,($i -eq $selectedRowIndex))
+        [void]$rowMap.Add([int]$i)
+    }
+
+    $previewImage = $null
+    $previewPath = ""
+
+    $getSelectedRows = {
+        $selectedRows = New-Object System.Collections.Generic.List[int]
+        foreach($checkedIndex in @($list.CheckedIndices)){
+            [void]$selectedRows.Add([int]$rowMap[[int]$checkedIndex])
+        }
+        return [int[]]@($selectedRows.ToArray() | ForEach-Object { [int]$_ })
+    }
+
+    $clearPreview = {
+        if($previewBox.Image){
+            $oldImage = $previewBox.Image
+            $previewBox.Image = $null
+            try{ $oldImage.Dispose() } catch{}
+        }
+        if($script:BulkAiRecoveryPreviewImage){
+            try{ $script:BulkAiRecoveryPreviewImage.Dispose() } catch{}
+            $script:BulkAiRecoveryPreviewImage = $null
+        }
+        if(-not [string]::IsNullOrWhiteSpace([string]$script:BulkAiRecoveryPreviewPath) -and (Test-Path -LiteralPath ([string]$script:BulkAiRecoveryPreviewPath))){
+            try{ Remove-Item -LiteralPath ([string]$script:BulkAiRecoveryPreviewPath) -Force -ErrorAction SilentlyContinue } catch{}
+        }
+        $script:BulkAiRecoveryPreviewPath = ""
+    }
+
+    $updatePreview = {
+        try{
+            & $clearPreview
+            $rows = @(& $getSelectedRows)
+            if($rows.Count -le 0){
+                $previewStatus.Text = "Tick at least one step to preview."
+                return
             }
-        )
-    } | ConvertTo-Json -Depth 6
+            $previewStatus.Text = "Rendering preview..."
+            [System.Windows.Forms.Application]::DoEvents()
 
-    Append-AiVisionLog ("Request sent. Waiting for model load / HDD...")
-    $inferStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-    try{
-        $response = Invoke-RestMethod -Method Post -Uri ($script:OllamaVisionBaseUrl.TrimEnd('/') + "/api/chat") -ContentType "application/json" -Body $payload -TimeoutSec 180
-    }
-    catch{
-        $errorBody = Get-HttpErrorDetail $_
-        if([string]::IsNullOrWhiteSpace($errorBody)){ throw }
-        throw ("Ollama chat failed: " + $_.Exception.Message + " | " + $errorBody)
-    }
-    $inferStopwatch.Stop()
-    Append-AiVisionLog ("Model response received in " + [Math]::Round($inferStopwatch.Elapsed.TotalSeconds,2) + "s")
-    if($null -ne $response.load_duration){
-        $loadSeconds = [Math]::Round(([double]$response.load_duration / 1000000000.0),2)
-        Append-AiVisionLog ("Ollama load_duration " + $loadSeconds + "s")
-    }
-    $text = [string]$response.message.content
-    if([string]::IsNullOrWhiteSpace($text)){ throw "Ollama returned an empty response." }
-    $totalStopwatch.Stop()
-    Append-AiVisionLog ("Ollama total time " + [Math]::Round($totalStopwatch.Elapsed.TotalSeconds,2) + "s")
-    return $text.Trim()
-}
+            [bool]$created = [bool](New-BulkAiRecoveryContactSheet $rows)
+            if(-not $created -or [string]::IsNullOrWhiteSpace([string]$script:BulkAiRecoveryContactSheetPath) -or !(Test-Path -LiteralPath ([string]$script:BulkAiRecoveryContactSheetPath))){
+                throw "Preview contact sheet was not created."
+            }
 
-function Get-GeminiApiKey{
-
-    foreach($candidate in @(
-        [string]$env:GEMINI_API_KEY,
-        [string]$env:GOOGLE_API_KEY
-    )){
-        if(-not [string]::IsNullOrWhiteSpace($candidate)){
-            return $candidate.Trim()
+            $script:BulkAiRecoveryPreviewPath = [string]$script:BulkAiRecoveryContactSheetPath
+            $loaded = [System.Drawing.Image]::FromFile($script:BulkAiRecoveryPreviewPath)
+            try{
+                $script:BulkAiRecoveryPreviewImage = New-Object System.Drawing.Bitmap($loaded)
+            }
+            finally{
+                $loaded.Dispose()
+            }
+            $previewBox.Image = $script:BulkAiRecoveryPreviewImage
+            $previewStatus.Text = "Preview: " + [string]$rows.Count + " selected step(s)."
+        }
+        catch{
+            $previewStatus.Text = "Preview failed: " + $_.Exception.Message
+            Write-BulkAiRecoveryDebug ("Preview failed: " + $_.Exception.Message)
         }
     }
 
-    return ""
-}
+    $btnAll = New-Object System.Windows.Forms.Button
+    $btnAll.Text = "All"
+    $btnAll.Location = New-Object System.Drawing.Point(12,455)
+    $btnAll.Size = New-Object System.Drawing.Size(70,28)
+    $btnAll.Add_Click({
+        for($i=0; $i -lt $list.Items.Count; $i++){ $list.SetItemChecked($i,$true) }
+        & $updatePreview
+    })
+    $dlg.Controls.Add($btnAll)
 
-function Invoke-GeminiVisionFromImagePath($modelName,$imagePath,[switch]$ForceExperiment){
+    $btnNone = New-Object System.Windows.Forms.Button
+    $btnNone.Text = "None"
+    $btnNone.Location = New-Object System.Drawing.Point(88,455)
+    $btnNone.Size = New-Object System.Drawing.Size(70,28)
+    $btnNone.Add_Click({
+        for($i=0; $i -lt $list.Items.Count; $i++){ $list.SetItemChecked($i,$false) }
+        & $updatePreview
+    })
+    $dlg.Controls.Add($btnNone)
 
-    if([string]::IsNullOrWhiteSpace($modelName)){ throw "Gemini model is empty." }
-    if([string]::IsNullOrWhiteSpace($imagePath) -or !(Test-Path -LiteralPath $imagePath)){ throw "Crop image was not created." }
+    $btnPreview = New-Object System.Windows.Forms.Button
+    $btnPreview.Text = "Preview"
+    $btnPreview.Location = New-Object System.Drawing.Point(164,455)
+    $btnPreview.Size = New-Object System.Drawing.Size(82,28)
+    $btnPreview.Add_Click({ & $updatePreview })
+    $dlg.Controls.Add($btnPreview)
 
-    $apiKey = Get-GeminiApiKey
-    if([string]::IsNullOrWhiteSpace($apiKey)){
-        throw "Gemini API key not found. Set GEMINI_API_KEY or GOOGLE_API_KEY."
-    }
-
-    $bareModelName = [string]$modelName
-    if($bareModelName.StartsWith("gemini:",[System.StringComparison]::OrdinalIgnoreCase)){
-        $bareModelName = $bareModelName.Substring(7)
-    }
-
-    $totalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-    Append-AiVisionLog ("Gemini prepare: " + $bareModelName)
-
-    $bytes = [System.IO.File]::ReadAllBytes($imagePath)
-    $base64Image = [System.Convert]::ToBase64String($bytes)
-    $promptText = Get-AiVisionActivePrompt -ForceExperiment:$ForceExperiment
-    $payload = @{
-        contents = @(
-            @{
-                parts = @(
-                    @{ text = $promptText },
-                    @{
-                        inline_data = @{
-                            mime_type = "image/png"
-                            data = $base64Image
-                        }
-                    }
-                )
-            }
-        )
-        generationConfig = @{
-            temperature = 0
-            topP = 0.1
-            topK = 1
-            maxOutputTokens = 48
+    $btnRun = New-Object System.Windows.Forms.Button
+    $btnRun.Text = "Recover"
+    $btnRun.Location = New-Object System.Drawing.Point(252,455)
+    $btnRun.Size = New-Object System.Drawing.Size(82,28)
+    $btnRun.Add_Click({
+        Write-BulkAiRecoveryDebug "Recover button clicked"
+        $selectedRows = @(& $getSelectedRows)
+        if($selectedRows.Count -le 0){
+            [System.Windows.Forms.MessageBox]::Show("Please tick at least one step.","Bulk Google AI Recovery") | Out-Null
+            return
         }
-    } | ConvertTo-Json -Depth 8
+        $dlg.DialogResult = [System.Windows.Forms.DialogResult]::OK
+        $dlg.Tag = [int[]]@($selectedRows | ForEach-Object { [int]$_ })
+        Write-BulkAiRecoveryDebug ("Recover selected rows: " + ((@($dlg.Tag) | ForEach-Object { [string]$_ }) -join ", ") + "; tagType=" + [string]$dlg.Tag.GetType().FullName)
+        $dlg.Close()
+    })
+    $dlg.Controls.Add($btnRun)
 
-    Append-AiVisionLog "Gemini request sent."
-    try{
-        $response = Invoke-RestMethod -Method Post -Uri ($script:GeminiVisionBaseUrl.TrimEnd('/') + "/models/" + $bareModelName + ":generateContent") -Headers @{ "x-goog-api-key" = $apiKey } -ContentType "application/json" -Body $payload -TimeoutSec 60
-    }
-    catch{
-        $errorBody = Get-HttpErrorDetail $_
-        if([string]::IsNullOrWhiteSpace($errorBody)){ throw }
-        throw ("Gemini request failed: " + $_.Exception.Message + " | " + $errorBody)
-    }
+    $btnCancel = New-Object System.Windows.Forms.Button
+    $btnCancel.Text = "Cancel"
+    $btnCancel.Location = New-Object System.Drawing.Point(340,455)
+    $btnCancel.Size = New-Object System.Drawing.Size(82,28)
+    $btnCancel.Add_Click({ $dlg.DialogResult = [System.Windows.Forms.DialogResult]::Cancel; $dlg.Close() })
+    $dlg.Controls.Add($btnCancel)
 
-    $parts = @()
-    foreach($candidate in @($response.candidates)){
-        if($candidate.content -and $candidate.content.parts){
-            foreach($part in @($candidate.content.parts)){
-                if(-not [string]::IsNullOrWhiteSpace([string]$part.text)){
-                    $parts += [string]$part.text
-                }
-            }
+    $previewRefreshTimer = New-Object System.Windows.Forms.Timer
+    $previewRefreshTimer.Interval = 120
+    $previewRefreshTimer.Add_Tick({
+        if($previewRefreshTimer){ $previewRefreshTimer.Stop() }
+        & $updatePreview
+    })
+
+    $list.Add_ItemCheck({
+        if($previewRefreshTimer){
+            $previewRefreshTimer.Stop()
+            $previewRefreshTimer.Start()
+        }
+    })
+
+    $dlg.Add_Shown({ & $updatePreview })
+
+    $result = $dlg.ShowDialog($form)
+    if($previewRefreshTimer){
+        $previewRefreshTimer.Stop()
+        $previewRefreshTimer.Dispose()
+    }
+    & $clearPreview
+    [string]$dialogTagType = "<null>"
+    if($null -ne $dlg.Tag){ $dialogTagType = [string]$dlg.Tag.GetType().FullName }
+    Write-BulkAiRecoveryDebug ("Dialog closed result=" + [string]$result + "; tagType=" + $dialogTagType)
+    if($result -eq [System.Windows.Forms.DialogResult]::OK){
+        try{
+            Invoke-BulkAiRecoveryRows @($dlg.Tag)
+        }
+        catch{
+            Show-BulkAiRecoveryError "Dialog recovery button" $_.Exception
         }
     }
-
-    $text = ($parts -join " ").Trim()
-    if([string]::IsNullOrWhiteSpace($text)){ throw "Gemini returned an empty response." }
-    $totalStopwatch.Stop()
-    Append-AiVisionLog ("Gemini total time " + [Math]::Round($totalStopwatch.Elapsed.TotalSeconds,2) + "s")
-    return $text
 }
 
 function New-ManualSelectionCandidate($realRect,$bestText,$bestRawText,$source){
@@ -17683,88 +19146,14 @@ function Commit-ManualSelectionCandidate($manualCandidate){
     return $true
 }
 
-function Invoke-AiVisionForSelection{
-    param([switch]$ForceExperiment)
-
-    if($script:AiVisionBusy){ return }
-    if(!$script:sourceBitmap -or !$script:selectionRect){ return }
-
-    $selectedModel = if($cmbAiModel){ [string]$cmbAiModel.Text } else { "" }
-    if([string]::IsNullOrWhiteSpace($selectedModel)){
-        if($txtAiResult){ $txtAiResult.Text = "Choose an AI vision model first." }
-        return
-    }
-    if(
-        -not $selectedModel.StartsWith("ollama:",[System.StringComparison]::OrdinalIgnoreCase) -and
-        -not $selectedModel.StartsWith("gemini:",[System.StringComparison]::OrdinalIgnoreCase)
-    ){
-        if($txtAiResult){ $txtAiResult.Text = "Only ollama:* and gemini:* models are enabled in this build." }
-        return
-    }
-
-    $realRect = Convert-ToImageRect $script:selectionRect
-    if(
-        $realRect.X -lt 0 -or
-        $realRect.Y -lt 0 -or
-        $realRect.Right -gt $script:sourceBitmap.Width -or
-        $realRect.Bottom -gt $script:sourceBitmap.Height -or
-        $realRect.Width -le 2 -or
-        $realRect.Height -le 2
-    ){
-        return
-    }
-
-    $script:AiVisionBusy = $true
-    if($btnAiTest){ $btnAiTest.Enabled = $false }
-    if($btnAiAccept){ $btnAiAccept.Enabled = $false }
-    Append-AiVisionLog ("Running " + $selectedModel)
-    try{
-        $visionReview = Invoke-AiVisionFromSelectionRect $selectedModel $realRect -ForceExperiment:$ForceExperiment
-        $rawText = [string]$visionReview.RawText
-        $candidate = New-ManualSelectionCandidate $realRect $rawText $rawText ("AiVision:" + $selectedModel)
-        $script:AiVisionResult = [PSCustomObject]@{
-            Model = [string]$selectedModel
-            RawText = [string]$rawText
-            CropPath = $null
-            Candidate = $candidate
-        }
-        Append-AiVisionLog ("Raw: " + [string]$rawText)
-        Append-AiVisionLog ("Resolved: " + [string]$candidate.Nominal)
-        if($txtOcrDebug){
-            $txtOcrDebug.Text = (
-                'AI Model: ' + [string]$selectedModel + [Environment]::NewLine +
-                'AI Raw: ' + [string]$rawText + [Environment]::NewLine +
-                'AI Resolved: ' + [string]$candidate.Nominal
-            )
-        }
-        if($txtAiResult){ $txtAiResult.Text = [string]$rawText }
-        if($btnAiAccept){ $btnAiAccept.Enabled = $true }
-    }
-    catch{
-        Clear-AiVisionResult
-        Append-AiVisionLog ("AI test failed: " + $_.Exception.Message)
-    }
-    finally{
-        $script:AiVisionBusy = $false
-        if($btnAiTest){ $btnAiTest.Enabled = $true }
-    }
-}
-
-function Accept-AiVisionResult{
-
-    if(!$script:AiVisionResult -or !$script:AiVisionResult.Candidate){ return }
-    Append-AiVisionLog ("Accepting result from " + [string]$script:AiVisionResult.Model)
-    [void](Commit-ManualSelectionCandidate $script:AiVisionResult.Candidate)
-}
+function Invoke-AiVisionForSelection{ param([switch]$ForceExperiment); return }
+function Accept-AiVisionResult{ return }
 
 function Invoke-SelectedOcr{
 
     if(!$script:sourceBitmap){ return }
     if(!$script:selectionRect){ return }
-    if($script:AiTestOnlyEnabled){
-        Invoke-AiVisionForSelection
-        return
-    }
+    if($script:AiTestOnlyEnabled){ $script:AiTestOnlyEnabled = $false }
 
     $img = $script:sourceBitmap
     $realRect = Convert-ToImageRect $script:selectionRect
@@ -17868,18 +19257,24 @@ $btnSave.Add_Click({
     $script:IsExportInProgress = $true
     $btnSave.Enabled = $false
     $btnExcel.Enabled = $false
+    Show-ExportProgress "Saving MarkStep PDF"
 
     try{
+        Update-ExportProgress "Saving session..." 10
         Save-SessionState
+        Update-ExportProgress "Exporting marked PDF..." 35
         $savedPdfPath = Export-MarkedDocumentPdf $pdfPath
         if([string]::IsNullOrWhiteSpace([string]$savedPdfPath) -or !(Test-Path -LiteralPath $savedPdfPath)){
             throw "PDF export finished without creating the output file."
         }
+        Update-ExportProgress "Exporting important PDF..." 70
         $savedImportantPdfPath = Export-MarkedDocumentPdf $importantPdfPath $true
         if([string]::IsNullOrWhiteSpace([string]$savedImportantPdfPath) -or !(Test-Path -LiteralPath $savedImportantPdfPath)){
             throw "Important PDF export finished without creating the output file."
         }
+        Update-ExportProgress "Finishing..." 92
         [void](Try-QueueBackgroundTrainingFlush)
+        Update-ExportProgress "Done." 100
     }
     catch{
         [System.Windows.Forms.MessageBox]::Show("Save PDF failed: $($_.Exception.Message)")
@@ -17888,6 +19283,7 @@ $btnSave.Add_Click({
         $script:IsExportInProgress = $false
         $btnSave.Enabled = $true
         $btnExcel.Enabled = $true
+        Close-ExportProgress
     }
 
 })
@@ -17898,8 +19294,7 @@ $btnExcel.Add_Click({
 
     if($script:IsExportInProgress){ return }
 
-    if(!$script:ExcelTemplate){
-        [System.Windows.Forms.MessageBox]::Show("Please select Excel template first.")
+    if(-not (Ensure-ExcelTemplateSelectedOnce)){
         return
     }
 
@@ -17936,15 +19331,18 @@ $btnExcel.Add_Click({
     $script:IsInspectionExportGeneratingSamples = $true
     $btnSave.Enabled = $false
     $btnExcel.Enabled = $false
+    Show-ExportProgress "Exporting Inspection"
 
     try{
         $exportStage = "Save session"
+        Update-ExportProgress "Saving session..." 5
         if($script:CurrentSourcePath){
             [void](Ensure-CanonicalSessionFileForSource $script:CurrentSourcePath $null -PreferCurrentState)
         }
         Save-SessionState
 
         $exportStage = "Start Excel"
+        Update-ExportProgress "Starting Excel..." 10
         $excel = New-Object -ComObject Excel.Application
         $excel.Visible = $false
         $originalAutomationSecurity = $excel.AutomationSecurity
@@ -17956,8 +19354,12 @@ $btnExcel.Add_Click({
         $maxPerPage = 40
         $rowStart = 14
         $exportRows = @(Get-AllInspectionRows)
+        $totalRowsToWrite = [Math]::Max(1,($exportRows.Count * [Math]::Max(1,$sampleBatches.Count)))
+        $writtenRows = 0
+        $batchOrdinal = 0
 
         foreach($sampleBatch in $sampleBatches){
+            $batchOrdinal++
             $batchStart = [int]$sampleBatch.Start
             $batchEnd = [int]$sampleBatch.End
             $batchSuffix = if($sampleBatches.Count -gt 1){ " Sample $batchStart-$batchEnd" } else { "" }
@@ -17967,10 +19369,12 @@ $btnExcel.Add_Click({
             $excelFormat = [int]$saveInfo.Format
 
             $exportStage = "Open template"
+            Update-ExportProgress ("Opening Excel template... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 15
             $wb = $excel.Workbooks.Open([string]$script:ExcelTemplate)
             $ws = $wb.Worksheets.Item([int]1)
 
             $exportStage = "Prepare sheet"
+            Update-ExportProgress ("Preparing sheet... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 18
             Clear-InspectionSheet $ws $rowStart $maxPerPage
             Set-InspectionHeader $ws $model $mold $qty $material $hrc $user
             Set-InspectionSampleHeaders $ws $batchStart $batchEnd
@@ -18008,6 +19412,11 @@ $btnExcel.Add_Click({
                 }
 
                 $exportStage = "Write rows"
+                $writtenRows++
+                if(($writtenRows -eq 1) -or (($writtenRows % 5) -eq 0) -or ($writtenRows -eq $totalRowsToWrite)){
+                    $rowPercent = 20 + [int][Math]::Round(45.0 * ([double]$writtenRows / [double]$totalRowsToWrite))
+                    Update-ExportProgress ("Writing Excel rows... " + [string]$writtenRows + "/" + [string]$totalRowsToWrite) $rowPercent
+                }
                 Set-ExcelCellTextValue $ws $row 1 ([string]$rowData.Step)
                 Set-ExcelCellTextValue $ws $row 2 ([string]$rowData.Nominal)
                 Set-ExcelCellBold $ws $row 2 (Convert-ToStepImportantFlag $rowData.ImportantStep)
@@ -18021,6 +19430,7 @@ $btnExcel.Add_Click({
             }
 
             $exportStage = "Save workbook"
+            Update-ExportProgress ("Saving workbook... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 68
             $wb.SaveAs($excelPath,$excelFormat)
             if(!(Test-Path -LiteralPath $excelPath)){
                 throw "Excel export finished without creating the output file."
@@ -18029,6 +19439,7 @@ $btnExcel.Add_Click({
             $saveSucceeded = $true
 
             $exportStage = "Close workbook"
+            Update-ExportProgress ("Closing workbook... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 72
             $wb.Close($true)
             [System.Runtime.Interopservices.Marshal]::ReleaseComObject($ws) | Out-Null
             $ws = $null
@@ -18039,11 +19450,13 @@ $btnExcel.Add_Click({
         if($script:DocumentPages.Count -gt 0){
             try{
                 $exportStage = "Export PDF"
+                Update-ExportProgress "Exporting marked PDF..." 80
                 $savedPdfPath = Export-MarkedDocumentPdf $pdfPath $false $script:PdfExportJpegQualityFast
                 if([string]::IsNullOrWhiteSpace([string]$savedPdfPath) -or !(Test-Path -LiteralPath $savedPdfPath)){
                     throw "PDF export finished without creating the output file."
                 }
                 if($hasImportantSteps){
+                    Update-ExportProgress "Exporting important PDF..." 88
                     $savedImportantPdfPath = Export-MarkedDocumentPdf $importantPdfPath $true $script:PdfExportJpegQualityFast
                     if([string]::IsNullOrWhiteSpace([string]$savedImportantPdfPath) -or !(Test-Path -LiteralPath $savedImportantPdfPath)){
                         throw "Important PDF export finished without creating the output file."
@@ -18056,6 +19469,7 @@ $btnExcel.Add_Click({
         }
 
         $exportStage = "Build success message"
+        Update-ExportProgress "Preparing result message..." 94
         $successMessage = "Saved Excel:"
         foreach($savedPath in @($savedExcelPaths)){
             $successMessage += "`r`n$savedPath"
@@ -18068,9 +19482,11 @@ $btnExcel.Add_Click({
         }
 
         $exportStage = "Queue background training"
+        Update-ExportProgress "Finishing..." 98
         [void](Try-QueueBackgroundTrainingFlush)
 
         $exportStage = "Done"
+        Update-ExportProgress "Done." 100
 
     }
     catch{
@@ -18117,6 +19533,7 @@ $btnExcel.Add_Click({
         $script:IsExportInProgress = $false
         $btnSave.Enabled = $true
         $btnExcel.Enabled = $true
+        Close-ExportProgress
 
         if($pdfExportWarning){
             [System.Windows.Forms.MessageBox]::Show($pdfExportWarning)
@@ -18132,18 +19549,14 @@ $btnExcel.Add_Click({
 # =========================
 $btnTemplate.Add_Click({
 
-    $dialog = New-Object Windows.Forms.OpenFileDialog
-    $dialog.Filter = "Excel Files|*.xlsx;*.xlsm;*.xls;*.xlsb;*.xltx;*.xltm;*.xlt|Excel Template and Workbook|*.xlsx;*.xlsm;*.xls;*.xlsb;*.xltx;*.xltm;*.xlt"
-
-    if($dialog.ShowDialog() -ne "OK"){ return }
-
-    $script:ExcelTemplate = $dialog.FileName
-    Save-SessionState
+    [void](Select-ExcelTemplateOnce)
 
 })
 
 Update-StartupSplashStatus "Restoring session..."
+Load-GlobalExcelTemplate | Out-Null
 Restore-SessionState
+Load-GlobalExcelTemplate | Out-Null
 
 Update-StartupSplashStatus "Skipping startup AI warmup..."
 
@@ -18151,8 +19564,6 @@ Update-StartupSplashStatus "Finalizing..."
 Initialize-TrayBehavior
 Update-JudgeOkMenuItem
 Update-AnnotationToolButtons
-Set-AiVisionModelSelection ([string]$cmbAiModel.Text)
-
 $form.Enabled = $false
 $form.Opacity = 0.01
 $script:StartupReadyTimer = New-Object System.Windows.Forms.Timer
@@ -18164,7 +19575,6 @@ $script:StartupReadyTimer.Add_Tick({
     Update-TrainingReadinessUi
     Update-CopyViewButton
     Update-PdfTextZonesButton
-    Update-TranslateLensButton
     Update-ZoomStatus
     Update-CanvasCursor
     try{ [System.Windows.Forms.Application]::DoEvents() } catch{}
@@ -18176,6 +19586,8 @@ $script:StartupReadyTimer.Add_Tick({
 })
 
 [System.Windows.Forms.Application]::Run($form)
+
+
 
 
 

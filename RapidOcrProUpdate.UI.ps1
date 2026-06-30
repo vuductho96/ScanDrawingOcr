@@ -526,9 +526,6 @@ $miAdvanceTrainingExport = New-Object Windows.Forms.ToolStripMenuItem("Training 
 [void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceClearGray)
 [void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceBalloonColor)
 
-[void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceTranslate)
-[void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceAiModel)
-
 [void]$miAdvanceDevMenu.DropDownItems.Add($miAdvanceYellowPen)
 [void]$miAdvanceDevMenu.DropDownItems.Add($miAdvanceEraser)
 [void]$miAdvanceDevMenu.DropDownItems.Add($miAdvanceTrainingExport)
