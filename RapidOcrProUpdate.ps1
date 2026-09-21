@@ -768,7 +768,7 @@ function Apply-TableSearchFilter{
 function Set-DrawSidePanelControlsVisible($visible){
     $visibleFlag = [bool]$visible
     foreach($control in @(
-        $btnLoad,$btnExcel,$btnAdvance,$btnAutoScan,$grpOcrDebug,$lblTableSearch,$txtTableSearch,
+        $btnLoad,$btnExcel,$btnAdvance,$lblAutoScanModel,$cmbAutoScanModel,$btnAutoScan,$grpOcrDebug,$lblTableSearch,$txtTableSearch,
         $btnResultsView,$table,$lblPreviewTitle,$preview,$grpDefaultTol,$grpPreset,
         $grpTolMode
     )){
@@ -926,8 +926,18 @@ function Update-UiLayout{
     $btnToggleSidePanel.BringToFront()
 
     if($btnAutoScan){
-        $autoScanTop = $btnLoad.Bottom + 6
-        $autoScanHeight = 36
+        $modelRowTop = $btnLoad.Bottom + 6
+        if($lblAutoScanModel -and $cmbAutoScanModel){
+            $modelLabelWidth = 52
+            $lblAutoScanModel.Location = New-Object Drawing.Point($drawSidebarX,($modelRowTop + 4))
+            $cmbAutoScanModel.Location = New-Object Drawing.Point(($drawSidebarX + $modelLabelWidth),($modelRowTop + 1))
+            $cmbAutoScanModel.Size = New-Object Drawing.Size([Math]::Max(140,($drawSidebarWidth - $modelLabelWidth)),26)
+            $autoScanTop = $cmbAutoScanModel.Bottom + 6
+        }
+        else{
+            $autoScanTop = $modelRowTop
+        }
+        $autoScanHeight = 34
         $btnAutoScan.Location = New-Object Drawing.Point($drawSidebarX,$autoScanTop)
         $btnAutoScan.Size = New-Object Drawing.Size($drawSidebarWidth,$autoScanHeight)
         $infoRowTop = $btnAutoScan.Bottom + 6
@@ -17639,7 +17649,25 @@ function Invoke-AutoScanYoloPpOcr{
             }
         }
 
-        $argString = ('-X utf8 "{0}" --image "{1}" --out "{2}" --model v6' -f $bridgeScript, $tempImgPath, $tempJsonPath)
+        $selectedModelText = if($cmbAutoScanModel -and $cmbAutoScanModel.SelectedItem){ [string]$cmbAutoScanModel.SelectedItem } else { "PP-OCRv4 CAD (Fine-Tuned)" }
+        $bridgeModel = "v4"
+        $useBuiltinOcr = $false
+
+        if($selectedModelText -match "PP-OCRv4|Fine-Tuned"){
+            $bridgeModel = "v4"
+        }
+        elseif($selectedModelText -match "PP-OCRv6|Bản Gốc"){
+            $bridgeModel = "v6"
+        }
+        elseif($selectedModelText -match "Hybrid"){
+            $bridgeModel = "hybrid"
+        }
+        elseif($selectedModelText -match "RapidOCR|Hiện Hành"){
+            $bridgeModel = "boxes_only"
+            $useBuiltinOcr = $true
+        }
+
+        $argString = ('-X utf8 "{0}" --image "{1}" --out "{2}" --model {3}' -f $bridgeScript, $tempImgPath, $tempJsonPath, $bridgeModel)
         $proc = Start-Process -FilePath $pythonExe `
             -ArgumentList $argString `
             -RedirectStandardOutput $tempOutLog `
@@ -17653,7 +17681,7 @@ function Invoke-AutoScanYoloPpOcr{
             Start-Sleep -Milliseconds 150
             $elapsedSec = [int]$sw.Elapsed.TotalSeconds
             if($txtOcrDebug){
-                $txtOcrDebug.Text = "⏳ Đang chạy Auto-Scan (${elapsedSec}s): YOLOv11 tìm kiếm + PP-OCR quét từng kích thước..."
+                $txtOcrDebug.Text = "⏳ Đang chạy Auto-Scan [${selectedModelText}] (${elapsedSec}s)..."
             }
         }
         $proc.WaitForExit()
@@ -17682,7 +17710,7 @@ function Invoke-AutoScanYoloPpOcr{
             }
             [System.Windows.Forms.MessageBox]::Show(
                 "Không tìm thấy kích thước nào trên bản vẽ này.",
-                "Auto-Scan (YOLO + PP-OCR)",
+                "Auto-Scan ($selectedModelText)",
                 [System.Windows.Forms.MessageBoxButtons]::OK,
                 [System.Windows.Forms.MessageBoxIcon]::Information
             )
@@ -17690,24 +17718,69 @@ function Invoke-AutoScanYoloPpOcr{
         }
 
         $addedCount = 0
+        $totalItems = @($candidatesJson).Count
+        $itemIdx = 0
+
         foreach($item in @($candidatesJson)){
+            $itemIdx++
             $rect = New-Object System.Drawing.Rectangle([int]$item.x, [int]$item.y, [int]$item.w, [int]$item.h)
-            $nomText = [string]$item.nominal
-            if([string]::IsNullOrWhiteSpace($nomText)){
-                $nomText = [string]$item.raw_text
+
+            $nomText = ""
+            $rawText = ""
+            $tolMinus = ""
+            $tolPlus = ""
+            $hasExplicitTol = $false
+
+            if($useBuiltinOcr){
+                if($txtOcrDebug){
+                    $txtOcrDebug.Text = "⏳ RapidOCR hiện hành đang quét ô $itemIdx / $totalItems..."
+                    [System.Windows.Forms.Application]::DoEvents()
+                }
+                try{
+                    $crop = $script:sourceBitmap.Clone($rect, $script:sourceBitmap.PixelFormat)
+                    $rawText = Run-OCR $crop
+                    $crop.Dispose()
+                }
+                catch{}
+
+                if([string]::IsNullOrWhiteSpace($rawText)){ continue }
+
+                $nom = Resolve-OcrTextAsMechanicalNominal $rawText $rect
+                $nomText = [string]$nom
+                if([string]::IsNullOrWhiteSpace($nomText)){ $nomText = $rawText }
+
+                $tol = Parse-ToleranceFull $rawText $nomText
+                if($tol -and $tol.Detected){
+                    $hasExplicitTol = $true
+                    $tolMinus = $tol.TolMinus
+                    $tolPlus = $tol.TolPlus
+                }
+                else{
+                    $tolMinus = 0
+                    $tolPlus = 0
+                }
+            }
+            else{
+                $nomText = [string]$item.nominal
+                if([string]::IsNullOrWhiteSpace($nomText)){
+                    $nomText = [string]$item.raw_text
+                }
+                $rawText = [string]$item.raw_text
+                $tolMinus = [string]$item.tol_minus
+                $tolPlus = [string]$item.tol_plus
+                $hasExplicitTol = (-not [string]::IsNullOrWhiteSpace($tolMinus) -or -not [string]::IsNullOrWhiteSpace($tolPlus))
             }
 
-            $hasExplicitTol = (-not [string]::IsNullOrWhiteSpace([string]$item.tol_minus) -or -not [string]::IsNullOrWhiteSpace([string]$item.tol_plus))
             $candObj = [PSCustomObject]@{
                 Rect = $rect
                 Nominal = $nomText
-                RawText = [string]$item.raw_text
+                RawText = $rawText
                 DuplicateCheckPassed = $true
-                Source = "ImageOcrAuto"
+                Source = if($useBuiltinOcr){ "RapidOcrNet" } else { ("LocalAi_" + $bridgeModel) }
                 Tolerance = [PSCustomObject]@{
                     Detected = $hasExplicitTol
-                    TolMinus = [string]$item.tol_minus
-                    TolPlus = [string]$item.tol_plus
+                    TolMinus = $tolMinus
+                    TolPlus = $tolPlus
                 }
             }
 

@@ -33,7 +33,7 @@ def main():
     parser = argparse.ArgumentParser(description="Auto-Scan Bridge: YOLOv11 + PP-OCR Hybrid")
     parser.add_argument("--image", required=True, help="Duong dan file anh trang can scan")
     parser.add_argument("--out", required=True, help="Duong dan file JSON luu ket qua")
-    parser.add_argument("--model", default="v6", choices=["v6", "v4"], help="Mo hinh PP-OCR (v6 goc hoac v4 cad)")
+    parser.add_argument("--model", default="hybrid", choices=["v6", "v4", "hybrid", "boxes_only"], help="Mo hinh OCR (v4 cad, v6 goc, hybrid, hoac boxes_only cho app builtin)")
     args = parser.parse_args()
 
     image_path = os.path.abspath(args.image)
@@ -51,10 +51,34 @@ def main():
 
     # Khoi tao AI Service
     service = LocalAIService.get_instance(model_name=args.model)
-    if args.model != service.model_name:
+    if args.model in ["v4", "v6", "hybrid"]:
         service.set_ocr_model(args.model)
 
-    # Thuc thi scan toan bo ban ve
+    # Che do 1: Chi lay boxes tu YOLO de app PS1 dung OCR hien hanh
+    if args.model == "boxes_only":
+        cand_res = service.detect_candidate_boxes(img_bgr)
+        boxes = []
+        for c in cand_res.get("dimensions", []):
+            b = c.get("box", {})
+            boxes.append({
+                "x": int(b.get("x", 0)),
+                "y": int(b.get("y", 0)),
+                "w": int(b.get("w", 0)),
+                "h": int(b.get("h", 0)),
+                "nominal": "",
+                "raw_text": "",
+                "tol_plus": "",
+                "tol_minus": "",
+                "confidence": float(c.get("detector_conf", 0.0))
+            })
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(boxes, f, ensure_ascii=False, indent=2)
+        total_time = (time.perf_counter() - t_start) * 1000
+        print(f"AUTO_SCAN_SUCCESS: {len(boxes)} boxes in {round(total_time, 1)} ms")
+        sys.exit(0)
+
+    # Che do 2: Scan toan bo bang PP-OCR (v4 fine-tuned, v6 goc, hoac hybrid)
     scan_res = service.scan_image(img_bgr)
     dims = scan_res.get("dimensions", [])
 

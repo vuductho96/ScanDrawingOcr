@@ -487,8 +487,29 @@ $btnExcel.Location = New-Object System.Drawing.Point(1250,80)
 $tabDraw.Controls.Add($btnExcel)
 
 # ==============================
-# BUTTON: AUTO-SCAN (YOLO + PP-OCR)
+# OCR MODEL SELECTOR & AUTO-SCAN
 # ==============================
+$lblAutoScanModel = New-Object Windows.Forms.Label
+$lblAutoScanModel.Text = "Model:"
+$lblAutoScanModel.Font = $uiBoldFont
+$lblAutoScanModel.AutoSize = $true
+$lblAutoScanModel.Location = New-Object Drawing.Point(1250,96)
+$tabDraw.Controls.Add($lblAutoScanModel)
+
+$cmbAutoScanModel = New-Object Windows.Forms.ComboBox
+$cmbAutoScanModel.Font = $uiFont
+$cmbAutoScanModel.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+[void]$cmbAutoScanModel.Items.AddRange(@(
+    "PP-OCRv4 CAD (Fine-Tuned)",
+    "PP-OCRv6 (Bản Gốc)",
+    "Hybrid (V6 Nhãn + V4 Dung Sai)",
+    "RapidOCR (Hiện Hành App PS1)"
+))
+$cmbAutoScanModel.SelectedIndex = 0
+$cmbAutoScanModel.Location = New-Object Drawing.Point(1310,92)
+$cmbAutoScanModel.Size = New-Object Drawing.Size(190,28)
+$tabDraw.Controls.Add($cmbAutoScanModel)
+
 $btnAutoScan = New-Object System.Windows.Forms.Button
 $btnAutoScan.Text = "⚡ Auto-Scan (YOLO + PP)"
 $btnAutoScan.Font = New-Object System.Drawing.Font("Segoe UI",11,[System.Drawing.FontStyle]::Bold)
@@ -498,7 +519,7 @@ $btnAutoScan.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
 $btnAutoScan.FlatAppearance.BorderSize = 0
 $btnAutoScan.Cursor = [System.Windows.Forms.Cursors]::Hand
 $btnAutoScan.Size = New-Object System.Drawing.Size(250,36)
-$btnAutoScan.Location = New-Object System.Drawing.Point(1250,118)
+$btnAutoScan.Location = New-Object System.Drawing.Point(1250,124)
 $tabDraw.Controls.Add($btnAutoScan)
 
 $btnCopyView = New-Object System.Windows.Forms.Button
