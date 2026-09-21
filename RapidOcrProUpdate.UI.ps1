@@ -564,6 +564,11 @@ $btnExcel.Size = New-Object System.Drawing.Size(120,34)
 $btnExcel.Location = New-Object System.Drawing.Point(1250,80)
 
 $tabDraw.Controls.Add($btnExcel)
+$tabDraw.Controls.Add($btnCopyView)
+$tabDraw.Controls.Add($btnAutoMapPdf)
+$tabDraw.Controls.Add($btnPdfTextZones)
+$tabDraw.Controls.Add($btnClearGrayZones)
+$tabDraw.Controls.Add($btnAutoScan)
 
 $btnCopyView = New-Object System.Windows.Forms.Button
 $btnCopyView.Text = "Copy View Off"
@@ -588,6 +593,13 @@ $btnClearGrayZones.Text = "Clear Gray Boxes"
 $btnClearGrayZones.Font = $uiFont
 $btnClearGrayZones.Size = New-Object System.Drawing.Size(150,28)
 $btnClearGrayZones.Location = New-Object System.Drawing.Point(1250,178)
+
+$btnAutoScan = New-Object System.Windows.Forms.Button
+$btnAutoScan.Text = "YOLO Auto Scan"
+$btnAutoScan.Font = $uiFont
+$btnAutoScan.Size = New-Object System.Drawing.Size(150,28)
+$btnAutoScan.Location = New-Object System.Drawing.Point(1410,178)
+$btnAutoScan.BackColor = [System.Drawing.Color]::FromArgb(230,245,255)
 
 # =========================
 # Save MarkImage
