@@ -452,6 +452,21 @@ $miAdvanceTrainingExport = New-Object Windows.Forms.ToolStripMenuItem("Training 
 [void]$advanceMenu.Items.Add($miAdvanceEditMenu)
 $miAdvanceAutoScan = New-Object Windows.Forms.ToolStripMenuItem("⚡ Auto-Scan (YOLO + PP-OCR)")
 [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceAutoScan)
+
+$miOcrModelSep = New-Object Windows.Forms.ToolStripSeparator
+[void]$miAdvanceOcrMenu.DropDownItems.Add($miOcrModelSep)
+
+$miOcrModelMenu = New-Object Windows.Forms.ToolStripMenuItem("OCR Model")
+$miOcrModelV4 = New-Object Windows.Forms.ToolStripMenuItem("PP-OCRv4 CAD (Fine-Tuned)")
+$miOcrModelV4.Checked = $true
+$miOcrModelV6 = New-Object Windows.Forms.ToolStripMenuItem("PP-OCRv6 (Bản Gốc)")
+$miOcrModelHybrid = New-Object Windows.Forms.ToolStripMenuItem("Hybrid (V6 Nhãn + V4 Dung Sai)")
+$miOcrModelBuiltin = New-Object Windows.Forms.ToolStripMenuItem("RapidOCR (Hiện Hành App PS1)")
+[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelV4)
+[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelV6)
+[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelHybrid)
+[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelBuiltin)
+[void]$miAdvanceOcrMenu.DropDownItems.Add($miOcrModelMenu)
 [void]$advanceMenu.Items.Add($miAdvanceViewMenu)
 [void]$advanceMenu.Items.Add($miAdvanceOcrMenu)
 [void]$advanceMenu.Items.Add($miAdvanceDevMenu)
@@ -487,29 +502,8 @@ $btnExcel.Location = New-Object System.Drawing.Point(1250,80)
 $tabDraw.Controls.Add($btnExcel)
 
 # ==============================
-# OCR MODEL SELECTOR & AUTO-SCAN
+# BUTTON: AUTO-SCAN
 # ==============================
-$lblAutoScanModel = New-Object Windows.Forms.Label
-$lblAutoScanModel.Text = "Model:"
-$lblAutoScanModel.Font = $uiBoldFont
-$lblAutoScanModel.AutoSize = $true
-$lblAutoScanModel.Location = New-Object Drawing.Point(1250,96)
-$tabDraw.Controls.Add($lblAutoScanModel)
-
-$cmbAutoScanModel = New-Object Windows.Forms.ComboBox
-$cmbAutoScanModel.Font = $uiFont
-$cmbAutoScanModel.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-[void]$cmbAutoScanModel.Items.AddRange(@(
-    "PP-OCRv4 CAD (Fine-Tuned)",
-    "PP-OCRv6 (Bản Gốc)",
-    "Hybrid (V6 Nhãn + V4 Dung Sai)",
-    "RapidOCR (Hiện Hành App PS1)"
-))
-$cmbAutoScanModel.SelectedIndex = 0
-$cmbAutoScanModel.Location = New-Object Drawing.Point(1310,92)
-$cmbAutoScanModel.Size = New-Object Drawing.Size(190,28)
-$tabDraw.Controls.Add($cmbAutoScanModel)
-
 $btnAutoScan = New-Object System.Windows.Forms.Button
 $btnAutoScan.Text = "⚡ Auto-Scan (YOLO + PP)"
 $btnAutoScan.Font = New-Object System.Drawing.Font("Segoe UI",11,[System.Drawing.FontStyle]::Bold)

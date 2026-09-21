@@ -768,7 +768,7 @@ function Apply-TableSearchFilter{
 function Set-DrawSidePanelControlsVisible($visible){
     $visibleFlag = [bool]$visible
     foreach($control in @(
-        $btnLoad,$btnExcel,$btnAdvance,$lblAutoScanModel,$cmbAutoScanModel,$btnAutoScan,$grpOcrDebug,$lblTableSearch,$txtTableSearch,
+        $btnLoad,$btnExcel,$btnAdvance,$btnAutoScan,$grpOcrDebug,$lblTableSearch,$txtTableSearch,
         $btnResultsView,$table,$lblPreviewTitle,$preview,$grpDefaultTol,$grpPreset,
         $grpTolMode
     )){
@@ -926,17 +926,7 @@ function Update-UiLayout{
     $btnToggleSidePanel.BringToFront()
 
     if($btnAutoScan){
-        $modelRowTop = $btnLoad.Bottom + 6
-        if($lblAutoScanModel -and $cmbAutoScanModel){
-            $modelLabelWidth = 52
-            $lblAutoScanModel.Location = New-Object Drawing.Point($drawSidebarX,($modelRowTop + 4))
-            $cmbAutoScanModel.Location = New-Object Drawing.Point(($drawSidebarX + $modelLabelWidth),($modelRowTop + 1))
-            $cmbAutoScanModel.Size = New-Object Drawing.Size([Math]::Max(140,($drawSidebarWidth - $modelLabelWidth)),26)
-            $autoScanTop = $cmbAutoScanModel.Bottom + 6
-        }
-        else{
-            $autoScanTop = $modelRowTop
-        }
+        $autoScanTop = $btnLoad.Bottom + 6
         $autoScanHeight = 34
         $btnAutoScan.Location = New-Object Drawing.Point($drawSidebarX,$autoScanTop)
         $btnAutoScan.Size = New-Object Drawing.Size($drawSidebarWidth,$autoScanHeight)
@@ -10028,6 +10018,31 @@ if($miAdvanceAutoScan){
         if($btnAutoScan){ $btnAutoScan.PerformClick() } else { Invoke-AutoScanYoloPpOcr }
     })
 }
+
+# --- OCR Model radio-style submenu ---
+$script:AutoScanSelectedModel = "PP-OCRv4 CAD (Fine-Tuned)"
+$script:OcrModelMenuItems = @($miOcrModelV4,$miOcrModelV6,$miOcrModelHybrid,$miOcrModelBuiltin)
+
+function Set-OcrModelSelection($selectedItem){
+    foreach($mi in $script:OcrModelMenuItems){
+        if($mi){ $mi.Checked = ($mi -eq $selectedItem) }
+    }
+    $script:AutoScanSelectedModel = $selectedItem.Text
+    if($txtOcrDebug){ $txtOcrDebug.Text = "OCR Model: $($selectedItem.Text)" }
+}
+
+if($miOcrModelV4){
+    $miOcrModelV4.Add_Click({ Set-OcrModelSelection $miOcrModelV4 })
+}
+if($miOcrModelV6){
+    $miOcrModelV6.Add_Click({ Set-OcrModelSelection $miOcrModelV6 })
+}
+if($miOcrModelHybrid){
+    $miOcrModelHybrid.Add_Click({ Set-OcrModelSelection $miOcrModelHybrid })
+}
+if($miOcrModelBuiltin){
+    $miOcrModelBuiltin.Add_Click({ Set-OcrModelSelection $miOcrModelBuiltin })
+}
 if($miAdvanceAutoMapPdf){
     $miAdvanceAutoMapPdf.Add_Click({ $btnAutoMapPdf.PerformClick() })
 }
@@ -17649,7 +17664,7 @@ function Invoke-AutoScanYoloPpOcr{
             }
         }
 
-        $selectedModelText = if($cmbAutoScanModel -and $cmbAutoScanModel.SelectedItem){ [string]$cmbAutoScanModel.SelectedItem } else { "PP-OCRv4 CAD (Fine-Tuned)" }
+        $selectedModelText = if($script:AutoScanSelectedModel){ $script:AutoScanSelectedModel } else { "PP-OCRv4 CAD (Fine-Tuned)" }
         $bridgeModel = "v4"
         $useBuiltinOcr = $false
 
