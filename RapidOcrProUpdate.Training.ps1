@@ -619,6 +619,7 @@ if(-not $script:DeferredTrainingFlushTimer){
     $script:DeferredTrainingFlushTimer.Add_Tick({
         $script:DeferredTrainingFlushTimer.Stop()
         $script:IsDeferredTrainingFlushQueued = $false
+        if(-not $script:TrainingSaveExportEnabled){ return }
         try{
             if($txtOcrDebug){
                 $txtOcrDebug.Text = "Export completed. Saving training data in background..."
@@ -641,6 +642,7 @@ if(-not $script:DeferredTrainingFlushTimer){
 }
 
 function Queue-DeferredTrainingDatasetFlush{
+    if(-not $script:TrainingSaveExportEnabled){ return }
     if($script:IsDeferredTrainingFlushQueued){ return }
     if(
         ((Get-TrainingRecordCount $script:PendingDetectorAnnotationRecords) -le 0) -and
@@ -654,6 +656,7 @@ function Queue-DeferredTrainingDatasetFlush{
 }
 
 function Register-DetectorAnnotationSilent($kind,$rect,$details = $null){
+    if(-not $script:TrainingSaveExportEnabled){ return }
     if(-not $rect -or -not $script:sourceBitmap){ return }
     if([string]::IsNullOrWhiteSpace([string]$script:DetectorAnnotationsPath)){ return }
 

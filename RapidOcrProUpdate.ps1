@@ -768,9 +768,9 @@ function Apply-TableSearchFilter{
 function Set-DrawSidePanelControlsVisible($visible){
     $visibleFlag = [bool]$visible
     foreach($control in @(
-        $btnLoad,$btnExcel,$btnAdvance,$grpOcrDebug,$lblTableSearch,$txtTableSearch,
+        $btnLoad,$btnExcel,$btnAdvance,$btnAutoScan,$grpOcrDebug,$lblTableSearch,$txtTableSearch,
         $btnResultsView,$table,$lblPreviewTitle,$preview,$grpDefaultTol,$grpPreset,
-        $grpTolMode,$grpAiVision
+        $grpTolMode
     )){
         try{
             if($control -and $control -ne $btnToggleSidePanel){
@@ -857,8 +857,10 @@ function Update-UiLayout{
             $btnNextPage.Size = New-Object Drawing.Size($pageNavButtonWidth,$pageNavHeight)
         }
 
-        $pageList.Location = New-Object Drawing.Point(-2000,-2000)
-        $pageList.Size = New-Object Drawing.Size(1,1)
+        if($pageList){
+            $pageList.Location = New-Object Drawing.Point(-2000,-2000)
+            $pageList.Size = New-Object Drawing.Size(1,1)
+        }
         $viewer.Location = New-Object Drawing.Point($margin,$viewerTop)
         $viewer.Size = New-Object Drawing.Size($drawViewerWidth,$viewerHeight)
         $tabDraw.AutoScrollMinSize = New-Object Drawing.Size(0,($viewer.Bottom + $margin))
@@ -886,8 +888,10 @@ function Update-UiLayout{
     $pageNavTotalWidth = ($pageNavButtonWidth * 2) + $pageNavLabelWidth + ($pageNavGapX * 2)
     $pageNavLeft = $margin + [Math]::Max(0,[int](($drawViewerWidth - $pageNavTotalWidth) / 2))
 
-    $pageList.Location = New-Object Drawing.Point(-2000,-2000)
-    $pageList.Size = New-Object Drawing.Size(1,1)
+    if($pageList){
+        $pageList.Location = New-Object Drawing.Point(-2000,-2000)
+        $pageList.Size = New-Object Drawing.Size(1,1)
+    }
 
     $btnPrevPage.Visible = $pageNavVisible
     $lblPageInfo.Visible = $pageNavVisible
@@ -921,43 +925,44 @@ function Update-UiLayout{
     $btnToggleSidePanel.Size = New-Object Drawing.Size($togglePanelWidth,28)
     $btnToggleSidePanel.BringToFront()
 
-    $btnYellowPen.Visible = $false
-    $btnEraser.Visible = $false
-    $btnYellowPen.Location = New-Object Drawing.Point(-2000,-2000)
-    $btnEraser.Location = New-Object Drawing.Point(-2000,-2000)
-    $btnYellowPen.Size = New-Object Drawing.Size(1,1)
-    $btnEraser.Size = New-Object Drawing.Size(1,1)
-
-    $infoRowTop = $btnLoad.Bottom + 8
-    $txtCopiedUi.Location = New-Object Drawing.Point(-2000,-2000)
-    $txtCopiedUi.Size = New-Object Drawing.Size(1,1)
-    $txtCopiedUi.Visible = $false
+    if($btnAutoScan){
+        $autoScanTop = $btnLoad.Bottom + 6
+        $autoScanHeight = 36
+        $btnAutoScan.Location = New-Object Drawing.Point($drawSidebarX,$autoScanTop)
+        $btnAutoScan.Size = New-Object Drawing.Size($drawSidebarWidth,$autoScanHeight)
+        $infoRowTop = $btnAutoScan.Bottom + 6
+    }
+    else{
+        $infoRowTop = $btnLoad.Bottom + 6
+    }
 
     $sidebarAvailableHeight = [Math]::Max(420,($tabDraw.ClientSize.Height - $infoRowTop - $margin))
-    $debugTopHeight = [Math]::Max(58,[Math]::Min(74,[int]($sidebarAvailableHeight * 0.10)))
+    $debugTopHeight = 42
     $grpOcrDebug.Location = New-Object Drawing.Point($drawSidebarX,$infoRowTop)
     $grpOcrDebug.Size = New-Object Drawing.Size($drawSidebarWidth,$debugTopHeight)
-    $txtOcrDebug.Location = New-Object Drawing.Point(10,22)
-    $txtOcrDebug.Size = New-Object Drawing.Size(($grpOcrDebug.ClientSize.Width - 20),($grpOcrDebug.ClientSize.Height - 30))
+    $txtOcrDebug.Location = New-Object Drawing.Point(8,18)
+    $txtOcrDebug.Size = New-Object Drawing.Size([Math]::Max(100,($grpOcrDebug.ClientSize.Width - 16)),18)
 
     $searchRowTop = $grpOcrDebug.Bottom + 6
     $searchLabelWidth = [Math]::Max(74,($lblTableSearch.PreferredWidth + 4))
-$lblTableSearch.Location = New-Object Drawing.Point($drawSidebarX,($searchRowTop + 4))
-$txtTableSearch.Location = New-Object Drawing.Point(($lblTableSearch.Right + 6),$searchRowTop)
-$resultsButtonWidth = 96
-if($btnResultsView){
-    $btnResultsView.Location = New-Object Drawing.Point(($drawSidebarX + $drawSidebarWidth - $resultsButtonWidth),$searchRowTop)
-    $btnResultsView.Size = New-Object Drawing.Size($resultsButtonWidth,$toolRowHeight)
-}
-$searchRight = if($btnResultsView){ $btnResultsView.Left - 6 } else { $drawSidebarX + $drawSidebarWidth }
-$txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $txtTableSearch.Location.X)),$toolRowHeight)
+    $lblTableSearch.Location = New-Object Drawing.Point($drawSidebarX,($searchRowTop + 4))
+    $txtTableSearch.Location = New-Object Drawing.Point(($lblTableSearch.Right + 6),$searchRowTop)
+    $resultsButtonWidth = 96
+    if($btnResultsView){
+        $btnResultsView.Location = New-Object Drawing.Point(($drawSidebarX + $drawSidebarWidth - $resultsButtonWidth),$searchRowTop)
+        $btnResultsView.Size = New-Object Drawing.Size($resultsButtonWidth,$toolRowHeight)
+    }
+    $searchRight = if($btnResultsView){ $btnResultsView.Left - 6 } else { $drawSidebarX + $drawSidebarWidth }
+    $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $txtTableSearch.Location.X)),$toolRowHeight)
 
     $tableTop = $txtTableSearch.Bottom + 8
 
-    $previewHeight = [Math]::Max(88,[Math]::Min(98,[int]($sidebarAvailableHeight * 0.13)))
-    $tolModeHeight = [Math]::Max(88,[Math]::Min(108,[int]($sidebarAvailableHeight * 0.14)))
-    $reservedBottomHeight = $previewHeight + 12 + 148 + 12 + $tolModeHeight
-    $tableHeight = [Math]::Max(118,[Math]::Min(170,($sidebarAvailableHeight - $debugTopHeight - 6 - $toolRowHeight - 8 - $reservedBottomHeight)))
+    $previewHeight = [Math]::Max(80,[Math]::Min(92,[int]($sidebarAvailableHeight * 0.11)))
+    $tolModeHeight = [Math]::Max(88,[Math]::Min(100,[int]($sidebarAvailableHeight * 0.13)))
+    $presetHeight = [Math]::Max(165,[Math]::Min(188,[int]($sidebarAvailableHeight * 0.22)))
+    $reservedBottomHeight = $previewHeight + 10 + $presetHeight + 10 + $tolModeHeight + 6
+    $availableForTable = $sidebarAvailableHeight - $debugTopHeight - 6 - $toolRowHeight - 8 - $reservedBottomHeight
+    $tableHeight = [Math]::Max(170,$availableForTable)
     $table.Location = New-Object Drawing.Point($drawSidebarX,$tableTop)
     $table.Size = New-Object Drawing.Size($drawSidebarWidth,$tableHeight)
 
@@ -965,7 +970,7 @@ $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $t
     $previewWidth = [int](($drawSidebarWidth - $sideGap) / 2)
     $defaultTolWidth = $drawSidebarWidth - $previewWidth - $sideGap
 
-    $previewTop = $table.Bottom + 12
+    $previewTop = $table.Bottom + 10
     $lblPreviewTitle.Location = New-Object Drawing.Point($drawSidebarX,$previewTop)
     $preview.Location = New-Object Drawing.Point($drawSidebarX,$previewTop)
     $preview.Size = New-Object Drawing.Size($previewWidth,$previewHeight)
@@ -976,7 +981,7 @@ $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $t
     $tolInnerWidth = $grpDefaultTol.ClientSize.Width
     $tolLeft = 10
     $tolTop = 18
-    $tolRowGap = 18
+    $tolRowGap = 17
     $tolLabelWidth = 52
     $tolFieldGap = 6
     $tolFieldWidth = [Math]::Max(34,[Math]::Min(42,($tolInnerWidth - $tolLeft - $tolLabelWidth - 12 - $tolFieldGap)))
@@ -996,11 +1001,12 @@ $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $t
     $txtTol3.Width = $tolFieldWidth
 
     $previewRowBottom = [Math]::Max($preview.Bottom,$grpDefaultTol.Bottom)
-    $grpAiVision.Location = New-Object Drawing.Point(-3000,-3000)
-    $grpAiVision.Size = New-Object Drawing.Size(1,1)
-    $debugRowTop = $previewRowBottom + 12
+    if($grpAiVision){
+        $grpAiVision.Location = New-Object Drawing.Point(-3000,-3000)
+        $grpAiVision.Size = New-Object Drawing.Size(1,1)
+    }
+    $debugRowTop = $previewRowBottom + 10
     $presetWidth = $drawSidebarWidth
-    $presetHeight = [Math]::Max(148,[Math]::Min(176,($tabDraw.ClientSize.Height - $debugRowTop - 12 - $tolModeHeight - $margin)))
 
     $grpPreset.Location = New-Object Drawing.Point($drawSidebarX,$debugRowTop)
     $grpPreset.Size = New-Object Drawing.Size($presetWidth,$presetHeight)
@@ -1016,7 +1022,7 @@ $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $t
         $presetGapX = 6
         $presetGapY = 6
         $presetButtonWidth = [Math]::Max(50,[int](($presetInnerWidth - (($presetCols - 1) * $presetGapX)) / $presetCols))
-        $presetButtonHeight = [Math]::Max(24,[int](($presetInnerHeight - (($presetRows - 1) * $presetGapY)) / $presetRows))
+        $presetButtonHeight = [Math]::Max(30,[int](($presetInnerHeight - (($presetRows - 1) * $presetGapY)) / $presetRows))
 
         for($presetIndex = 0; $presetIndex -lt $presetButtons.Count; $presetIndex++){
             $presetButton = $presetButtons[$presetIndex]
@@ -1024,14 +1030,20 @@ $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $t
             $presetRow = [int][Math]::Floor($presetIndex / $presetCols)
             $presetButton.Location = New-Object Drawing.Point(
                 (10 + ($presetCol * ($presetButtonWidth + $presetGapX))),
-                (28 + ($presetRow * ($presetButtonHeight + $presetGapY)))
+                (26 + ($presetRow * ($presetButtonHeight + $presetGapY)))
             )
             $presetButton.Size = New-Object Drawing.Size($presetButtonWidth,$presetButtonHeight)
         }
     }
 
-    $grpTolMode.Location = New-Object Drawing.Point($drawSidebarX,($grpPreset.Bottom + 12))
+    $grpTolMode.Location = New-Object Drawing.Point($drawSidebarX,($grpPreset.Bottom + 10))
     $grpTolMode.Size = New-Object Drawing.Size($drawSidebarWidth,$tolModeHeight)
+
+    if($rbPM){ $rbPM.Location = New-Object Drawing.Point(16,24); $rbPM.Size = New-Object Drawing.Size(60,28) }
+    if($rbPlus){ $rbPlus.Location = New-Object Drawing.Point(16,56); $rbPlus.Size = New-Object Drawing.Size(60,28) }
+    if($rbPP){ $rbPP.Location = New-Object Drawing.Point(110,24); $rbPP.Size = New-Object Drawing.Size(70,28) }
+    if($rbMM){ $rbMM.Location = New-Object Drawing.Point(110,56); $rbMM.Size = New-Object Drawing.Size(70,28) }
+    if($rbMinus){ $rbMinus.Location = New-Object Drawing.Point(210,24); $rbMinus.Size = New-Object Drawing.Size(60,28) }
 
     $contentBottom = [Math]::Max($viewer.Bottom,$grpTolMode.Bottom) + $margin
     $tabDraw.AutoScrollMinSize = New-Object Drawing.Size(0,$contentBottom)
@@ -1522,7 +1534,7 @@ $script:UiCopiedMarks = @()
 $script:NextUiCopiedMarkId = 1
 $script:CopyViewOnly = $false
 $script:BalloonColorPreset = "White"
-$script:TrainingSaveExportEnabled = $true
+$script:TrainingSaveExportEnabled = $false
 $script:AdvancePanelVisible = $false
 $script:LastTextInsertTarget = $null
 $script:SelectedMarkKind = $null
@@ -1555,6 +1567,7 @@ $script:PartQuantity = $null
 $script:PartMaterial = $null
 $script:PartHrc = $null
 $script:PartUser = $null
+$script:InspectionDate = $null
 $script:CurrentSourcePath = $null
 $script:CurrentSessionFilePath = $null
 $script:DocumentPages = @()
@@ -1715,21 +1728,7 @@ $script:PreviewUpdateTimer.Add_Tick({
 
     Update-PreviewFromSelectionRect $script:PendingPreviewRect
 })
-$script:TranslateLensTimer = New-Object Windows.Forms.Timer
-$script:TranslateLensTimer.Interval = 450
-$script:TranslateLensTimer.Add_Tick({
-    $script:TranslateLensTimer.Stop()
-    if(-not $script:TranslateLensEnabled){ return }
-    if(-not $script:TranslateLensPendingRect){ return }
-    if($script:TranslateLensBusy){ return }
-    $script:TranslateLensBusy = $true
-    try{
-    Update-TranslateLensFromRect $script:TranslateLensPendingRect
-    }
-    finally{
-        $script:TranslateLensBusy = $false
-    }
-})
+$script:TranslateLensTimer = $null
 $script:SessionStateSaveTimer = New-Object Windows.Forms.Timer
 $script:SessionStateSaveTimer.Interval = 1200
 $script:SessionStateSaveTimer.Add_Tick({
@@ -2368,6 +2367,7 @@ function Get-DrawingMetadataFromState($state){
         Material = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "PartMaterial")
         Hrc = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "PartHrc")
         User = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "PartUser")
+        InspectionDate = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "InspectionDate")
         JobName = $jobName
     }
 }
@@ -2397,6 +2397,9 @@ function Get-DefaultDrawingMetadata($filePath,$state = $null){
     if($null -eq $metadata.Material){ $metadata.Material = "" }
     if($null -eq $metadata.Hrc){ $metadata.Hrc = "" }
     if([string]::IsNullOrWhiteSpace([string]$metadata.User)){ $metadata.User = "7139" }
+    if([string]::IsNullOrWhiteSpace($metadata.InspectionDate)){
+        $metadata.InspectionDate = (Get-Date).ToString("yyyy-MM-dd")
+    }
 
     if([string]::IsNullOrWhiteSpace($metadata.JobName)){
         $nameParts = @()
@@ -2418,7 +2421,7 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
     $dialog.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
     $dialog.MaximizeBox = $false
     $dialog.MinimizeBox = $false
-    $dialog.ClientSize = New-Object System.Drawing.Size(430,291)
+    $dialog.ClientSize = New-Object System.Drawing.Size(430,327)
     $dialog.TopMost = $true
 
     $font = New-Object System.Drawing.Font("Segoe UI",9)
@@ -2429,7 +2432,8 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
         @{ Text = "Qty"; Y = 90 },
         @{ Text = "Material"; Y = 126 },
         @{ Text = "HRC"; Y = 162 },
-        @{ Text = "User"; Y = 198 }
+        @{ Text = "User"; Y = 198 },
+        @{ Text = "Date"; Y = 234 }
     )
     foreach($item in $labels){
         $lbl = New-Object System.Windows.Forms.Label
@@ -2482,16 +2486,23 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
     $txtUser.Text = [string]$defaults.User
     $dialog.Controls.Add($txtUser)
 
+    $txtDate = New-Object System.Windows.Forms.TextBox
+    $txtDate.Location = New-Object System.Drawing.Point(116,232)
+    $txtDate.Size = New-Object System.Drawing.Size(120,24)
+    $txtDate.Font = $font
+    $txtDate.Text = [string]$defaults.InspectionDate
+    $dialog.Controls.Add($txtDate)
+
     $lblHint = New-Object System.Windows.Forms.Label
     $lblHint.Text = "Thong tin nay duoc dung de canh bao trung ban ve truoc khi danh so."
-    $lblHint.Location = New-Object System.Drawing.Point(16,232)
+    $lblHint.Location = New-Object System.Drawing.Point(16,268)
     $lblHint.Size = New-Object System.Drawing.Size(396,24)
     $lblHint.Font = $font
     $dialog.Controls.Add($lblHint)
 
     $btnOk = New-Object System.Windows.Forms.Button
     $btnOk.Text = "OK"
-    $btnOk.Location = New-Object System.Drawing.Point(246,256)
+    $btnOk.Location = New-Object System.Drawing.Point(246,292)
     $btnOk.Size = New-Object System.Drawing.Size(80,26)
     $btnOk.DialogResult = [System.Windows.Forms.DialogResult]::OK
     $btnOk.Add_Click({
@@ -2522,7 +2533,7 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
 
     $btnCancel = New-Object System.Windows.Forms.Button
     $btnCancel.Text = "Cancel"
-    $btnCancel.Location = New-Object System.Drawing.Point(332,256)
+    $btnCancel.Location = New-Object System.Drawing.Point(332,292)
     $btnCancel.Size = New-Object System.Drawing.Size(80,26)
     $btnCancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
     $dialog.Controls.Add($btnCancel)
@@ -2541,6 +2552,7 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
     $material = Normalize-DrawingMetadataText $txtMaterial.Text
     $hrc = Normalize-DrawingMetadataText $txtHrc.Text
     $user = Normalize-DrawingMetadataText $txtUser.Text
+    $inspectionDate = Normalize-DrawingMetadataText $txtDate.Text
 
     $dialog.Dispose()
 
@@ -2567,6 +2579,7 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
         Material = $material
         Hrc = $hrc
         User = $user
+        InspectionDate = $inspectionDate
         JobName = $jobName
     }
 }
@@ -3002,6 +3015,8 @@ function Remove-SelectedUiCopiedMark{
         Clear-SelectedMark
         Update-CopiedUiNote
         Request-CanvasRedraw
+        Save-CurrentPageState
+        Save-SessionState
     }
 
     return $removed
@@ -3032,8 +3047,23 @@ function Get-SelectedMarkCopyTemplate{
         }
         $sourceStep = [string]$sourceMark.Index
     }
+    elseif($table -and $table.SelectedRows.Count -gt 0){
+        $selectedRowIdx = $table.SelectedRows[0].Index
+        if($selectedRowIdx -ge 0 -and $selectedRowIdx -lt $script:marks.Count -and $script:marks[$selectedRowIdx]){
+            $sourceMark = $script:marks[$selectedRowIdx]
+            if($script:StepRects.ContainsKey($selectedRowIdx)){
+                $rect = $script:StepRects[$selectedRowIdx]
+                $sourceRect = New-Object Drawing.Rectangle($rect.X,$rect.Y,$rect.Width,$rect.Height)
+            }
+            $sourceStep = [string]$sourceMark.Index
+            $script:SelectedMarkKind = "Original"
+            $script:SelectedMarkRowIndex = $selectedRowIdx
+        }
+    }
 
     if(!$sourceMark){ return $null }
+
+    $sourcePageIndex = if($script:SelectedPageIndex -ge 0){ [int]$script:SelectedPageIndex } else { 0 }
 
     return [PSCustomObject]@{
         Index = [string]$sourceMark.Index
@@ -3042,13 +3072,19 @@ function Get-SelectedMarkCopyTemplate{
         Scale = (Get-MarkScale $sourceMark)
         SourceStep = $sourceStep
         SourceRect = $sourceRect
+        SourcePageIndex = $sourcePageIndex
     }
 }
 
 function Copy-SelectedMarkToClipboard{
 
     $template = Get-SelectedMarkCopyTemplate
-    if(!$template){ return $false }
+    if(!$template){
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = "Chưa chọn bong bóng để copy."
+        }
+        return $false
+    }
 
     $script:ClipboardMarkTemplate = $template
 
@@ -3060,6 +3096,11 @@ function Copy-SelectedMarkToClipboard{
         [System.Windows.Forms.Clipboard]::SetText($clipboardText)
     }
     catch{}
+
+    if($txtOcrDebug){
+        $pageNum = if($script:SelectedPageIndex -ge 0){ $script:SelectedPageIndex + 1 } else { 1 }
+        $txtOcrDebug.Text = "Đã copy bong bóng $($template.Index) từ trang $pageNum vào clipboard."
+    }
 
     return $true
 }
@@ -3074,12 +3115,19 @@ function Add-UiCopiedMarkFromTemplate($template,$pastePoint = $null){
         $sourceStep = [string]$template.Index
     }
 
+    $sourcePageIndex = if($template.PSObject.Properties.Name -contains "SourcePageIndex" -and $null -ne $template.SourcePageIndex){ [int]$template.SourcePageIndex } else { [int]$script:SelectedPageIndex }
+
     $offset = [Math]::Max(18.0,(Get-MarkImageRadius * 0.9))
     $copyX = [double]($template.X + $offset)
     $copyY = [double]($template.Y + $offset)
     if($pastePoint){
         $copyX = [double]$pastePoint.X
         $copyY = [double]$pastePoint.Y
+    }
+
+    if($script:sourceBitmap){
+        $copyX = [Math]::Max(10.0, [Math]::Min(([double]$script:sourceBitmap.Width - 10.0), $copyX))
+        $copyY = [Math]::Max(10.0, [Math]::Min(([double]$script:sourceBitmap.Height - 10.0), $copyY))
     }
 
     $newCopy = [PSCustomObject]@{
@@ -3090,14 +3138,21 @@ function Add-UiCopiedMarkFromTemplate($template,$pastePoint = $null){
         Scale = (Normalize-MarkScale $template.Scale)
         SourceStep = $sourceStep
         SourceRect = $sourceRect
+        SourcePageIndex = $sourcePageIndex
     }
 
     $script:NextUiCopiedMarkId++
     $script:UiCopiedMarks += $newCopy
     Select-UiCopiedMark $newCopy.Id
     Update-CopiedUiNote
+    Save-CurrentPageState
     Request-CanvasRedraw
     Save-SessionState
+
+    if($txtOcrDebug){
+        $targetPageNum = if($script:SelectedPageIndex -ge 0){ $script:SelectedPageIndex + 1 } else { 1 }
+        $txtOcrDebug.Text = "Đã paste bong bóng $($template.Index) vào trang $targetPageNum."
+    }
 
     return $true
 }
@@ -3107,7 +3162,12 @@ function Add-UiCopiedMarkFromSelection{
 }
 
 function Paste-ClipboardMark{
-    if(!$script:ClipboardMarkTemplate){ return $false }
+    if(!$script:ClipboardMarkTemplate){
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = "Clipboard chưa có bong bóng. Hãy chọn bong bóng rồi nhấn Ctrl+C."
+        }
+        return $false
+    }
     return (Add-UiCopiedMarkFromTemplate $script:ClipboardMarkTemplate (Get-CurrentCrosshairImagePoint))
 }
 
@@ -3181,7 +3241,8 @@ function Get-InspectionDisplayDecimalPlaces($nominalText,$tolMinusText = "",$tol
     $decimals = Get-InspectionResultDecimalPlaces $nominalText
     $tolMinusDecimals = Get-InspectionResultDecimalPlaces ([string]$tolMinusText)
     $tolPlusDecimals = Get-InspectionResultDecimalPlaces ([string]$tolPlusText)
-    return [Math]::Max([int]$decimals,[Math]::Max([int]$tolMinusDecimals,[int]$tolPlusDecimals))
+    $rawDecimals = [Math]::Max([int]$decimals,[Math]::Max([int]$tolMinusDecimals,[int]$tolPlusDecimals))
+    return [Math]::Min(3,[int]$rawDecimals)
 }
 
 function Convert-AngleDmsTextToDouble($text,[ref]$number){
@@ -3203,13 +3264,18 @@ function Convert-AngleDmsTextToDouble($text,[ref]$number){
     $minValue = 0.0
     $secValue = 0.0
     if(-not [string]::IsNullOrWhiteSpace([string]$angleDms.Minutes)){
-        [void][double]::TryParse(([string]$angleDms.Minutes),[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$minValue)
+        if(-not [double]::TryParse(([string]$angleDms.Minutes),[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$minValue)){
+            return $false
+        }
     }
     if(-not [string]::IsNullOrWhiteSpace([string]$angleDms.Seconds)){
-        [void][double]::TryParse(([string]$angleDms.Seconds),[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$secValue)
+        if(-not [double]::TryParse(([string]$angleDms.Seconds),[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$secValue)){
+            return $false
+        }
     }
 
-    $number.Value = $sign * ($degValue + ($minValue / 60.0) + ($secValue / 3600.0))
+    $totalDegrees = $degValue + ($minValue / 60.0) + ($secValue / 3600.0)
+    $number.Value = ($sign * $totalDegrees)
     return $true
 }
 
@@ -3217,13 +3283,14 @@ function Format-AngleDmsInspectionResultValue($value,$nominalText){
     $angleDms = Try-ParseAngleDmsText $nominalText
     if(!$angleDms){ return $null }
 
-    $absValue = [Math]::Abs([double]$value)
-    $signText = if([double]$value -lt 0){ "-" } else { "" }
-    $degrees = [int][Math]::Floor($absValue)
-    $minutesTotal = ($absValue - $degrees) * 60.0
-    $minutes = [int][Math]::Floor($minutesTotal)
-    $seconds = [int][Math]::Round(($minutesTotal - $minutes) * 60.0,0,[System.MidpointRounding]::AwayFromZero)
+    $totalDegrees = [double]$value
+    $sign = if($totalDegrees -lt 0){ "-" } else { "" }
+    $totalDegrees = [Math]::Abs($totalDegrees)
 
+    $degrees = [int][Math]::Floor($totalDegrees)
+    $remainderMinutes = ($totalDegrees - [double]$degrees) * 60.0
+    $minutes = [int][Math]::Floor($remainderMinutes)
+    $seconds = [int][Math]::Round(($remainderMinutes - [double]$minutes) * 60.0)
     if($seconds -ge 60){
         $seconds = 0
         $minutes++
@@ -3233,15 +3300,22 @@ function Format-AngleDmsInspectionResultValue($value,$nominalText){
         $degrees++
     }
 
-    if(-not [string]::IsNullOrWhiteSpace([string]$angleDms.Seconds)){
-        return ('{0}{1}°{2:00}''{3:00}"' -f $signText,$degrees,$minutes,$seconds)
+    $degFormat = if($angleDms.DegreeDecimals -gt 0){ "0." + ("0" * [int]$angleDms.DegreeDecimals) } else { "0" }
+    $degValue = if($angleDms.DegreeDecimals -gt 0){
+        $degDecimal = $totalDegrees - [Math]::Floor($totalDegrees)
+        $degrees + $degDecimal
     }
-    if(-not [string]::IsNullOrWhiteSpace([string]$angleDms.Minutes)){
-        return ('{0}{1}°{2:00}''' -f $signText,$degrees,$minutes)
+    else{
+        [double]$degrees
     }
 
-    $degreeDecimals = Get-InspectionResultDecimalPlaces ([string]$angleDms.Degrees)
-    $formattedDegrees = ([double]$value).ToString(("0." + ("0" * $degreeDecimals)).TrimEnd('.'),[System.Globalization.CultureInfo]::InvariantCulture)
+    $formattedDegrees = $sign + $degValue.ToString($degFormat,[System.Globalization.CultureInfo]::InvariantCulture)
+    if($angleDms.HasSeconds){
+        return ("{0}°{1:00}'{2:00}""" -f $formattedDegrees,$minutes,$seconds)
+    }
+    if($angleDms.HasMinutes){
+        return ("{0}°{1:00}'" -f $formattedDegrees,$minutes)
+    }
     return ($formattedDegrees + "°")
 }
 
@@ -3250,21 +3324,20 @@ function Format-InspectionResultValue($value,$nominalText){
 }
 
 function Format-InspectionResultValueWithDecimals($value,$nominalText,$decimals){
+    $effectiveDecimals = [Math]::Min(3,[Math]::Max(0,[int]$decimals))
     $nominal = [string]$nominalText
     if([string]::IsNullOrWhiteSpace($nominal)){
-        $fallbackFormat = if([int]$decimals -gt 0){ "0." + ("0" * [int]$decimals) } else { "0.####" }
+        $fallbackFormat = if($effectiveDecimals -gt 0){ "0." + ("0" * $effectiveDecimals) } else { "0.###" }
         return ([double]$value).ToString($fallbackFormat,[System.Globalization.CultureInfo]::InvariantCulture)
     }
 
     $formattedAngle = Format-AngleDmsInspectionResultValue $value $nominal
     if($formattedAngle){ return $formattedAngle }
 
-    $prefixMatch = [regex]::Match($nominal.Trim(),'^(?<prefix>[CRØΦ]+)\s*','IgnoreCase')
-    $prefix = if($prefixMatch.Success){ [string]$prefixMatch.Groups['prefix'].Value } else { "" }
     $suffix = if($nominal -match '[°º]\s*$'){ "°" } else { "" }
-    $format = if([int]$decimals -gt 0){ "0." + ("0" * [int]$decimals) } else { "0" }
+    $format = if($effectiveDecimals -gt 0){ "0." + ("0" * $effectiveDecimals) } else { "0" }
     $text = ([double]$value).ToString($format,[System.Globalization.CultureInfo]::InvariantCulture)
-    return ($prefix + $text + $suffix)
+    return ($text + $suffix)
 }
 
 function Get-DeterministicMeasurementUnitValue($seedText){
@@ -5000,6 +5073,7 @@ $script:PartQuantity = ""
 $script:PartMaterial = ""
 $script:PartHrc = ""
 $script:PartUser = "7139"
+$script:InspectionDate = $null
     Apply-PageState $null
     Update-PageNavigationUi
     Request-CanvasRedraw
@@ -5185,14 +5259,10 @@ function Write-InspectionSampleResults($sheet,$row,$rowData,$sampleStart,$sample
     $sampleCount = [Math]::Min($sampleColumns.Count,[Math]::Max(0,([int]$sampleEnd - [int]$sampleStart + 1)))
     $usedTexts = @{}
 
-    foreach($col in $sampleColumns){
-        Set-ExcelCellTextValue $sheet $row $col ""
-    }
-
     $manualActual = [string](Get-StatePropertyValue $rowData "MeasurementActual")
     if(-not [string]::IsNullOrWhiteSpace($manualActual)){
         if($sampleCount -gt 0){
-            Set-ExcelCellTextValue $sheet $row $sampleColumns[0] $manualActual
+            Set-ExcelCellSampleMeasurement $sheet $row $sampleColumns[0] $manualActual
         }
         return
     }
@@ -5201,7 +5271,7 @@ function Write-InspectionSampleResults($sheet,$row,$rowData,$sampleStart,$sample
         $absoluteSampleIndex = ([int]$sampleStart + $sampleIndex - 1)
         if(-not (Should-ExportMeasurementForSample $rowData $absoluteSampleIndex)){ continue }
         $targetColumn = $sampleColumns[$sampleIndex - 1]
-        Set-ExcelCellTextValue $sheet $row $targetColumn (Get-ExportMeasurementTextUnique $rowData $absoluteSampleIndex $usedTexts)
+        Set-ExcelCellSampleMeasurement $sheet $row $targetColumn (Get-ExportMeasurementTextUnique $rowData $absoluteSampleIndex $usedTexts)
     }
 }
 
@@ -6753,6 +6823,7 @@ function Load-SourceFile($filePath,[switch]$SkipMetadataPrompt,[switch]$SkipDupl
         $script:PartMaterial = $metadata.Material
         $script:PartHrc = $metadata.Hrc
         $script:PartUser = $metadata.User
+        $script:InspectionDate = $metadata.InspectionDate
         $script:JobName = $metadata.JobName
 
         $pageRecords = @()
@@ -6805,8 +6876,9 @@ function Load-SourceFile($filePath,[switch]$SkipMetadataPrompt,[switch]$SkipDupl
         $script:PartMaterial = $metadata.Material
         $script:PartHrc = $metadata.Hrc
         $script:PartUser = $metadata.User
+        $script:InspectionDate = $metadata.InspectionDate
         $script:JobName = $metadata.JobName
-        if($pageList.Items.Count -gt 0 -and $pageList.SelectedIndex -lt 0){
+        if($pageList -and $pageList.Items.Count -gt 0 -and $pageList.SelectedIndex -lt 0){
             $pageList.SelectedIndex = 0
             Bind-SelectedPage
         }
@@ -7355,6 +7427,7 @@ function Convert-UiCopiedMarksToSessionRows($marks){
                 Y = $mark.Y
                 Scale = (Get-MarkScale $mark)
                 SourceStep = $mark.SourceStep
+                SourcePageIndex = if($mark.PSObject.Properties.Name -contains "SourcePageIndex"){ $mark.SourcePageIndex } else { $null }
                 SourceRect = if($mark.SourceRect){
                     [ordered]@{
                         X = $mark.SourceRect.X
@@ -7409,6 +7482,9 @@ function Convert-SessionRowsToUiCopiedMarks($rows){
             continue
         }
 
+        $savedSourcePageIndex = Get-StatePropertyValue $savedRow "SourcePageIndex"
+        $sourcePageIndex = if($null -ne $savedSourcePageIndex -and -not [string]::IsNullOrWhiteSpace([string]$savedSourcePageIndex)){ [int]$savedSourcePageIndex } else { $null }
+
         $marks += [PSCustomObject]@{
             Id = [int](Get-StatePropertyValue $savedRow "Id")
             Index = $indexText
@@ -7417,6 +7493,7 @@ function Convert-SessionRowsToUiCopiedMarks($rows){
             Scale = (Normalize-MarkScale (Get-StatePropertyValue $savedRow "Scale"))
             SourceStep = $sourceStep
             SourceRect = $sourceRect
+            SourcePageIndex = $sourcePageIndex
         }
     }
 
@@ -7617,6 +7694,7 @@ function Get-CurrentSessionState{
         PartMaterial = $script:PartMaterial
         PartHrc = $script:PartHrc
         PartUser = $script:PartUser
+        InspectionDate = $script:InspectionDate
         BalloonColorPreset = $script:BalloonColorPreset
         MeasurementResults = @(
             foreach($stepKey in @($script:MeasurementResults.Keys)){
@@ -7735,6 +7813,8 @@ function Apply-SessionStateObject($state){
         if($statePartHrc -ne $null){ $script:PartHrc = $statePartHrc }
         $statePartUser = [string](Get-StatePropertyValue $state "PartUser")
         if(-not [string]::IsNullOrWhiteSpace($statePartUser)){ $script:PartUser = $statePartUser }
+        $stateInspectionDate = [string](Get-StatePropertyValue $state "InspectionDate")
+        if(-not [string]::IsNullOrWhiteSpace($stateInspectionDate)){ $script:InspectionDate = $stateInspectionDate }
         $stateBalloonColorPreset = [string](Get-StatePropertyValue $state "BalloonColorPreset")
         if(-not [string]::IsNullOrWhiteSpace($stateBalloonColorPreset)){
             $script:BalloonColorPreset = $stateBalloonColorPreset
@@ -8141,10 +8221,7 @@ function Restore-SessionState{
         $appState = Import-ClixmlSafe $script:AppStateFilePath
     }
 
-    $stateTrainingSaveExportEnabled = Get-StatePropertyValue $appState "TrainingSaveExportEnabled"
-    if($null -ne $stateTrainingSaveExportEnabled -and -not [string]::IsNullOrWhiteSpace([string]$stateTrainingSaveExportEnabled)){
-        $script:TrainingSaveExportEnabled = Convert-ToStepImportantFlag $stateTrainingSaveExportEnabled
-    }
+    $script:TrainingSaveExportEnabled = $false
     Update-TrainingSaveExportMenuState
 
     $script:AdaptiveDetectorStats = @{}
@@ -8169,9 +8246,17 @@ function Clear-InspectionSheet($sheet,$rowStart,$maxPerPage){
 
     $lastRow = $rowStart + $maxPerPage - 1
     $sheet.Range([string]("A{0}:O{1}" -f [int]$rowStart,[int]$lastRow)).ClearContents()
+    try{
+        $sheet.Range([string]("B{0}:B{1}" -f [int]$rowStart,[int]$lastRow)).Font.Bold = $false
+    }
+    catch{}
+    try{
+        $sheet.Range([string]("F{0}:O{1}" -f [int]$rowStart,[int]$lastRow)).NumberFormat = "0.000"
+    }
+    catch{}
 }
 
-function Set-InspectionHeader($sheet,$model,$mold,$qty = "",$material = "",$hrc = "",$user = ""){
+function Set-InspectionHeader($sheet,$model,$mold,$qty = "",$material = "",$hrc = "",$user = "",$inspectionDate = ""){
 
     $sheet.Range("C5").Value2 = [string]$model
     $sheet.Range("G5").Value2 = [string]$mold
@@ -8191,7 +8276,19 @@ function Set-InspectionHeader($sheet,$model,$mold,$qty = "",$material = "",$hrc 
     }
     $dateCell = $sheet.Range("N4")
     $dateCell.NumberFormat = "@"
-    $dateCell.Value2 = (Get-Date).ToString("dd-MMM-yyyy",[System.Globalization.CultureInfo]::InvariantCulture)
+    $dateText = if(-not [string]::IsNullOrWhiteSpace([string]$inspectionDate)){
+        $parsedDate = [DateTime]::MinValue
+        if([DateTime]::TryParse([string]$inspectionDate,[ref]$parsedDate)){
+            $parsedDate.ToString("dd-MMM-yyyy",[System.Globalization.CultureInfo]::InvariantCulture)
+        }
+        else{
+            [string]$inspectionDate
+        }
+    }
+    else{
+        (Get-Date).ToString("dd-MMM-yyyy",[System.Globalization.CultureInfo]::InvariantCulture)
+    }
+    $dateCell.Value2 = $dateText
 }
 
 function Get-InspectionBatchLabel($sampleStart,$sampleEnd){
@@ -8202,15 +8299,144 @@ function Get-InspectionSheetName($startIndex,$endIndex){
     return "Inspection $startIndex-$endIndex"
 }
 
+function Set-ComCellValue($cell, $val){
+    if($null -eq $val){
+        [void]$cell.GetType().InvokeMember("Value2", [System.Reflection.BindingFlags]::SetProperty, $null, $cell, @(""))
+        return
+    }
+    [void]$cell.GetType().InvokeMember("Value2", [System.Reflection.BindingFlags]::SetProperty, $null, $cell, @($val))
+}
+
 function Set-ExcelCellTextValue($sheet,$row,$column,$value){
-    $sheet.Cells.Item([int]$row,[int]$column).Value2 = [string]$value
+    $cell = $sheet.Cells.Item([int]$row,[int]$column)
+    Set-ComCellValue $cell ([string]$value)
+}
+
+function Set-ExcelCellSampleMeasurement($sheet,$row,$column,$value){
+    $valStr = ([string]$value).Trim()
+    if([string]::IsNullOrWhiteSpace($valStr)){
+        $cell = $sheet.Cells.Item([int]$row,[int]$column)
+        Set-ComCellValue $cell ""
+        return
+    }
+
+    $parsed = 0.0
+    if([double]::TryParse($valStr,[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$parsed)){
+        $rounded = [Math]::Round([double]$parsed, 3, [System.MidpointRounding]::AwayFromZero)
+        $cell = $sheet.Cells.Item([int]$row,[int]$column)
+        try{
+            $cell.NumberFormat = "0.000"
+        }
+        catch{}
+        try{
+            Set-ComCellValue $cell $rounded
+        }
+        catch{
+            Set-ComCellValue $cell $valStr
+        }
+    }
+    else{
+        $cell = $sheet.Cells.Item([int]$row,[int]$column)
+        Set-ComCellValue $cell $valStr
+    }
+}
+
+function Set-ExcelInspectionJudgeFormula($sheet,$row,$nominalText){
+    $nominal = [string]$nominalText
+    $degree = [string][char]176
+    $isAngle = ($nominal -match [regex]::Escape($degree) -or $nominal -match [string][char]186 -or $nominal -match "(?i)deg")
+    try{
+        if($isAngle){
+            $sheet.Cells.Item([int]$row, 16).Formula = "=IF(COUNTA(F$row:O$row)=0, """", IF(COUNTIF(F$row:O$row, ""*NG*"")>0, ""NG"", ""OK""))"
+        }
+    }
+    catch{}
 }
 
 function Set-ExcelCellBold($sheet,$row,$column,$isBold){
+    if(-not $isBold){ return }
     try{
-        $sheet.Cells.Item([int]$row,[int]$column).Font.Bold = [bool]$isBold
+        $sheet.Cells.Item([int]$row,[int]$column).Font.Bold = $true
     }
     catch{}
+}
+
+function Set-ExcelCellNominalValue($sheet,$row,$column,$nominalText){
+    $cell = $sheet.Cells.Item([int]$row,[int]$column)
+    if($null -eq $nominalText){
+        Set-ComCellValue $cell ""
+        return
+    }
+
+    $raw = [string]$nominalText
+    if([string]::IsNullOrWhiteSpace($raw)){
+        Set-ComCellValue $cell ""
+        return
+    }
+
+    $text = $raw.Trim()
+    $decimals = Get-InspectionResultDecimalPlaces $text
+    $numFmt = if($decimals -gt 0){ "0." + ("0" * $decimals) } else { "0" }
+
+    # Prefix like C, R, Dia, Phi, SR, CH
+    $prefixMatch = [regex]::Match($text, '^(?<prefix>SR|DIA|CH|[CRØΦ])\s*(?<num>[-+]?[0-9]+(?:[\.,][0-9]+)?)$', 'IgnoreCase')
+    if($prefixMatch.Success){
+        $prefix = $prefixMatch.Groups['prefix'].Value.ToUpperInvariant()
+        $numStr = $prefixMatch.Groups['num'].Value -replace '，','.' -replace ',','.'
+        $numVal = 0.0
+        if([double]::TryParse($numStr, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$numVal)){
+            $pDecimals = Get-InspectionResultDecimalPlaces $numStr
+            $pNumFmt = if($pDecimals -gt 0){ "0." + ("0" * $pDecimals) } else { "0" }
+            try{ $cell.NumberFormat = """$prefix""$pNumFmt" } catch{}
+            Set-ComCellValue $cell ([double]$numVal)
+            return
+        }
+    }
+
+    # Degree
+    $degreeMatch = [regex]::Match($text, '^(?<num>[-+]?[0-9]+(?:[\.,][0-9]+)?)\s*[°º]$', 'IgnoreCase')
+    if($degreeMatch.Success){
+        $numStr = $degreeMatch.Groups['num'].Value -replace '，','.' -replace ',','.'
+        $numVal = 0.0
+        if([double]::TryParse($numStr, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$numVal)){
+            try{ $cell.NumberFormat = "0.###""°""" } catch{}
+            Set-ComCellValue $cell ([double]$numVal)
+            return
+        }
+    }
+
+    $normalized = $text -replace '，','.' -replace ',','.' -replace '\s+',''
+    $dblVal = 0.0
+    if([double]::TryParse($normalized, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$dblVal)){
+        try{ $cell.NumberFormat = $numFmt } catch{}
+        Set-ComCellValue $cell ([double]$dblVal)
+        return
+    }
+
+    Set-ComCellValue $cell $text
+}
+
+function Set-ExcelCellToleranceValue($sheet,$row,$column,$tolValue){
+    $cell = $sheet.Cells.Item([int]$row,[int]$column)
+    if($null -eq $tolValue){
+        Set-ComCellValue $cell ""
+        return
+    }
+
+    $raw = [string]$tolValue
+    if([string]::IsNullOrWhiteSpace($raw)){
+        Set-ComCellValue $cell ""
+        return
+    }
+
+    $text = $raw.Trim()
+    $decimals = Get-InspectionResultDecimalPlaces $text
+    $formatPattern = if($decimals -gt 0){ "0." + ("0" * $decimals) } else { "0.###" }
+    $tolFmt = "+$formatPattern;-$formatPattern;0"
+
+    $dblVal = Convert-MarkStepToleranceCellToDouble $text
+    try{ $cell.NumberFormat = $tolFmt } catch{}
+    Set-ComCellValue $cell ([double]$dblVal)
 }
 
 function Try-QueueBackgroundTrainingFlush{
@@ -8233,6 +8459,21 @@ function Try-QueueBackgroundTrainingFlush{
     }
 }
 
+function Set-InspectionAppearanceRow($sheet,$sampleStart,$sampleEnd){
+    $sampleColumns = @(Get-InspectionSampleColumnNumbers)
+    $sampleCount = [Math]::Min($sampleColumns.Count,[Math]::Max(0,([int]$sampleEnd - [int]$sampleStart + 1)))
+
+    for($i = 0; $i -lt $sampleColumns.Count; $i++){
+        $targetColumn = [int]$sampleColumns[$i]
+        if($i -lt $sampleCount){
+            Set-ExcelCellTextValue $sheet 54 $targetColumn "OK"
+        }
+        else{
+            Set-ExcelCellTextValue $sheet 54 $targetColumn ""
+        }
+    }
+}
+
 function Set-InspectionSampleHeaders($sheet,$sampleStart,$sampleEnd){
     $sampleColumns = @(Get-InspectionSampleColumnNumbers)
     $sampleCount = [Math]::Min($sampleColumns.Count,[Math]::Max(0,([int]$sampleEnd - [int]$sampleStart + 1)))
@@ -8246,6 +8487,7 @@ function Set-InspectionSampleHeaders($sheet,$sampleStart,$sampleEnd){
             Set-ExcelCellTextValue $sheet 12 $targetColumn ""
         }
     }
+    Set-InspectionAppearanceRow $sheet $sampleStart $sampleEnd
 }
 
 function Get-InspectionSampleColumnNumbers{
@@ -8296,6 +8538,7 @@ function Get-ExportJobInfo{
             PartMaterial = $script:PartMaterial
             PartHrc = $script:PartHrc
             PartUser = $script:PartUser
+            InspectionDate = $script:InspectionDate
             JobName = $script:JobName
         }
     }
@@ -8308,6 +8551,7 @@ function Get-ExportJobInfo{
     $script:PartMaterial = $metadata.Material
     $script:PartHrc = $metadata.Hrc
     $script:PartUser = $metadata.User
+    $script:InspectionDate = $metadata.InspectionDate
     $script:JobName = $metadata.JobName
 
     $folderDialog = New-Object Windows.Forms.FolderBrowserDialog
@@ -8703,13 +8947,24 @@ function Get-CurrentCrosshairImagePoint{
             }
         }
         catch{}
+
+        try{
+            if($canvas.ClientSize.Width -gt 0 -and $canvas.ClientSize.Height -gt 0){
+                $centerCanvasPoint = New-Object Drawing.Point([int]($canvas.ClientSize.Width / 2), [int]($canvas.ClientSize.Height / 2))
+                $centerImagePoint = Set-LastImageMousePointFromCanvasPoint $centerCanvasPoint
+                if($centerImagePoint){
+                    return $centerImagePoint
+                }
+            }
+        }
+        catch{}
     }
 
     if($script:LastImageMousePoint){
         return (Clamp-ImagePointToBitmap $script:LastImageMousePoint)
     }
 
-    return $null
+    return (New-Object Drawing.PointF([float]($script:sourceBitmap.Width / 2.0), [float]($script:sourceBitmap.Height / 2.0)))
 }
 
 function Get-NormalizedSelectionRect($startPoint,$endPoint){
@@ -8947,6 +9202,7 @@ function Try-ParseAngleDmsText($text){
     $value = $value -replace ',', '.'
     $value = $value -replace '(?i)DEG',$degree
     $value = $value -replace ([string][char]186),$degree
+    $value = $value -replace "''", '"'
     $value = $value -replace "[′’`´]","'"
     $value = $value -replace '[″“”]','"'
     $compact = ($value -replace '\s+','')
@@ -8954,34 +9210,81 @@ function Try-ParseAngleDmsText($text){
     # OCR may also miss one side of the wrapper, so strip them before angle parse.
     $compact = $compact -replace '[\(\)\[\]]',''
 
+    # Degree only, e.g. 45°, 0.352°
     if($compact -match ("^(?<deg>[-+]?\d+(?:\.\d+)?)" + [regex]::Escape($degree) + "$")){
-        return [PSCustomObject]@{ Text = ([string]$Matches['deg'] + $degree); Degrees = [string]$Matches['deg']; Minutes = ''; Seconds = '' }
+        $degText = [string]$Matches['deg']
+        $decimals = 0
+        $dotIdx = $degText.IndexOf('.')
+        if($dotIdx -ge 0){ $decimals = $degText.Length - $dotIdx - 1 }
+        return [PSCustomObject]@{
+            Text = ($degText + $degree)
+            Degrees = $degText
+            Minutes = ''
+            Seconds = ''
+            HasMinutes = $false
+            HasSeconds = $false
+            DegreeDecimals = $decimals
+        }
     }
 
-    if($compact -match ("^(?<deg>[-+]?\d+(?:\.\d+)?)" + [regex]::Escape($degree) + "(?<min>\d{1,2})'(?<sec>\d{1,2}(?:\.\d+)?)\""$")){
+    # Deg + Min + Sec, e.g. 1°32'23", 1°8'17''
+    if($compact -match ("^(?<deg>[-+]?\d+(?:\.\d+)?)" + [regex]::Escape($degree) + "(?<min>\d{1,2})'(?<sec>\d{1,2}(?:\.\d+)?)[`"']{0,2}$")){
         $degText = [string]$Matches['deg']
         $minText = [string]$Matches['min']
         $secText = [string]$Matches['sec']
         $txt = ('{0}{1}{2}{3}{4}"' -f $degText,$degree,$minText,([string][char]39),$secText)
-        return [PSCustomObject]@{ Text = $txt; Degrees = $degText; Minutes = $minText; Seconds = $secText }
+        return [PSCustomObject]@{
+            Text = $txt
+            Degrees = $degText
+            Minutes = $minText
+            Seconds = $secText
+            HasMinutes = $true
+            HasSeconds = $true
+            DegreeDecimals = 0
+        }
     }
 
+    # Deg + Min, e.g. 1°32'
     if($compact -match ("^(?<deg>[-+]?\d+(?:\.\d+)?)" + [regex]::Escape($degree) + "(?<min>\d{1,2})'$")){
         $degText = [string]$Matches['deg']
         $minText = [string]$Matches['min']
         $txt = ('{0}{1}{2}{3}' -f $degText,$degree,$minText,([string][char]39))
-        return [PSCustomObject]@{ Text = $txt; Degrees = $degText; Minutes = $minText; Seconds = '' }
+        return [PSCustomObject]@{
+            Text = $txt
+            Degrees = $degText
+            Minutes = $minText
+            Seconds = ''
+            HasMinutes = $true
+            HasSeconds = $false
+            DegreeDecimals = 0
+        }
     }
 
     if($compact -match ("^(?<deg>[-+]?\d+)" + [regex]::Escape($degree) + "(?<rest>\d{2,4}).*$")){
         $rest = [string]$Matches['rest']
         if($rest.Length -ge 4){
             $txt = ('{0}{1}{2}{3}{4}{5}' -f $Matches['deg'],$degree,$rest.Substring(0,2),([string][char]39),$rest.Substring(2,2),([string][char]34))
-            return [PSCustomObject]@{ Text = $txt; Degrees = [string]$Matches['deg']; Minutes = $rest.Substring(0,2); Seconds = $rest.Substring(2,2) }
+            return [PSCustomObject]@{
+                Text = $txt
+                Degrees = [string]$Matches['deg']
+                Minutes = $rest.Substring(0,2)
+                Seconds = $rest.Substring(2,2)
+                HasMinutes = $true
+                HasSeconds = $true
+                DegreeDecimals = 0
+            }
         }
         if($rest.Length -ge 2){
             $txt = ('{0}{1}{2}{3}' -f $Matches['deg'],$degree,$rest.Substring(0,2),([string][char]39))
-            return [PSCustomObject]@{ Text = $txt; Degrees = [string]$Matches['deg']; Minutes = $rest.Substring(0,2); Seconds = '' }
+            return [PSCustomObject]@{
+                Text = $txt
+                Degrees = [string]$Matches['deg']
+                Minutes = $rest.Substring(0,2)
+                Seconds = ''
+                HasMinutes = $true
+                HasSeconds = $false
+                DegreeDecimals = 0
+            }
         }
     }
 
@@ -9603,6 +9906,12 @@ $btnCopyView.Add_Click({
     $picture.Invalidate()
 })
 
+if($btnAutoScan){
+    $btnAutoScan.Add_Click({
+        Invoke-AutoScanYoloPpOcr
+    })
+}
+
 $btnAutoMapPdf.Add_Click({
     Invoke-AutoMapPdfTextLayer
 })
@@ -9703,6 +10012,11 @@ if($miAdvancePdfTextZones){
 }
 if($miAdvanceToggleSidePanel){
     $miAdvanceToggleSidePanel.Add_Click({ Toggle-DrawSidePanel })
+}
+if($miAdvanceAutoScan){
+    $miAdvanceAutoScan.Add_Click({
+        if($btnAutoScan){ $btnAutoScan.PerformClick() } else { Invoke-AutoScanYoloPpOcr }
+    })
 }
 if($miAdvanceAutoMapPdf){
     $miAdvanceAutoMapPdf.Add_Click({ $btnAutoMapPdf.PerformClick() })
@@ -10356,13 +10670,11 @@ $picture.Add_MouseUp({
     # =========================
     if($script:isDraggingMark){
         $script:isDraggingMark = $false
-        $draggedOriginalMark = ($script:draggingMarkKind -eq "Original")
         $script:draggingMarkKind = $null
         $script:dragMarkIndex = -1
         Request-CanvasRedraw
-        if($draggedOriginalMark){
-            Save-SessionState
-        }
+        Save-CurrentPageState
+        Save-SessionState
     }
 
     if($script:IsDraggingTextZone){
@@ -17254,6 +17566,173 @@ function Get-AutoMapPdfPreparedCandidates{
     }
 }
 
+function Invoke-AutoScanYoloPpOcr{
+    if(!$script:sourceBitmap){
+        [System.Windows.Forms.MessageBox]::Show(
+            "Vui lòng mở file bản vẽ PDF hoặc hình ảnh trước khi sử dụng Auto-Scan.",
+            "Auto-Scan (YOLO + PP-OCR)",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+        return
+    }
+
+    if($table.Rows.Count -gt 0 -or @($script:marks).Count -gt 0){
+        $dlgRes = [System.Windows.Forms.MessageBox]::Show(
+            "Bản vẽ hiện tại đã có dữ liệu bước đo ($($table.Rows.Count) dòng)." + [Environment]::NewLine +
+            "Bạn có muốn xóa dữ liệu cũ để quét lại từ đầu không?" + [Environment]::NewLine + [Environment]::NewLine +
+            "[Yes] = Xóa cũ và quét mới" + [Environment]::NewLine +
+            "[No] = Giữ dữ liệu cũ và quét thêm tiếp" + [Environment]::NewLine +
+            "[Cancel] = Hủy bỏ",
+            "Auto-Scan (YOLO + PP-OCR)",
+            [System.Windows.Forms.MessageBoxButtons]::YesNoCancel,
+            [System.Windows.Forms.MessageBoxIcon]::Question
+        )
+        if($dlgRes -eq [System.Windows.Forms.DialogResult]::Cancel){
+            return
+        }
+        if($dlgRes -eq [System.Windows.Forms.DialogResult]::Yes){
+            $table.Rows.Clear()
+            $script:marks = @()
+            $script:StepRects.Clear()
+            $script:PdfTextLayerZones = @()
+            Request-CanvasRedraw
+        }
+    }
+
+    $oldCursor = $form.Cursor
+    $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+    if($txtOcrDebug){
+        $txtOcrDebug.Text = "⏳ Đang chạy Auto-Scan: YOLOv11 tìm kiếm + PP-OCR nhận diện chi tiết..."
+        [System.Windows.Forms.Application]::DoEvents()
+    }
+
+    $tempImgPath = $null
+    $tempJsonPath = $null
+
+    try{
+        $tempImgPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".png"))
+        $tempJsonPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".json"))
+
+        $script:sourceBitmap.Save($tempImgPath, [System.Drawing.Imaging.ImageFormat]::Png)
+
+        $bridgeScript = Join-Path $script:AppRoot "tools\autoscan_bridge.py"
+        if(-not (Test-Path -LiteralPath $bridgeScript)){
+            throw "Không tìm thấy file bridge: $bridgeScript"
+        }
+
+        $pythonExe = "python.exe"
+        $pyCandidates = @(
+            "C:\Users\IRS03-415\AppData\Local\Programs\Python\Python312\python.exe",
+            "C:\Users\IRS03-415\AppData\Local\Programs\Python\Python311\python.exe",
+            "C:\Python312\python.exe",
+            "C:\Python311\python.exe"
+        )
+        foreach($cand in $pyCandidates){
+            if(Test-Path -LiteralPath $cand){
+                $pythonExe = $cand
+                break
+            }
+        }
+
+        $psi = New-Object System.Diagnostics.ProcessStartInfo
+        $psi.FileName = $pythonExe
+        $psi.Arguments = "`"$bridgeScript`" --image `"$tempImgPath`" --out `"$tempJsonPath`" --model v6"
+        $psi.UseShellExecute = $false
+        $psi.RedirectStandardOutput = $true
+        $psi.RedirectStandardError = $true
+        $psi.CreateNoWindow = $true
+
+        $proc = [System.Diagnostics.Process]::Start($psi)
+        $stdout = $proc.StandardOutput.ReadToEnd()
+        $stderr = $proc.StandardError.ReadToEnd()
+        $proc.WaitForExit()
+
+        if($proc.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $tempJsonPath)){
+            throw "Auto-Scan thất bại (Mã lỗi $($proc.ExitCode)): $stderr $stdout"
+        }
+
+        $jsonRaw = [System.IO.File]::ReadAllText($tempJsonPath, [System.Text.Encoding]::UTF8)
+        $candidatesJson = $jsonRaw | ConvertFrom-Json
+
+        if(!$candidatesJson -or @($candidatesJson).Count -le 0){
+            if($txtOcrDebug){
+                $txtOcrDebug.Text = "Auto-Scan: Không phát hiện được kích thước nào trên trang này."
+            }
+            [System.Windows.Forms.MessageBox]::Show(
+                "Không tìm thấy kích thước nào trên bản vẽ này.",
+                "Auto-Scan (YOLO + PP-OCR)",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Information
+            )
+            return
+        }
+
+        $addedCount = 0
+        foreach($item in @($candidatesJson)){
+            $rect = New-Object System.Drawing.Rectangle([int]$item.x, [int]$item.y, [int]$item.w, [int]$item.h)
+            $nomText = [string]$item.nominal
+            if([string]::IsNullOrWhiteSpace($nomText)){
+                $nomText = [string]$item.raw_text
+            }
+
+            $hasExplicitTol = (-not [string]::IsNullOrWhiteSpace([string]$item.tol_minus) -or -not [string]::IsNullOrWhiteSpace([string]$item.tol_plus))
+            $candObj = [PSCustomObject]@{
+                Rect = $rect
+                Nominal = $nomText
+                RawText = [string]$item.raw_text
+                DuplicateCheckPassed = $true
+                Source = "ImageOcrAuto"
+                Tolerance = [PSCustomObject]@{
+                    Detected = $hasExplicitTol
+                    TolMinus = [string]$item.tol_minus
+                    TolPlus = [string]$item.tol_plus
+                }
+            }
+
+            if(Add-OcrCandidateToTable $candObj){
+                $addedCount++
+            }
+        }
+
+        Clear-PreviewImage
+        Save-CurrentPageState
+        Validate-StepState
+        Refresh-DuplicateState
+        Apply-TableSearchFilter
+        Request-CanvasRedraw
+        Save-SessionState
+
+        if($table.Rows.Count -gt 0){
+            $lastRow = $table.Rows.Count - 1
+            $table.ClearSelection()
+            $table.Rows[$lastRow].Selected = $true
+            $table.CurrentCell = $table.Rows[$lastRow].Cells[0]
+            $table.FirstDisplayedScrollingRowIndex = $lastRow
+        }
+
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = "✔ Auto-Scan hoàn tất: Đã nhận diện được $addedCount kích thước (YOLOv11 + PP-OCR)."
+        }
+    }
+    catch{
+        [System.Windows.Forms.MessageBox]::Show(
+            "Lỗi trong quá trình Auto-Scan: $($_.Exception.Message)",
+            "Lỗi Auto-Scan",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Error
+        )
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = "Auto-Scan lỗi: $($_.Exception.Message)"
+        }
+    }
+    finally{
+        $form.Cursor = $oldCursor
+        try{ if($tempImgPath -and (Test-Path -LiteralPath $tempImgPath)){ Remove-Item -LiteralPath $tempImgPath -Force -ErrorAction SilentlyContinue } } catch{}
+        try{ if($tempJsonPath -and (Test-Path -LiteralPath $tempJsonPath)){ Remove-Item -LiteralPath $tempJsonPath -Force -ErrorAction SilentlyContinue } } catch{}
+    }
+}
+
 function Invoke-AutoMapPdfTextLayer{
 
     if(!$script:sourceBitmap){ return }
@@ -17453,7 +17932,10 @@ function Find-BalloonPositionNextToRect($rect,$imgW,$imgH,$markScale = 1.0,$slot
 
 function Draw-MarkBalloons($graphics,$renderScale,$showDuplicateHighlight = $false,$copyViewOnly = $false){
 
-    if(!$graphics -or !$script:marks){ return }
+    if(!$graphics){ return }
+    $hasOriginalMarks = ($script:marks -and $script:marks.Count -gt 0)
+    $hasCopiedMarks = ($script:UiCopiedMarks -and $script:UiCopiedMarks.Count -gt 0)
+    if(!$hasOriginalMarks -and !$hasCopiedMarks){ return }
 
     $metrics = $null
     $defaultBrush = $null
@@ -19313,6 +19795,7 @@ $btnExcel.Add_Click({
     $material = [string]$script:PartMaterial
     $hrc = [string]$script:PartHrc
     $user = if([string]::IsNullOrWhiteSpace([string]$script:PartUser)){ "7139" } else { [string]$script:PartUser }
+    $inspectionDate = [string]$script:InspectionDate
     $sampleBatches = @(Get-InspectionSampleBatches $qty)
     $savedExcelPaths = New-Object System.Collections.Generic.List[string]
     $hasImportantSteps = Test-AnyImportantInspectionSteps
@@ -19371,66 +19854,88 @@ $btnExcel.Add_Click({
             $exportStage = "Open template"
             Update-ExportProgress ("Opening Excel template... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 15
             $wb = $excel.Workbooks.Open([string]$script:ExcelTemplate)
-            $ws = $wb.Worksheets.Item([int]1)
+            $excel.ScreenUpdating = $false
+            $origCalculation = $excel.Calculation
+            try{ $excel.Calculation = -4135 } catch{} # xlCalculationManual
 
-            $exportStage = "Prepare sheet"
-            Update-ExportProgress ("Preparing sheet... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 18
-            Clear-InspectionSheet $ws $rowStart $maxPerPage
-            Set-InspectionHeader $ws $model $mold $qty $material $hrc $user
-            Set-InspectionSampleHeaders $ws $batchStart $batchEnd
-            $initialEnd = if($exportRows.Count -gt 0){ [Math]::Min($maxPerPage,$exportRows.Count) } else { 1 }
-            $ws.Name = [string](Get-InspectionSheetName 1 $initialEnd)
-
-            $page = 1
-            $count = 0
-            $row = $rowStart
-
-            foreach($rowData in $exportRows){
-
-                if($count -ge $maxPerPage){
-                    $page++
-
-                    $exportStage = "Copy sheet"
-                    $ws.Copy($wb.Worksheets.Item([int]$wb.Worksheets.Count))
-                    if($ws){
-                        [System.Runtime.Interopservices.Marshal]::ReleaseComObject($ws) | Out-Null
-                        $ws = $null
-                    }
-
-                    $ws = $wb.Worksheets.Item([int]$wb.Worksheets.Count)
-                    $exportStage = "Prepare copied sheet"
-                    Clear-InspectionSheet $ws $rowStart $maxPerPage
-                    Set-InspectionHeader $ws $model $mold $qty $material $hrc $user
-                    Set-InspectionSampleHeaders $ws $batchStart $batchEnd
-
-                    $pageStartIndex = (($page - 1) * $maxPerPage) + 1
-                    $pageEndIndex = [Math]::Min($page * $maxPerPage,$exportRows.Count)
-                    $ws.Name = [string](Get-InspectionSheetName $pageStartIndex $pageEndIndex)
-
-                    $row = $rowStart
-                    $count = 0
+            $pageChunks = @()
+            if($exportRows.Count -gt 0){
+                for($offset = 0; $offset -lt $exportRows.Count; $offset += $maxPerPage){
+                    $chunkCount = [Math]::Min($maxPerPage, ($exportRows.Count - $offset))
+                    $pageChunks += ,@($exportRows[$offset..($offset + $chunkCount - 1)])
                 }
+            }
+            else{
+                $pageChunks += ,@()
+            }
+
+            $targetSheetCount = [Math]::Max(1, $pageChunks.Count)
+
+            while($wb.Worksheets.Count -lt $targetSheetCount){
+                $lastSheet = $wb.Worksheets.Item([int]$wb.Worksheets.Count)
+                $lastSheet.Copy($lastSheet)
+                [System.Runtime.InteropServices.Marshal]::ReleaseComObject($lastSheet) | Out-Null
+            }
+
+            while($wb.Worksheets.Count -gt $targetSheetCount){
+                $sheetToDelete = $wb.Worksheets.Item([int]$wb.Worksheets.Count)
+                $sheetToDelete.Delete()
+                [System.Runtime.InteropServices.Marshal]::ReleaseComObject($sheetToDelete) | Out-Null
+            }
+
+            for($p = 0; $p -lt $pageChunks.Count; $p++){
+                $pageRows = @($pageChunks[$p])
+                $firstStep = if($pageRows.Count -gt 0){ [string]$pageRows[0].Step } else { "1" }
+                $lastStep = if($pageRows.Count -gt 0){ [string]$pageRows[-1].Step } else { "1" }
+                $pageSheetName = [string](Get-InspectionSheetName $firstStep $lastStep)
+
+                $exportStage = "Prepare sheet"
+                Update-ExportProgress ("Preparing sheet " + [string]($p + 1) + "/" + [string]$pageChunks.Count + "... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 18
+                $ws = $wb.Worksheets.Item([int]($p + 1))
+
+                Clear-InspectionSheet $ws $rowStart $maxPerPage
+                Set-InspectionHeader $ws $model $mold $qty $material $hrc $user $inspectionDate
+                Set-InspectionSampleHeaders $ws $batchStart $batchEnd
+                $ws.Name = $pageSheetName
 
                 $exportStage = "Write rows"
-                $writtenRows++
-                if(($writtenRows -eq 1) -or (($writtenRows % 5) -eq 0) -or ($writtenRows -eq $totalRowsToWrite)){
-                    $rowPercent = 20 + [int][Math]::Round(45.0 * ([double]$writtenRows / [double]$totalRowsToWrite))
-                    Update-ExportProgress ("Writing Excel rows... " + [string]$writtenRows + "/" + [string]$totalRowsToWrite) $rowPercent
-                }
-                Set-ExcelCellTextValue $ws $row 1 ([string]$rowData.Step)
-                Set-ExcelCellTextValue $ws $row 2 ([string]$rowData.Nominal)
-                Set-ExcelCellBold $ws $row 2 (Convert-ToStepImportantFlag $rowData.ImportantStep)
-                Set-ExcelCellTextValue $ws $row 3 ([string]$rowData.TolMinus)
-                Set-ExcelCellTextValue $ws $row 4 ([string]$rowData.TolPlus)
-                Set-ExcelCellTextValue $ws $row 5 (Get-ExportToolCode $rowData)
-                Write-InspectionSampleResults $ws $row $rowData $batchStart $batchEnd
+                $row = $rowStart
+                foreach($rowData in $pageRows){
+                    $writtenRows++
+                    if(($writtenRows -eq 1) -or (($writtenRows % 5) -eq 0) -or ($writtenRows -eq $totalRowsToWrite)){
+                        $rowPercent = 20 + [int][Math]::Round(45.0 * ([double]$writtenRows / [double]$totalRowsToWrite))
+                        Update-ExportProgress ("Writing Excel rows... " + [string]$writtenRows + "/" + [string]$totalRowsToWrite) $rowPercent
+                    }
+                    $tMinus = Convert-MarkStepToleranceCellToDouble $rowData.TolMinus
+                    $tPlus = Convert-MarkStepToleranceCellToDouble $rowData.TolPlus
+                    $lowerTol = [double]$tMinus
+                    $upperTol = [double]$tPlus
+                    if($upperTol -lt $lowerTol){
+                        $swap = $lowerTol
+                        $lowerTol = $upperTol
+                        $upperTol = $swap
+                    }
 
-                $row++
-                $count++
+                    Set-ExcelCellTextValue $ws $row 1 ([string]$rowData.Step)
+                    Set-ExcelCellNominalValue $ws $row 2 ([string]$rowData.Nominal)
+                    Set-ExcelCellBold $ws $row 2 (Convert-ToStepImportantFlag $rowData.ImportantStep)
+                    Set-ExcelCellToleranceValue $ws $row 3 $lowerTol
+                    Set-ExcelCellToleranceValue $ws $row 4 $upperTol
+                    Set-ExcelCellTextValue $ws $row 5 (Get-ExportToolCode $rowData)
+                    Write-InspectionSampleResults $ws $row $rowData $batchStart $batchEnd
+                    Set-ExcelInspectionJudgeFormula $ws $row ([string]$rowData.Nominal)
+
+                    $row++
+                }
             }
 
             $exportStage = "Save workbook"
             Update-ExportProgress ("Saving workbook... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 68
+            try{ $excel.Calculate() } catch{}
+            if($origCalculation -ne $null){
+                try{ $excel.Calculation = $origCalculation } catch{}
+            }
+            $excel.ScreenUpdating = $true
             $wb.SaveAs($excelPath,$excelFormat)
             if(!(Test-Path -LiteralPath $excelPath)){
                 throw "Excel export finished without creating the output file."
@@ -19495,6 +20000,11 @@ $btnExcel.Add_Click({
     finally{
         $script:IsInspectionExportGeneratingSamples = $false
         if($excel){
+            try{ $excel.ScreenUpdating = $true } catch{}
+            if($origCalculation -ne $null){
+                try{ $excel.Calculation = $origCalculation } catch{}
+            }
+
             if($originalEnableEvents -ne $null){
                 $excel.EnableEvents = $originalEnableEvents
             }

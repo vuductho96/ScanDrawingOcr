@@ -210,101 +210,24 @@ $lblPreviewTitle.Location = New-Object Drawing.Point(1240,170)
 $lblPreviewTitle.Visible = $false
 $tabDraw.Controls.Add($lblPreviewTitle)
 $grpOcrDebug = New-Object Windows.Forms.GroupBox
-$grpOcrDebug.Text = "OCR Debug"
+$grpOcrDebug.Text = "Status"
 $grpOcrDebug.Font = $groupFont
 $grpOcrDebug.Location = New-Object Drawing.Point(1240,320)
-$grpOcrDebug.Size = New-Object Drawing.Size(400,120)
+$grpOcrDebug.Size = New-Object Drawing.Size(400,44)
 $tabDraw.Controls.Add($grpOcrDebug)
 
 $txtOcrDebug = New-Object Windows.Forms.TextBox
-$txtOcrDebug.Font = New-Object System.Drawing.Font("Consolas",8)
-$txtOcrDebug.Location = New-Object Drawing.Point(10,22)
-$txtOcrDebug.Size = New-Object Drawing.Size(380,88)
-$txtOcrDebug.Multiline = $true
+$txtOcrDebug.Font = New-Object System.Drawing.Font("Consolas",9)
+$txtOcrDebug.Location = New-Object Drawing.Point(8,18)
+$txtOcrDebug.Size = New-Object Drawing.Size(384,20)
+$txtOcrDebug.Multiline = $false
 $txtOcrDebug.ReadOnly = $true
-$txtOcrDebug.ScrollBars = "Vertical"
 $txtOcrDebug.WordWrap = $false
 $grpOcrDebug.Controls.Add($txtOcrDebug)
 
-$grpAiVision = New-Object Windows.Forms.GroupBox
-$grpAiVision.Text = "AI Vision"
-$grpAiVision.Font = $groupFont
-$grpAiVision.Location = New-Object Drawing.Point(1240,446)
-$grpAiVision.Size = New-Object Drawing.Size(400,192)
-$grpAiVision.Visible = $false
-$tabDraw.Controls.Add($grpAiVision)
-
-$lblAiModel = New-Object Windows.Forms.Label
-$lblAiModel.Text = "Model"
-$lblAiModel.Font = $uiFont
-$lblAiModel.AutoSize = $true
-$lblAiModel.Location = New-Object Drawing.Point(10,26)
-$grpAiVision.Controls.Add($lblAiModel)
-
-$cmbAiModel = New-Object Windows.Forms.ComboBox
-$cmbAiModel.Font = $uiFont
-$cmbAiModel.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-$cmbAiModel.Location = New-Object Drawing.Point(62,22)
-$cmbAiModel.Size = New-Object Drawing.Size(192,28)
-[void]$cmbAiModel.Items.AddRange(@(
-    "ollama:qwen2.5vl:3b",
-    "ollama:minicpm-v"
-))
-$cmbAiModel.SelectedIndex = 0
-$grpAiVision.Controls.Add($cmbAiModel)
-
-$btnAiUseEnv = New-Object Windows.Forms.Button
-$btnAiUseEnv.Text = "Rescan AI"
-$btnAiUseEnv.Font = $uiFont
-$btnAiUseEnv.Location = New-Object Drawing.Point(262,21)
-$btnAiUseEnv.Size = New-Object Drawing.Size(124,28)
-$grpAiVision.Controls.Add($btnAiUseEnv)
-
-$chkAiTestOnly = New-Object Windows.Forms.CheckBox
-$chkAiTestOnly.Text = "AI test only on"
-$chkAiTestOnly.Font = $uiFont
-$chkAiTestOnly.AutoSize = $true
-$chkAiTestOnly.Location = New-Object Drawing.Point(10,58)
-$grpAiVision.Controls.Add($chkAiTestOnly)
-
-$chkAiExperiment = New-Object Windows.Forms.CheckBox
-$chkAiExperiment.Text = "Experiment mode"
-$chkAiExperiment.Font = $uiFont
-$chkAiExperiment.AutoSize = $true
-$chkAiExperiment.Location = New-Object Drawing.Point(150,58)
-$grpAiVision.Controls.Add($chkAiExperiment)
-
-$btnAiTest = New-Object Windows.Forms.Button
-$btnAiTest.Text = "Test AI Only"
-$btnAiTest.Font = $uiFont
-$btnAiTest.Location = New-Object Drawing.Point(10,85)
-$btnAiTest.Size = New-Object Drawing.Size(118,30)
-$grpAiVision.Controls.Add($btnAiTest)
-
-$btnAiAccept = New-Object Windows.Forms.Button
-$btnAiAccept.Text = "Accept AI"
-$btnAiAccept.Font = $uiFont
-$btnAiAccept.Location = New-Object Drawing.Point(136,85)
-$btnAiAccept.Size = New-Object Drawing.Size(118,30)
-$btnAiAccept.Enabled = $false
-$grpAiVision.Controls.Add($btnAiAccept)
-
-$btnAiClear = New-Object Windows.Forms.Button
-$btnAiClear.Text = "Clear"
-$btnAiClear.Font = $uiFont
-$btnAiClear.Location = New-Object Drawing.Point(262,85)
-$btnAiClear.Size = New-Object Drawing.Size(124,30)
-$grpAiVision.Controls.Add($btnAiClear)
-
-$txtAiResult = New-Object Windows.Forms.TextBox
-$txtAiResult.Font = New-Object System.Drawing.Font("Consolas",8)
-$txtAiResult.Location = New-Object Drawing.Point(10,120)
-$txtAiResult.Size = New-Object Drawing.Size(376,62)
-$txtAiResult.Multiline = $true
-$txtAiResult.ReadOnly = $true
-$txtAiResult.ScrollBars = "Vertical"
-$txtAiResult.WordWrap = $true
-$grpAiVision.Controls.Add($txtAiResult)
+# Dead AI Vision group removed
+$grpAiVision = $null
+$txtAiResult = $null
 
 # =========================
 # TOLERANCE MODE
@@ -314,45 +237,45 @@ $grpTolMode = New-Object Windows.Forms.GroupBox
 $grpTolMode.Text = "Tolerance Mode"
 $grpTolMode.Font = $groupFont
 $grpTolMode.Location = New-Object Drawing.Point(1250,250)
-$grpTolMode.Size = New-Object Drawing.Size(400,135)
+$grpTolMode.Size = New-Object Drawing.Size(400,96)
 
 $tabDraw.Controls.Add($grpTolMode)
 
 $rbPM = New-Object Windows.Forms.RadioButton
 $rbPM.Text = "±"
-$rbPM.Font = $uiFont
-$rbPM.Location = "12,28"
+$rbPM.Font = $uiBoldFont
+$rbPM.Location = New-Object Drawing.Point(16,24)
 $rbPM.Checked = $true
-$rbPM.Width = 40
+$rbPM.Size = New-Object Drawing.Size(60,28)
 $grpTolMode.Controls.Add($rbPM)
 
 $rbPlus = New-Object Windows.Forms.RadioButton
 $rbPlus.Text = "+"
-$rbPlus.Font = $uiFont
-$rbPlus.Location = "12,60"
-$rbPlus.Width = 40
+$rbPlus.Font = $uiBoldFont
+$rbPlus.Location = New-Object Drawing.Point(16,56)
+$rbPlus.Size = New-Object Drawing.Size(60,28)
 $grpTolMode.Controls.Add($rbPlus)
-
-$rbMinus = New-Object Windows.Forms.RadioButton
-$rbMinus.Text = "-"
-$rbMinus.Font = $uiFont
-$rbMinus.Location = "232,28"
-$rbMinus.Width = 50
-$grpTolMode.Controls.Add($rbMinus)
 
 $rbPP = New-Object Windows.Forms.RadioButton
 $rbPP.Text = "++"
-$rbPP.Font = $uiFont
-$rbPP.Location = "122,28"
-$rbPP.Width = 60
+$rbPP.Font = $uiBoldFont
+$rbPP.Location = New-Object Drawing.Point(110,24)
+$rbPP.Size = New-Object Drawing.Size(70,28)
 $grpTolMode.Controls.Add($rbPP)
 
 $rbMM = New-Object Windows.Forms.RadioButton
 $rbMM.Text = "--"
-$rbMM.Font = $uiFont
-$rbMM.Location = "122,60"
-$rbMM.Width = 60
+$rbMM.Font = $uiBoldFont
+$rbMM.Location = New-Object Drawing.Point(110,56)
+$rbMM.Size = New-Object Drawing.Size(70,28)
 $grpTolMode.Controls.Add($rbMM)
+
+$rbMinus = New-Object Windows.Forms.RadioButton
+$rbMinus.Text = "-"
+$rbMinus.Font = $uiBoldFont
+$rbMinus.Location = New-Object Drawing.Point(210,24)
+$rbMinus.Size = New-Object Drawing.Size(60,28)
+$grpTolMode.Controls.Add($rbMinus)
 # =========================
 # BUTTONS
 # =========================
@@ -444,8 +367,6 @@ $btnLoad.Width = 150
 $tabDraw.Controls.Add($btnLoad)
 
 $btnTranslateLens = New-Object Windows.Forms.Button
-$btnTranslateLens.Text = "Translator"
-$btnTranslateLens.Font = $uiFont
 $btnTranslateLens.Visible = $false
 $tabDraw.Controls.Add($btnTranslateLens)
 
@@ -464,13 +385,11 @@ $btnToggleSidePanel.TabStop = $false
 $tabDraw.Controls.Add($btnToggleSidePanel)
 
 $btnYellowPen = New-Object Windows.Forms.Button
-$btnYellowPen.Text = "Yellow Pen Off"
-$btnYellowPen.Font = $uiFont
+$btnYellowPen.Visible = $false
 $tabDraw.Controls.Add($btnYellowPen)
 
 $btnEraser = New-Object Windows.Forms.Button
-$btnEraser.Text = "Eraser Off"
-$btnEraser.Font = $uiFont
+$btnEraser.Visible = $false
 $tabDraw.Controls.Add($btnEraser)
 
 $advanceMenu = New-Object Windows.Forms.ContextMenuStrip
@@ -531,6 +450,8 @@ $miAdvanceTrainingExport = New-Object Windows.Forms.ToolStripMenuItem("Training 
 [void]$miAdvanceDevMenu.DropDownItems.Add($miAdvanceTrainingExport)
 
 [void]$advanceMenu.Items.Add($miAdvanceEditMenu)
+$miAdvanceAutoScan = New-Object Windows.Forms.ToolStripMenuItem("⚡ Auto-Scan (YOLO + PP-OCR)")
+[void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceAutoScan)
 [void]$advanceMenu.Items.Add($miAdvanceViewMenu)
 [void]$advanceMenu.Items.Add($miAdvanceOcrMenu)
 [void]$advanceMenu.Items.Add($miAdvanceDevMenu)
@@ -565,6 +486,21 @@ $btnExcel.Location = New-Object System.Drawing.Point(1250,80)
 
 $tabDraw.Controls.Add($btnExcel)
 
+# ==============================
+# BUTTON: AUTO-SCAN (YOLO + PP-OCR)
+# ==============================
+$btnAutoScan = New-Object System.Windows.Forms.Button
+$btnAutoScan.Text = "⚡ Auto-Scan (YOLO + PP)"
+$btnAutoScan.Font = New-Object System.Drawing.Font("Segoe UI",11,[System.Drawing.FontStyle]::Bold)
+$btnAutoScan.BackColor = [System.Drawing.Color]::FromArgb(0,122,204)
+$btnAutoScan.ForeColor = [System.Drawing.Color]::White
+$btnAutoScan.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+$btnAutoScan.FlatAppearance.BorderSize = 0
+$btnAutoScan.Cursor = [System.Windows.Forms.Cursors]::Hand
+$btnAutoScan.Size = New-Object System.Drawing.Size(250,36)
+$btnAutoScan.Location = New-Object System.Drawing.Point(1250,118)
+$tabDraw.Controls.Add($btnAutoScan)
+
 $btnCopyView = New-Object System.Windows.Forms.Button
 $btnCopyView.Text = "Copy View Off"
 $btnCopyView.Font = $uiFont
@@ -593,10 +529,6 @@ $btnClearGrayZones.Location = New-Object System.Drawing.Point(1250,178)
 # Save MarkImage
 # =========================
 $btnSave = New-Object Windows.Forms.Button
-$btnSave.Text = "Export PDF"
-$btnSave.Font = $buttonFont
-$btnSave.Location = New-Object Drawing.Point(1250,320)
-$btnSave.Width = 150
 $btnSave.Visible = $false
 # =========================
 # OCR RESULT TABLE
@@ -766,10 +698,7 @@ $btnResultsView.Font = $uiFont
 $tabDraw.Controls.Add($btnResultsView)
 
 $txtCopiedUi = New-Object Windows.Forms.TextBox
-$txtCopiedUi.Font = $uiFont
-$txtCopiedUi.ReadOnly = $true
 $txtCopiedUi.Visible = $false
-$tabDraw.Controls.Add($txtCopiedUi)
 
 foreach($textInput in @($txtTol0,$txtTol1,$txtTol2,$txtTol3,$txtTableSearch)){
     $textInput.Add_Enter({

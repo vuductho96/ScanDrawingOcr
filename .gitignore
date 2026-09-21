@@ -1,4 +1,5 @@
-tools/
+tools/*
+!tools/autoscan_bridge.py
 SecureBuild/
 TrainingDataset/
 PreparedDataset/
