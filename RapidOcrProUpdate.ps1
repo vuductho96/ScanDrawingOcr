@@ -17761,8 +17761,7 @@ function Invoke-AutoScanYoloPpOcr{
                 if([string]::IsNullOrWhiteSpace($rawText)){ continue }
 
                 $nom = Resolve-OcrTextAsMechanicalNominal $rawText $rect
-                $nomText = [string]$nom
-                if([string]::IsNullOrWhiteSpace($nomText)){ $nomText = $rawText }
+                $nomText = if($nom -and -not [string]::IsNullOrWhiteSpace($nom.Nominal)){ [string]$nom.Nominal } else { $rawText }
 
                 $tol = Parse-ToleranceFull $rawText $nomText
                 if($tol -and $tol.Detected){
