@@ -17609,10 +17609,14 @@ function Invoke-AutoScanYoloPpOcr{
 
     $tempImgPath = $null
     $tempJsonPath = $null
+    $tempOutLog = $null
+    $tempErrLog = $null
 
     try{
         $tempImgPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".png"))
         $tempJsonPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".json"))
+        $tempOutLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_out_" + [System.Guid]::NewGuid().ToString("N") + ".log"))
+        $tempErrLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_err_" + [System.Guid]::NewGuid().ToString("N") + ".log"))
 
         $script:sourceBitmap.Save($tempImgPath, [System.Drawing.Imaging.ImageFormat]::Png)
 
@@ -17635,21 +17639,38 @@ function Invoke-AutoScanYoloPpOcr{
             }
         }
 
-        $psi = New-Object System.Diagnostics.ProcessStartInfo
-        $psi.FileName = $pythonExe
-        $psi.Arguments = "`"$bridgeScript`" --image `"$tempImgPath`" --out `"$tempJsonPath`" --model v6"
-        $psi.UseShellExecute = $false
-        $psi.RedirectStandardOutput = $true
-        $psi.RedirectStandardError = $true
-        $psi.CreateNoWindow = $true
+        $argString = ('-X utf8 "{0}" --image "{1}" --out "{2}" --model v6' -f $bridgeScript, $tempImgPath, $tempJsonPath)
+        $proc = Start-Process -FilePath $pythonExe `
+            -ArgumentList $argString `
+            -RedirectStandardOutput $tempOutLog `
+            -RedirectStandardError $tempErrLog `
+            -WindowStyle Hidden `
+            -PassThru
 
-        $proc = [System.Diagnostics.Process]::Start($psi)
-        $stdout = $proc.StandardOutput.ReadToEnd()
-        $stderr = $proc.StandardError.ReadToEnd()
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        while(-not $proc.HasExited){
+            [System.Windows.Forms.Application]::DoEvents()
+            Start-Sleep -Milliseconds 150
+            $elapsedSec = [int]$sw.Elapsed.TotalSeconds
+            if($txtOcrDebug){
+                $txtOcrDebug.Text = "⏳ Đang chạy Auto-Scan (${elapsedSec}s): YOLOv11 tìm kiếm + PP-OCR quét từng kích thước..."
+            }
+        }
         $proc.WaitForExit()
 
         if($proc.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $tempJsonPath)){
-            throw "Auto-Scan thất bại (Mã lỗi $($proc.ExitCode)): $stderr $stdout"
+            $errDetail = ""
+            if(Test-Path -LiteralPath $tempErrLog){
+                try{
+                    $rawLines = [System.IO.File]::ReadAllLines($tempErrLog, [System.Text.Encoding]::UTF8)
+                    $cleanLines = @($rawLines | Where-Object { $_ -notmatch 'INFO:|Running PIR pass|print_statistics|UserWarning:' })
+                    $errDetail = ($cleanLines -join [Environment]::NewLine).Trim()
+                } catch{}
+            }
+            if([string]::IsNullOrWhiteSpace($errDetail) -and (Test-Path -LiteralPath $tempOutLog)){
+                try{ $errDetail = [System.IO.File]::ReadAllText($tempOutLog, [System.Text.Encoding]::UTF8).Trim() } catch{}
+            }
+            throw "Auto-Scan thất bại (Mã lỗi $($proc.ExitCode)): $errDetail"
         }
 
         $jsonRaw = [System.IO.File]::ReadAllText($tempJsonPath, [System.Text.Encoding]::UTF8)
@@ -17730,6 +17751,8 @@ function Invoke-AutoScanYoloPpOcr{
         $form.Cursor = $oldCursor
         try{ if($tempImgPath -and (Test-Path -LiteralPath $tempImgPath)){ Remove-Item -LiteralPath $tempImgPath -Force -ErrorAction SilentlyContinue } } catch{}
         try{ if($tempJsonPath -and (Test-Path -LiteralPath $tempJsonPath)){ Remove-Item -LiteralPath $tempJsonPath -Force -ErrorAction SilentlyContinue } } catch{}
+        try{ if($tempOutLog -and (Test-Path -LiteralPath $tempOutLog)){ Remove-Item -LiteralPath $tempOutLog -Force -ErrorAction SilentlyContinue } } catch{}
+        try{ if($tempErrLog -and (Test-Path -LiteralPath $tempErrLog)){ Remove-Item -LiteralPath $tempErrLog -Force -ErrorAction SilentlyContinue } } catch{}
     }
 }
 
