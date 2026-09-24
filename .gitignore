@@ -14,7 +14,10 @@ ocrtool-pdfscan-render-cache/
 !docs/assets/*.gif
 *.pdf
 *.xlsm
+*.xlsx
 *.zip
+*.rar
 *.clixml
 *.json
 *.lnk
+paddleocrv6_cad_finetuned*/

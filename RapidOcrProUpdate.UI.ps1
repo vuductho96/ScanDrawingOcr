@@ -407,6 +407,8 @@ $miAdvancePdfTextZones = New-Object Windows.Forms.ToolStripMenuItem("Text Zones 
 $miAdvanceToggleSidePanel = New-Object Windows.Forms.ToolStripMenuItem("Hide Side Panel")
 $miAdvanceToggleSidePanel.ShortcutKeyDisplayString = "Ctrl+B"
 $miAdvanceClearGray = New-Object Windows.Forms.ToolStripMenuItem("Clear Gray Boxes")
+$miAdvanceLeaderLine = New-Object Windows.Forms.ToolStripMenuItem("Leader Line On")
+$miAdvanceLeaderLine.ShortcutKeyDisplayString = "L"
 $miAdvanceAiModel = New-Object Windows.Forms.ToolStripMenuItem("AI Model")
 $miAdvanceAiModelQwen = New-Object Windows.Forms.ToolStripMenuItem("Qwen2.5VL 3B")
 $miAdvanceAiModelMiniCpm = New-Object Windows.Forms.ToolStripMenuItem("MiniCPM-V")
@@ -414,6 +416,7 @@ $miAdvanceAiModelMiniCpm = New-Object Windows.Forms.ToolStripMenuItem("MiniCPM-V
 [void]$miAdvanceAiModel.DropDownItems.Add($miAdvanceAiModelMiniCpm)
 
 $miAdvanceEditMenu = New-Object Windows.Forms.ToolStripMenuItem("Edit")
+$miAdvanceAutoShrink = New-Object Windows.Forms.ToolStripMenuItem("Auto Shrink Balloons Off")
 $miAdvanceViewMenu = New-Object Windows.Forms.ToolStripMenuItem("View")
 $miAdvanceOcrMenu = New-Object Windows.Forms.ToolStripMenuItem("OCR")
 $miAdvanceDevMenu = New-Object Windows.Forms.ToolStripMenuItem("Developer")
@@ -443,6 +446,8 @@ $miAdvanceTrainingExport = New-Object Windows.Forms.ToolStripMenuItem("Training 
 [void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceToggleSidePanel)
 [void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceAutoMapPdf)
 [void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceClearGray)
+[void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceLeaderLine)
+[void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceAutoShrink)
 [void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceBalloonColor)
 
 [void]$miAdvanceDevMenu.DropDownItems.Add($miAdvanceYellowPen)
@@ -457,15 +462,17 @@ $miOcrModelSep = New-Object Windows.Forms.ToolStripSeparator
 [void]$miAdvanceOcrMenu.DropDownItems.Add($miOcrModelSep)
 
 $miOcrModelMenu = New-Object Windows.Forms.ToolStripMenuItem("OCR Model")
-$miOcrModelV4 = New-Object Windows.Forms.ToolStripMenuItem("PP-OCRv4 CAD (Fine-Tuned)")
-$miOcrModelV4.Checked = $true
-$miOcrModelV6 = New-Object Windows.Forms.ToolStripMenuItem("PP-OCRv6 (Bản Gốc)")
+$miOcrModelV6 = New-Object Windows.Forms.ToolStripMenuItem("PP-OCRv6 CAD (Fine-Tuned Mới)")
+$miOcrModelV6.Checked = $true
+$miOcrModelV4 = New-Object Windows.Forms.ToolStripMenuItem("PP-OCRv4 CAD (Cũ)")
 $miOcrModelHybrid = New-Object Windows.Forms.ToolStripMenuItem("Hybrid (V6 Nhãn + V4 Dung Sai)")
 $miOcrModelBuiltin = New-Object Windows.Forms.ToolStripMenuItem("RapidOCR (Hiện Hành App PS1)")
-[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelV4)
+$miOcrModelGoogleAi = New-Object Windows.Forms.ToolStripMenuItem("Google AI Web (Playwright Bot)")
 [void]$miOcrModelMenu.DropDownItems.Add($miOcrModelV6)
+[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelV4)
 [void]$miOcrModelMenu.DropDownItems.Add($miOcrModelHybrid)
 [void]$miOcrModelMenu.DropDownItems.Add($miOcrModelBuiltin)
+[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelGoogleAi)
 [void]$miAdvanceOcrMenu.DropDownItems.Add($miOcrModelMenu)
 [void]$advanceMenu.Items.Add($miAdvanceViewMenu)
 [void]$advanceMenu.Items.Add($miAdvanceOcrMenu)

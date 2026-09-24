@@ -1,5 +1,9 @@
 import os
 import sys
+import warnings
+
+# Tắt toàn bộ cảnh báo ccache / onnxruntime / paddle ra stderr
+warnings.filterwarnings("ignore")
 
 # Thiết lập UTF-8 Mode tuyệt đối cho Windows
 os.environ["PYTHONIOENCODING"] = "utf-8"
@@ -16,6 +20,7 @@ if hasattr(sys.stderr, "reconfigure"):
 import argparse
 import json
 import time
+import re
 import cv2
 
 # Đảm bảo đường dẫn tới thư mục chứa AutoScanText để import local_ai_service
@@ -25,15 +30,79 @@ if AUTOSCAN_DIR not in sys.path:
 
 try:
     from local_ai_service import LocalAIService
+    from tolerance_parser import ToleranceParser
+    from google_ai_web_service import GoogleAiWebService
 except Exception as e:
-    print(f"ERROR: Khong the import LocalAIService tu {AUTOSCAN_DIR}: {e}", file=sys.stderr)
+    print(f"ERROR: Khong the import service tu {AUTOSCAN_DIR}: {e}", file=sys.stderr)
     sys.exit(1)
+
+def is_valid_nominal(nom_val):
+    if hasattr(ToleranceParser, "is_valid_cad_nominal"):
+        try:
+            return ToleranceParser.is_valid_cad_nominal(nom_val)
+        except Exception:
+            pass
+    if not nom_val:
+        return False
+    s = str(nom_val).strip()
+    return bool(re.search(r'\d', s))
+
+def sort_boxes_spatial(boxes, row_tol=None):
+    """
+    Sắp xếp các ô kích thước theo thứ tự đọc bản vẽ chuẩn kỹ thuật:
+    Từ Trên xuống Dưới (Top to Bottom), Từ Trái sang Phải (Left to Right).
+    Các ô cùng một hàng ngang (chênh lệch y <= row_tol) sẽ được gom vào 1 dải (band)
+    và sắp xếp từ trái qua phải theo x để đánh số thứ tự bong bóng chuẩn xác.
+    """
+    if not boxes or len(boxes) <= 1:
+        return boxes
+
+    def get_box_coord(b):
+        if "box" in b:
+            bc = b["box"]
+            if isinstance(bc, dict):
+                return bc.get("x", 0), bc.get("y", 0), bc.get("w", 0), bc.get("h", 0)
+            elif isinstance(bc, (list, tuple)) and len(bc) >= 4:
+                return bc[0], bc[1], bc[2], bc[3]
+        return b.get("x", 0), b.get("y", 0), b.get("w", 0), b.get("h", 0)
+
+    avg_h = sum(get_box_coord(b)[3] for b in boxes) / len(boxes)
+    if row_tol is None:
+        row_tol = max(35.0, avg_h * 1.5)
+
+    sorted_by_y = sorted(boxes, key=lambda b: (get_box_coord(b)[1], get_box_coord(b)[0]))
+    bands = []
+    current_band = []
+    current_band_y = None
+
+    for b in sorted_by_y:
+        _, by, _, _ = get_box_coord(b)
+        if current_band_y is None:
+            current_band = [b]
+            current_band_y = by
+        elif abs(by - current_band_y) <= row_tol:
+            current_band.append(b)
+            current_band_y = sum(get_box_coord(item)[1] for item in current_band) / len(current_band)
+        else:
+            current_band.sort(key=lambda item: get_box_coord(item)[0])
+            bands.append(current_band)
+            current_band = [b]
+            current_band_y = by
+
+    if current_band:
+        current_band.sort(key=lambda item: get_box_coord(item)[0])
+        bands.append(current_band)
+
+    final = []
+    for band in bands:
+        final.extend(band)
+    return final
 
 def main():
     parser = argparse.ArgumentParser(description="Auto-Scan Bridge: YOLOv11 + PP-OCR Hybrid")
     parser.add_argument("--image", required=True, help="Duong dan file anh trang can scan")
     parser.add_argument("--out", required=True, help="Duong dan file JSON luu ket qua")
-    parser.add_argument("--model", default="hybrid", choices=["v6", "v4", "hybrid", "boxes_only"], help="Mo hinh OCR (v4 cad, v6 goc, hybrid, hoac boxes_only cho app builtin)")
+    parser.add_argument("--model", default="v6", choices=["v6", "v4", "hybrid", "boxes_only", "google_ai_web"], help="Mo hinh OCR (v6 goc mac dinh, v4 cad, hybrid, boxes_only, hoac google_ai_web qua Playwright)")
     args = parser.parse_args()
 
     image_path = os.path.abspath(args.image)
@@ -49,36 +118,87 @@ def main():
         print(f"ERROR: cv2 khong the doc file anh: {image_path}", file=sys.stderr)
         sys.exit(3)
 
-    # Khoi tao AI Service
+    # Che do Fast YOLO (chi can YOLO, khong can nap mo hinh PP-OCR ton thoi gian)
+    if args.model in ["boxes_only", "google_ai_web"]:
+        from test_trained_yolo_onnx import YOLOCADDetector
+        yolo_path = os.path.join(AUTOSCAN_DIR, "AutoScan_YOLO_Trained_Model", "best.onnx")
+        print("[*] YOLOv11 dang quet tim cac o kich thuoc...", flush=True)
+        detector = YOLOCADDetector(onnx_path=yolo_path, imgsz=1024, conf_thres=0.28, iou_thres=0.45)
+        raw_boxes, infer_time = detector.detect(img_bgr)
+        candidates = []
+        for b in raw_boxes:
+            box_coords = b.get("box", [0, 0, 0, 0])
+            if isinstance(box_coords, (list, tuple)) and len(box_coords) == 4:
+                bx, by, bw, bh = box_coords
+                box_dict = {"x": int(bx), "y": int(by), "w": int(bw), "h": int(bh)}
+            elif isinstance(box_coords, dict):
+                box_dict = {
+                    "x": int(box_coords.get("x", 0)),
+                    "y": int(box_coords.get("y", 0)),
+                    "w": int(box_coords.get("w", 0)),
+                    "h": int(box_coords.get("h", 0))
+                }
+            else:
+                continue
+
+            candidates.append({
+                "box": box_dict,
+                "detector_conf": float(b.get("confidence", 0.0))
+            })
+        print(f"[*] YOLOv11 da phat hien {len(candidates)} o kich thuoc CAD!", flush=True)
+
+        # Sắp xếp các ô kích thước theo thứ tự đọc bản vẽ chuẩn: Từ Trên xuống Dưới, Từ Trái qua Phải
+        candidates = sort_boxes_spatial(candidates)
+        print(f"[*] Da sap xep {len(candidates)} o theo thu tu doc ban ve (Tren->Duoi, Trai->Phai)!", flush=True)
+
+        if args.model == "boxes_only":
+            boxes = []
+            for c in candidates:
+                b = c.get("box", {})
+                boxes.append({
+                    "x": int(b.get("x", 0)),
+                    "y": int(b.get("y", 0)),
+                    "w": int(b.get("w", 0)),
+                    "h": int(b.get("h", 0)),
+                    "nominal": "",
+                    "raw_text": "",
+                    "tol_plus": "",
+                    "tol_minus": "",
+                    "confidence": float(c.get("detector_conf", 0.0))
+                })
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            with open(out_path, "w", encoding="utf-8") as f:
+                json.dump(boxes, f, ensure_ascii=False, indent=2)
+            total_time = (time.perf_counter() - t_start) * 1000
+            print(f"AUTO_SCAN_SUCCESS: {len(boxes)} boxes in {round(total_time, 1)} ms", flush=True)
+            sys.exit(0)
+
+        if args.model == "google_ai_web":
+            if GoogleAiWebService is None:
+                print("ERROR: Khong the khoi tao GoogleAiWebService", file=sys.stderr)
+                sys.exit(4)
+
+            web_service = GoogleAiWebService.get_instance()
+            ai_results = web_service.process_crops(img_bgr, candidates, headless=False)
+
+            valid_results = []
+            for r in ai_results:
+                nom_val = r.get("nominal", "")
+                if nom_val and is_valid_nominal(nom_val):
+                    valid_results.append(r)
+
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            with open(out_path, "w", encoding="utf-8") as f:
+                json.dump(valid_results, f, ensure_ascii=False, indent=2)
+            total_time = (time.perf_counter() - t_start) * 1000
+            print(f"AUTO_SCAN_SUCCESS: {len(valid_results)} items in {round(total_time, 1)} ms", flush=True)
+            sys.exit(0)
+
+    # Che do Scan bang PP-OCR offline (v4 fine-tuned, v6 goc, hoac hybrid)
     service = LocalAIService.get_instance(model_name=args.model)
     if args.model in ["v4", "v6", "hybrid"]:
         service.set_ocr_model(args.model)
 
-    # Che do 1: Chi lay boxes tu YOLO de app PS1 dung OCR hien hanh
-    if args.model == "boxes_only":
-        cand_res = service.detect_candidate_boxes(img_bgr)
-        boxes = []
-        for c in cand_res.get("dimensions", []):
-            b = c.get("box", {})
-            boxes.append({
-                "x": int(b.get("x", 0)),
-                "y": int(b.get("y", 0)),
-                "w": int(b.get("w", 0)),
-                "h": int(b.get("h", 0)),
-                "nominal": "",
-                "raw_text": "",
-                "tol_plus": "",
-                "tol_minus": "",
-                "confidence": float(c.get("detector_conf", 0.0))
-            })
-        os.makedirs(os.path.dirname(out_path), exist_ok=True)
-        with open(out_path, "w", encoding="utf-8") as f:
-            json.dump(boxes, f, ensure_ascii=False, indent=2)
-        total_time = (time.perf_counter() - t_start) * 1000
-        print(f"AUTO_SCAN_SUCCESS: {len(boxes)} boxes in {round(total_time, 1)} ms")
-        sys.exit(0)
-
-    # Che do 2: Scan toan bo bang PP-OCR (v4 fine-tuned, v6 goc, hoac hybrid)
     scan_res = service.scan_image(img_bgr)
     dims = scan_res.get("dimensions", [])
 
@@ -90,10 +210,20 @@ def main():
         w = int(box.get("w", 0))
         h = int(box.get("h", 0))
 
-        nom_val = d.get("nominal_str") or d.get("nominal") or d.get("raw_text") or ""
+        nom_val = d.get("nominal_str") or d.get("nominal") or ""
+        nom_val = re.sub(r'^\s*[\(\[]\s*([^\(\)\[\]]+?)\s*[\)\]]\s*$', r'\1', str(nom_val)).strip()
+
+        # Không cho lọt chữ vào làm nominal: nếu không có nominal hoặc nominal không hợp lệ -> bỏ qua
+        if not nom_val or not is_valid_nominal(nom_val):
+            continue
+
         raw_text = d.get("raw_text") or nom_val
-        u_tol = d.get("upper_tol", "")
-        l_tol = d.get("lower_tol", "")
+        tol_type = d.get("tol_type", "local")
+        is_global = (tol_type == "global")
+        # Neu la dung sai global (tren ban ve khong ghi dung sai), de trong tol_plus/tol_minus
+        # de PowerShell tu dong ap dung bang Default Tolerance nguoi dung thiet lap tren GUI
+        u_tol = "" if is_global else (d.get("upper_tol", "") or "")
+        l_tol = "" if is_global else (d.get("lower_tol", "") or "")
 
         results.append({
             "x": x,
@@ -104,8 +234,12 @@ def main():
             "raw_text": str(raw_text).strip(),
             "tol_plus": str(u_tol).strip() if u_tol is not None else "",
             "tol_minus": str(l_tol).strip() if l_tol is not None else "",
-            "confidence": float(d.get("confidence", 0.0))
+            "confidence": float(d.get("confidence", 0.0)),
+            "tol_type": tol_type
         })
+
+    # Sắp xếp kết quả theo thứ tự đọc bản vẽ chuẩn: Từ Trên xuống Dưới, Từ Trái qua Phải
+    results = sort_boxes_spatial(results)
 
     # Ghi ket qua JSON
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
