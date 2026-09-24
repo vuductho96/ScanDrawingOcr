@@ -1,4 +1,4 @@
-Add-Type -AssemblyName System.Windows.Forms
+﻿Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName Microsoft.VisualBasic
 $script:AppRoot = $PSScriptRoot
@@ -140,6 +140,8 @@ $script:HiddenTextZoneHoverIndex = -1
 $script:HiddenTextZoneHoverCandidate = $null
 $script:HiddenTextZoneMinScore = 12.0
 $script:SuppressedTextZoneRects = @()
+$script:YoloDetectedBoxes = @()          # Array of [PSCustomObject]@{Rect=Drawing.Rectangle; Conf=float}
+$script:YoloAutoScanInProgress = $false  # Prevent re-entrant scan
 
 function Initialize-PdfiumRuntime{
     if($script:PdfiumRuntimeInitialized){ return $script:PdfiumAvailable }
@@ -1392,11 +1394,142 @@ function Convert-MeasurementNumber($value){
     return $null
 }
 
-function Get-MeasurementResult($nominalText,$tolMinusText,$tolPlusText,$actualText){
-    $actual = Convert-MeasurementNumber $actualText
-    if($null -eq $actual){ return "" }
+function Normalize-MeasurementTypedText($value){
+    $text = ([string]$value).Trim()
+    if([string]::IsNullOrWhiteSpace($text)){ return "" }
+    $text = $text -replace ',','.'
+    $text = $text -replace '(?i)\bDEG\b',[string][char]176
+    $text = $text -replace '(?i)(?<=\d)DEG(?=\d|$)',[string][char]176
+    $text = $text -replace '(?i)\b(DO|ĐỘ)\b',[string][char]176
+    $text = $text -replace '(?i)(?<=\d)(DO|ĐỘ)(?=\d|$)',[string][char]176
+    $text = $text -replace '(?i)^\s*(PHI|DIA|DIAMETER)\s*','Ø'
+    $text = $text -replace 'φ','Φ'
+    $text = $text -replace 'ϕ','Φ'
+    $text = $text -replace 'º','°'
+    return $text
+}
 
-    $nominal = Convert-MeasurementNumber $nominalText
+function Get-MeasurementValueKind($text){
+    $value = (Normalize-MeasurementTypedText $text).ToUpperInvariant()
+    if([string]::IsNullOrWhiteSpace($value)){ return "" }
+    if($value -match '[°º''"]'){ return "ANGLE" }
+    if($value -match '^(R|SR)\s*[-+]?\d'){ return "R" }
+    if($value -match '^(C|CH|CHAMFER)\s*[-+]?\d'){ return "C" }
+    if($value -match '^(Ø|Φ|PHI|DIA|DIAMETER)\s*[-+]?\d'){ return "DIA" }
+    if($value -match '^(R|SR)\b'){ return "R" }
+    if($value -match '^(C|CH|CHAMFER)\b'){ return "C" }
+    if($value -match '^(Ø|Φ|PHI|DIA|DIAMETER)\b'){ return "DIA" }
+    return "LINEAR"
+}
+
+function Test-MeasurementActualTextAllowed($actualText,$nominalKind){
+    $text = Normalize-MeasurementTypedText $actualText
+    if([string]::IsNullOrWhiteSpace($text)){ return $true }
+    $kind = [string]$nominalKind
+    $upper = $text.ToUpperInvariant()
+
+    if($kind -eq "ANGLE"){
+        if(Try-ParseAngleDmsText $text){ return $true }
+        return ($upper -match '^[-+]?\d+(?:\.\d+)?(?:[°º](?:\d{1,2}''(?:\d{1,2}(?:\.\d+)?)?"?)?)?$')
+    }
+    if($kind -eq "R"){
+        return ($upper -match '^(?:R|SR)?\s*[-+]?\d+(?:\.\d+)?$')
+    }
+    if($kind -eq "C"){
+        return ($upper -match '^(?:C|CH|CHAMFER)?\s*[-+]?\d+(?:\.\d+)?$')
+    }
+    if($kind -eq "DIA"){
+        return ($upper -match '^(?:Ø|Φ)?\s*[-+]?\d+(?:\.\d+)?$')
+    }
+    return ($upper -match '^[-+]?\d+(?:\.\d+)?$')
+}
+
+function Convert-MeasurementValueForResult($value,$kind){
+    $text = Normalize-MeasurementTypedText $value
+    if([string]::IsNullOrWhiteSpace($text)){ return $null }
+
+    $number = 0.0
+    if([string]$kind -eq "ANGLE"){
+        if(Convert-AngleDmsTextToDouble $text ([ref]$number)){
+            return [double]$number
+        }
+        $angleText = $text -replace '[°º]',''
+        $angleText = $angleText -replace ',','.'
+        if([double]::TryParse($angleText,[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$number)){
+            return [double]$number
+        }
+        return $null
+    }
+
+    if(Convert-MechanicalNumberToDouble $text ([ref]$number)){
+        return [double]$number
+    }
+
+    return (Convert-MeasurementNumber $text)
+}
+
+function Format-MeasurementActualForNominal($nominalText,$actualText){
+    $text = Normalize-MeasurementTypedText $actualText
+    if([string]::IsNullOrWhiteSpace($text)){ return "" }
+
+    $kind = Get-MeasurementValueKind $nominalText
+    if(-not (Test-MeasurementActualTextAllowed $text $kind)){ return $text }
+    if($null -eq (Convert-MeasurementValueForResult $text $kind)){ return $text }
+
+    $nominal = (Normalize-MeasurementTypedText $nominalText).Trim()
+    $upperNominal = $nominal.ToUpperInvariant()
+    $upperText = $text.ToUpperInvariant()
+
+    if($kind -eq "R"){
+        if($upperText -match '^(R|SR)'){ return $text }
+        $prefix = if($upperNominal -match '^SR'){ "SR" } else { "R" }
+        return ($prefix + $text)
+    }
+    if($kind -eq "C"){
+        if($upperText -match '^(C|CH|CHAMFER)'){ return $text }
+        return ("C" + $text)
+    }
+    if($kind -eq "DIA"){
+        if($upperText -match '^(Ø|Φ)'){ return $text }
+        return ("Ø" + $text)
+    }
+    if($kind -eq "ANGLE"){
+        $angle = Try-ParseAngleDmsText $text
+        if($angle){ return [string]$angle.Text }
+        if($text -match '[°º]'){ return $text }
+        return ($text + [string][char]176)
+    }
+
+    return $text
+}
+
+function Test-MeasurementActualKindCompatible($nominalKind,$actualText){
+    $expected = [string]$nominalKind
+    if([string]::IsNullOrWhiteSpace($expected) -or $expected -eq "LINEAR"){ return $true }
+
+    $actual = ([string]$actualText).Trim()
+    if([string]::IsNullOrWhiteSpace($actual)){ return $true }
+    $actualKind = Get-MeasurementValueKind $actual
+    if($actualKind -eq "LINEAR"){ return $true }
+    return ([string]$actualKind -eq $expected)
+}
+
+function Get-MeasurementResult($nominalText,$tolMinusText,$tolPlusText,$actualText){
+    $nominalKind = Get-MeasurementValueKind $nominalText
+    if(-not (Test-MeasurementActualKindCompatible $nominalKind $actualText)){
+        return "INVALID"
+    }
+    if(-not (Test-MeasurementActualTextAllowed $actualText $nominalKind)){
+        return "INVALID"
+    }
+
+    $actual = Convert-MeasurementValueForResult $actualText $nominalKind
+    if($null -eq $actual){
+        if([string]::IsNullOrWhiteSpace([string]$actualText)){ return "" }
+        return "INVALID"
+    }
+
+    $nominal = Convert-MeasurementValueForResult $nominalText $nominalKind
     if($null -eq $nominal){ return "INVALID" }
 
     $tolMinus = Convert-MeasurementNumber $tolMinusText
@@ -1423,12 +1556,39 @@ function Get-MeasurementOverrideForStep($step){
 
     $record = $script:MeasurementResults[$stepKey]
     if(!$record){ return $null }
+    $actuals = @()
+    if($record.PSObject.Properties.Name -contains "Actuals"){
+        foreach($item in @(Convert-SessionValueToList $record.Actuals)){
+            $actuals += [string]$item
+        }
+    }
+
     $actual = [string]$record.Actual
-    if([string]::IsNullOrWhiteSpace($actual)){ return $null }
+    if($actuals.Count -eq 0 -and -not [string]::IsNullOrWhiteSpace($actual)){
+        $actuals = @($actual)
+    }
+
+    $hasActual = $false
+    foreach($item in @($actuals)){
+        if(-not [string]::IsNullOrWhiteSpace([string]$item)){
+            $hasActual = $true
+            break
+        }
+    }
+    if(-not $hasActual){ return $null }
+
+    $results = @()
+    if($record.PSObject.Properties.Name -contains "Results"){
+        foreach($item in @(Convert-SessionValueToList $record.Results)){
+            $results += [string]$item
+        }
+    }
 
     return [PSCustomObject]@{
-        Actual = $actual
+        Actual = if(-not [string]::IsNullOrWhiteSpace($actual)){ $actual } else { [string]($actuals | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Select-Object -First 1) }
+        Actuals = @($actuals)
         Result = [string]$record.Result
+        Results = @($results)
     }
 }
 
@@ -1474,8 +1634,300 @@ function Focus-StepFromResultsView($row){
     }
 }
 
+function Get-CurrentResultsViewQuantity{
+    $resultsQty = 0
+    $partQty = 0
+    [void][int]::TryParse([string]$script:ResultsViewActualColumnCount,[ref]$resultsQty)
+    [void][int]::TryParse([string]$script:PartQuantity,[ref]$partQty)
+
+    if($resultsQty -gt 0 -and $partQty -gt 0){
+        return [Math]::Max([int]$resultsQty,[int]$partQty)
+    }
+    if($resultsQty -gt 0){ return [int]$resultsQty }
+    if($partQty -gt 0){ return [int]$partQty }
+    return 1
+}
+
+function Set-ResultsViewQuantity($grid,$qtyText,$txtQty = $null,$lblQtyStatus = $null){
+    $qtyValue = 0
+    if(-not [int]::TryParse(([string]$qtyText).Trim(),[ref]$qtyValue)){
+        $qtyValue = Get-CurrentResultsViewQuantity
+    }
+    if($qtyValue -lt 1){ $qtyValue = 1 }
+
+    $script:ResultsViewActualColumnCount = [int]$qtyValue
+    $script:PartQuantity = [string]$qtyValue
+    if($txtQty){ $txtQty.Text = [string]$qtyValue }
+    if($lblQtyStatus){ $lblQtyStatus.Text = "" }
+
+    Queue-SessionStateSave
+    return [int]$qtyValue
+}
+
+function Get-ResultsViewDebugLogPath{
+    return (Join-Path ([System.IO.Path]::GetTempPath()) "RapidOcrResultsView-debug.log")
+}
+
+function Get-ResultsViewDebugSnapshot($grid = $null,$extra = $null){
+    $actualColumns = @()
+    if($grid){
+        try{ $actualColumns = @(Get-ResultsViewActualColumnNames $grid) } catch{ $actualColumns = @("<column-read-failed>") }
+    }
+
+    $snapshot = [ordered]@{
+        PartQuantity = [string]$script:PartQuantity
+        ResultsViewActualColumnCount = [string]$script:ResultsViewActualColumnCount
+        CurrentQuantity = [string](Get-CurrentResultsViewQuantity)
+        GridActualColumnCount = [string]$actualColumns.Count
+        GridActualColumns = ($actualColumns -join ",")
+        GridRows = if($grid){ [string]$grid.Rows.Count } else { "" }
+        Session = [string]$script:CurrentSessionFilePath
+    }
+
+    if($extra){
+        foreach($key in @($extra.Keys)){
+            $snapshot[[string]$key] = [string]$extra[$key]
+        }
+    }
+
+    return $snapshot
+}
+
+function Write-ResultsViewDebugLog($stage,$grid = $null,$extra = $null,$exception = $null){
+    $path = Get-ResultsViewDebugLogPath
+    try{
+        $snapshot = Get-ResultsViewDebugSnapshot $grid $extra
+        $lines = New-Object System.Collections.ArrayList
+        [void]$lines.Add(("[" + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss.fff") + "] " + [string]$stage))
+        foreach($key in @($snapshot.Keys)){
+            [void]$lines.Add(("  " + [string]$key + ": " + [string]$snapshot[$key]))
+        }
+        if($exception){
+            [void]$lines.Add(("  ErrorType: " + $exception.GetType().FullName))
+            [void]$lines.Add(("  Message: " + [string]$exception.Message))
+            [void]$lines.Add(("  Stack: " + [string]$exception.StackTrace))
+        }
+        [void]$lines.Add("")
+        [System.IO.File]::AppendAllText($path,(($lines -join [Environment]::NewLine) + [Environment]::NewLine),[System.Text.Encoding]::UTF8)
+    }
+    catch{}
+    return $path
+}
+
+function Show-ResultsViewError($stage,$grid,$exception,$extra = $null){
+    $logPath = Write-ResultsViewDebugLog $stage $grid $extra $exception
+    $snapshot = Get-ResultsViewDebugSnapshot $grid $extra
+    $text = New-Object System.Text.StringBuilder
+    [void]$text.AppendLine("Results View error.")
+    [void]$text.AppendLine("")
+    [void]$text.AppendLine(("Stage: " + [string]$stage))
+    [void]$text.AppendLine(("Log: " + [string]$logPath))
+    [void]$text.AppendLine(("PartQuantity: " + [string]$snapshot.PartQuantity))
+    [void]$text.AppendLine(("ResultsViewActualColumnCount: " + [string]$snapshot.ResultsViewActualColumnCount))
+    [void]$text.AppendLine(("GridActualColumnCount: " + [string]$snapshot.GridActualColumnCount))
+    [void]$text.AppendLine(("GridActualColumns: " + [string]$snapshot.GridActualColumns))
+    [void]$text.AppendLine("")
+    [void]$text.AppendLine(("Error type: " + $exception.GetType().FullName))
+    [void]$text.AppendLine(("Message: " + [string]$exception.Message))
+    [System.Windows.Forms.MessageBox]::Show([string]$text.ToString(),"Results View Error",[System.Windows.Forms.MessageBoxButtons]::OK,[System.Windows.Forms.MessageBoxIcon]::Error) | Out-Null
+}
+
+function Get-ResultsViewActualColumnNames($grid){
+    $names = @()
+    if(!$grid){ return $names }
+    foreach($col in @($grid.Columns)){
+        if(!$col){ continue }
+        if(([string]$col.Name) -match '^Actual\d+$'){
+            $names += [string]$col.Name
+        }
+    }
+    return @($names | Sort-Object { [int](([string]$_).Substring(6)) })
+}
+
+function Add-ResultsViewActualColumn($grid,$sampleIndex){
+    if(!$grid){ return }
+    $index = [int]$sampleIndex
+    if($index -lt 1){ $index = 1 }
+    $name = "Actual" + [string]$index
+    if($grid.Columns.Contains($name)){ return }
+
+    $col = New-Object Windows.Forms.DataGridViewTextBoxColumn
+    $col.Name = $name
+    $col.HeaderText = [string]$index
+    $col.ReadOnly = $false
+    $col.Width = 86
+    $col.MinimumWidth = 52
+    $col.FillWeight = 12
+    [void]$grid.Columns.Add($col)
+}
+
+function Remove-ResultsViewLastActualColumn($grid){
+    if(!$grid){ return 1 }
+    $actualColumns = @(Get-ResultsViewActualColumnNames $grid)
+    if($actualColumns.Count -le 1){ return 1 }
+
+    $lastName = [string]$actualColumns[$actualColumns.Count - 1]
+    if($grid.Columns.Contains($lastName)){
+        $grid.Columns.Remove($lastName)
+    }
+    return [Math]::Max(1,$actualColumns.Count - 1)
+}
+
+function Refresh-ResultsViewActualColumns($grid,$targetQty){
+    Write-ResultsViewDebugLog "Refresh columns enter" $grid @{ TargetQty = [string]$targetQty } | Out-Null
+    if(!$grid){ return 1 }
+    $qty = 1
+    try{ $qty = [int]$targetQty } catch{ $qty = 1 }
+    if($qty -lt 1){ $qty = 1 }
+
+    $oldActualColumns = @(Get-ResultsViewActualColumnNames $grid)
+    $rowActuals = @{}
+    foreach($row in @($grid.Rows)){
+        if(!$row -or $row.IsNewRow){ continue }
+        $values = New-Object System.Collections.ArrayList
+        foreach($columnName in @($oldActualColumns)){
+            if($grid.Columns.Contains($columnName)){
+                [void]$values.Add([string]$row.Cells[$columnName].Value)
+            }
+        }
+        $rowActuals[[int]$row.Index] = @($values)
+    }
+
+    $grid.SuspendLayout()
+    try{
+        foreach($columnName in @($oldActualColumns | Sort-Object { [int](([string]$_).Substring(6)) } -Descending)){
+            if($grid.Columns.Contains($columnName)){
+                $grid.Columns.Remove($columnName)
+            }
+        }
+
+        for($sampleIndex = 1; $sampleIndex -le $qty; $sampleIndex++){
+            Add-ResultsViewActualColumn $grid $sampleIndex
+        }
+        if($grid.Columns.Contains("Result")){
+            $grid.Columns["Result"].DisplayIndex = $grid.Columns.Count - 1
+        }
+
+        foreach($row in @($grid.Rows)){
+            if(!$row -or $row.IsNewRow){ continue }
+            $values = @()
+            if($rowActuals.ContainsKey([int]$row.Index)){
+                $values = @($rowActuals[[int]$row.Index])
+            }
+            for($sampleIndex = 1; $sampleIndex -le $qty; $sampleIndex++){
+                $columnName = "Actual" + [string]$sampleIndex
+                if(-not $grid.Columns.Contains($columnName)){ continue }
+                $value = ""
+                if(($sampleIndex - 1) -lt $values.Count){
+                    $value = [string]$values[$sampleIndex - 1]
+                }
+                $row.Cells[$columnName].Value = $value
+            }
+        }
+    }
+    finally{
+        $grid.ResumeLayout($true)
+    }
+
+    $grid.Invalidate()
+    $grid.PerformLayout()
+    $grid.Refresh()
+    Write-ResultsViewDebugLog "Refresh columns done" $grid @{ TargetQty = [string]$targetQty; FinalQty = [string]$qty } | Out-Null
+    return [int]$qty
+}
+
+function Get-MeasurementActualsForStep($step,$minimumCount = 1){
+    $count = [Math]::Max(1,[int]$minimumCount)
+    $actuals = New-Object System.Collections.ArrayList
+    for($i = 0; $i -lt $count; $i++){
+        [void]$actuals.Add("")
+    }
+
+    $stepKey = [string]$step
+    if([string]::IsNullOrWhiteSpace($stepKey) -or -not $script:MeasurementResults.ContainsKey($stepKey)){
+        return @($actuals)
+    }
+
+    $record = $script:MeasurementResults[$stepKey]
+    if(!$record){ return @($actuals) }
+
+    $stored = @()
+    if($record.PSObject.Properties.Name -contains "Actuals"){
+        $stored = @(Convert-SessionValueToList $record.Actuals)
+    }
+    elseif($record.PSObject.Properties.Name -contains "Actual"){
+        $stored = @([string]$record.Actual)
+    }
+
+    for($i = 0; $i -lt $stored.Count; $i++){
+        if($i -ge $actuals.Count){ [void]$actuals.Add("") }
+        $actuals[$i] = [string]$stored[$i]
+    }
+
+    return @($actuals)
+}
+
+function Get-MeasurementAggregateResult($nominal,$tolMinus,$tolPlus,$actuals){
+    $hasValue = $false
+    $hasInvalid = $false
+    $hasNg = $false
+
+    foreach($actual in @($actuals)){
+        $actualText = [string]$actual
+        if([string]::IsNullOrWhiteSpace($actualText)){ continue }
+        $hasValue = $true
+        $resultText = Get-MeasurementResult $nominal $tolMinus $tolPlus $actualText
+        if($resultText -eq "NG"){ $hasNg = $true }
+        elseif($resultText -eq "INVALID"){ $hasInvalid = $true }
+    }
+
+    if(-not $hasValue){ return "" }
+    if($hasNg){ return "NG" }
+    if($hasInvalid){ return "INVALID" }
+    return "OK"
+}
+
+function Get-MeasurementMinMaxTexts($nominalText,$tolMinusText,$tolPlusText){
+    $nominalKind = Get-MeasurementValueKind $nominalText
+    $nominal = Convert-MeasurementValueForResult $nominalText $nominalKind
+    if($null -eq $nominal){ return @("","") }
+
+    $tolMinus = Convert-MeasurementNumber $tolMinusText
+    $tolPlus = Convert-MeasurementNumber $tolPlusText
+    if($null -eq $tolMinus){ $tolMinus = 0.0 }
+    if($null -eq $tolPlus){ $tolPlus = 0.0 }
+
+    $minValue = [double]$nominal + [double]$tolMinus
+    $maxValue = [double]$nominal + [double]$tolPlus
+    if($minValue -gt $maxValue){
+        $tmp = $minValue
+        $minValue = $maxValue
+        $maxValue = $tmp
+    }
+
+    $decimals = 0
+    try{ $decimals = [int](Get-InspectionDisplayDecimalPlaces $nominalText $tolMinusText $tolPlusText) } catch{ $decimals = 4 }
+    if($decimals -lt 0){ $decimals = 0 }
+    $format = if($decimals -gt 0){ "0." + ("0" * $decimals) } else { "0.####" }
+    $minText = ([double]$minValue).ToString($format,[System.Globalization.CultureInfo]::InvariantCulture)
+    $maxText = ([double]$maxValue).ToString($format,[System.Globalization.CultureInfo]::InvariantCulture)
+
+    $minText = Format-MeasurementActualForNominal $nominalText $minText
+    $maxText = Format-MeasurementActualForNominal $nominalText $maxText
+    return @($minText,$maxText)
+}
+
 function Show-ResultsViewWindow{
     if(!$table){ return }
+    if($script:ResultsViewForm -and -not $script:ResultsViewForm.IsDisposed){
+        try{
+            $script:ResultsViewForm.Activate()
+            $script:ResultsViewForm.BringToFront()
+        }
+        catch{}
+        return
+    }
+    Write-ResultsViewDebugLog "Show window enter" $null @{ TableRows = [string]$table.Rows.Count } | Out-Null
 
     $formResults = New-Object Windows.Forms.Form
     $formResults.Text = "Results View"
@@ -1483,6 +1935,61 @@ function Show-ResultsViewWindow{
     $formResults.Size = New-Object Drawing.Size(760,520)
     $formResults.MinimizeBox = $true
     $formResults.MaximizeBox = $true
+    $script:ResultsViewForm = $formResults
+
+    $resultsLayout = New-Object Windows.Forms.TableLayoutPanel
+    $resultsLayout.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $resultsLayout.ColumnCount = 1
+    $resultsLayout.RowCount = 2
+    $resultsLayout.Margin = New-Object Windows.Forms.Padding(0)
+    $resultsLayout.Padding = New-Object Windows.Forms.Padding(0)
+    [void]$resultsLayout.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent,100)))
+    [void]$resultsLayout.RowStyles.Add((New-Object Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute,30)))
+    [void]$resultsLayout.RowStyles.Add((New-Object Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent,100)))
+    $formResults.Controls.Add($resultsLayout)
+
+    $panelQty = New-Object Windows.Forms.Panel
+    $panelQty.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $panelQty.Padding = New-Object Windows.Forms.Padding(8,2,8,2)
+    $resultsLayout.Controls.Add($panelQty,0,0)
+
+    $panelQtyActions = New-Object Windows.Forms.Panel
+    $panelQtyActions.Dock = [System.Windows.Forms.DockStyle]::Right
+    $panelQtyActions.Width = 152
+    $panelQtyActions.Padding = New-Object Windows.Forms.Padding(0,0,8,0)
+    $panelQty.Controls.Add($panelQtyActions)
+
+    $btnClearAllActual = New-Object Windows.Forms.Button
+    $btnClearAllActual.Text = "Clear All"
+    $btnClearAllActual.Font = New-Object Drawing.Font("Segoe UI",8)
+    $btnClearAllActual.Size = New-Object Drawing.Size(70,24)
+    $btnClearAllActual.Location = New-Object Drawing.Point(0,3)
+    $btnClearAllActual.FlatStyle = [System.Windows.Forms.FlatStyle]::System
+    $panelQtyActions.Controls.Add($btnClearAllActual)
+
+    $btnAddQtyColumn = New-Object Windows.Forms.Button
+    $btnAddQtyColumn.Text = "+"
+    $btnAddQtyColumn.Font = New-Object Drawing.Font("Segoe UI",12,[Drawing.FontStyle]::Bold)
+    $btnAddQtyColumn.Size = New-Object Drawing.Size(30,24)
+    $btnAddQtyColumn.Location = New-Object Drawing.Point(76,3)
+    $btnAddQtyColumn.FlatStyle = [System.Windows.Forms.FlatStyle]::System
+    $panelQtyActions.Controls.Add($btnAddQtyColumn)
+
+    $btnRemoveQtyColumn = New-Object Windows.Forms.Button
+    $btnRemoveQtyColumn.Text = "-"
+    $btnRemoveQtyColumn.Font = New-Object Drawing.Font("Segoe UI",12,[Drawing.FontStyle]::Bold)
+    $btnRemoveQtyColumn.Size = New-Object Drawing.Size(30,24)
+    $btnRemoveQtyColumn.Location = New-Object Drawing.Point(112,3)
+    $btnRemoveQtyColumn.FlatStyle = [System.Windows.Forms.FlatStyle]::System
+    $panelQtyActions.Controls.Add($btnRemoveQtyColumn)
+
+    $lblQtyStatus = New-Object Windows.Forms.Label
+    $lblQtyStatus.Text = ""
+    $lblQtyStatus.Font = New-Object Drawing.Font("Segoe UI",9)
+    $lblQtyStatus.ForeColor = [Drawing.Color]::DimGray
+    $lblQtyStatus.AutoSize = $true
+    $lblQtyStatus.Location = New-Object Drawing.Point(8,7)
+    $panelQty.Controls.Add($lblQtyStatus)
 
     $grid = New-Object Windows.Forms.DataGridView
     $grid.Dock = [System.Windows.Forms.DockStyle]::Fill
@@ -1491,28 +1998,49 @@ function Show-ResultsViewWindow{
     $grid.RowHeadersVisible = $false
     $grid.SelectionMode = [System.Windows.Forms.DataGridViewSelectionMode]::CellSelect
     $grid.MultiSelect = $false
-    $grid.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+    $grid.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::None
     $grid.Font = New-Object Drawing.Font("Segoe UI",10)
     $grid.ColumnHeadersDefaultCellStyle.Font = New-Object Drawing.Font("Segoe UI",10,[Drawing.FontStyle]::Bold)
+    $formResults.Tag = $grid
+    $btnClearAllActual.Tag = $grid
+    $btnAddQtyColumn.Tag = $grid
+    $btnRemoveQtyColumn.Tag = $grid
 
     [void]$grid.Columns.Add("Step","Step")
     [void]$grid.Columns.Add("Nominal","Nominal")
+    [void]$grid.Columns.Add("Min","Min")
+    [void]$grid.Columns.Add("Max","Max")
     [void]$grid.Columns.Add("TolMinus","Tol -")
     [void]$grid.Columns.Add("TolPlus","Tol +")
-    [void]$grid.Columns.Add("Actual","Actual")
     [void]$grid.Columns.Add("Result","Result")
 
-    foreach($colName in @("Step","Nominal","TolMinus","TolPlus","Result")){
+    foreach($colName in @("Step","Nominal","Min","Max","TolMinus","TolPlus","Result")){
         $grid.Columns[$colName].ReadOnly = $true
     }
-    $grid.Columns["Actual"].ReadOnly = $false
 
     $grid.Columns["Step"].FillWeight = 12
+    $grid.Columns["Step"].Width = 70
     $grid.Columns["Nominal"].FillWeight = 28
+    $grid.Columns["Nominal"].Width = 160
+    $grid.Columns["Min"].FillWeight = 16
+    $grid.Columns["Min"].Width = 92
+    $grid.Columns["Max"].FillWeight = 16
+    $grid.Columns["Max"].Width = 92
     $grid.Columns["TolMinus"].FillWeight = 16
+    $grid.Columns["TolMinus"].Width = 92
     $grid.Columns["TolPlus"].FillWeight = 16
-    $grid.Columns["Actual"].FillWeight = 18
+    $grid.Columns["TolPlus"].Width = 92
     $grid.Columns["Result"].FillWeight = 14
+    $grid.Columns["Result"].Width = 80
+    foreach($frozenColName in @("Step","Nominal","Min","Max")){
+        $grid.Columns[$frozenColName].Frozen = $true
+    }
+
+    $currentQty = [Math]::Max(1,[int](Get-CurrentResultsViewQuantity))
+    for($sampleIndex = 1; $sampleIndex -le $currentQty; $sampleIndex++){
+        Add-ResultsViewActualColumn $grid $sampleIndex
+    }
+    $grid.Columns["Result"].DisplayIndex = $grid.Columns.Count - 1
 
     for($rowIndex=0; $rowIndex -lt $table.Rows.Count; $rowIndex++){
         $step = [string]$table.Rows[$rowIndex].Cells[0].Value
@@ -1520,12 +2048,20 @@ function Show-ResultsViewWindow{
         $nominal = [string]$table.Rows[$rowIndex].Cells[1].Value
         $tolMinus = [string]$table.Rows[$rowIndex].Cells[2].Value
         $tolPlus = [string]$table.Rows[$rowIndex].Cells[3].Value
-        $actual = ""
-        if($script:MeasurementResults.ContainsKey($step)){
-            $actual = [string]$script:MeasurementResults[$step].Actual
+        $minMaxTexts = @(Get-MeasurementMinMaxTexts $nominal $tolMinus $tolPlus)
+        $actuals = @(Get-MeasurementActualsForStep $step $currentQty)
+        $resultText = Get-MeasurementAggregateResult $nominal $tolMinus $tolPlus $actuals
+        $rowValues = New-Object System.Collections.ArrayList
+        foreach($value in @($step,$nominal,$minMaxTexts[0],$minMaxTexts[1],$tolMinus,$tolPlus,$resultText)){
+            [void]$rowValues.Add([string]$value)
         }
-        $resultText = Get-MeasurementResult $nominal $tolMinus $tolPlus $actual
-        $newRowIndex = $grid.Rows.Add($step,$nominal,$tolMinus,$tolPlus,$actual,$resultText)
+        $newRowIndex = $grid.Rows.Add($rowValues.ToArray())
+        foreach($actualColumnName in @(Get-ResultsViewActualColumnNames $grid)){
+            $actualIndex = [int](([string]$actualColumnName).Substring(6)) - 1
+            if($actualIndex -lt $actuals.Count){
+                $grid.Rows[$newRowIndex].Cells[$actualColumnName].Value = [string]$actuals[$actualIndex]
+            }
+        }
         $grid.Rows[$newRowIndex].Tag = $rowIndex
         Update-MeasurementGridRowStyle $grid.Rows[$newRowIndex]
     }
@@ -1533,7 +2069,13 @@ function Show-ResultsViewWindow{
     $grid.Add_CellEndEdit({
         param($sender,$e)
         if($e.RowIndex -lt 0){ return }
-        if($sender.Columns[$e.ColumnIndex].Name -ne "Actual"){ return }
+        if(([string]$sender.Columns[$e.ColumnIndex].Name) -notmatch '^Actual\d+$'){ return }
+        $editRow = $sender.Rows[$e.RowIndex]
+        $rawActual = [string]$editRow.Cells[$e.ColumnIndex].Value
+        $formattedActual = Format-MeasurementActualForNominal $editRow.Cells["Nominal"].Value $rawActual
+        if($formattedActual -ne $rawActual){
+            $editRow.Cells[$e.ColumnIndex].Value = $formattedActual
+        }
         Update-MeasurementGridRow $sender.Rows[$e.RowIndex]
     })
 
@@ -1551,32 +2093,240 @@ function Show-ResultsViewWindow{
 
     $grid.Add_KeyDown({
         param($sender,$e)
+        if($e.KeyCode -eq [System.Windows.Forms.Keys]::Delete){
+            $clearedRows = @{}
+            foreach($cell in @($sender.SelectedCells)){
+                if(!$cell){ continue }
+                if(([string]$sender.Columns[$cell.ColumnIndex].Name) -notmatch '^Actual\d+$'){ continue }
+                $cell.Value = ""
+                $clearedRows[[int]$cell.RowIndex] = $true
+            }
+            foreach($rowIndex in @($clearedRows.Keys)){
+                if($rowIndex -ge 0 -and $rowIndex -lt $sender.Rows.Count){
+                    Update-MeasurementGridRow $sender.Rows[[int]$rowIndex]
+                }
+            }
+            if($clearedRows.Count -gt 0){
+                $e.SuppressKeyPress = $true
+                return
+            }
+        }
         if($e.KeyCode -eq [System.Windows.Forms.Keys]::Enter){
             $e.SuppressKeyPress = $true
             if($sender.CurrentCell -and $sender.CurrentCell.RowIndex -lt ($sender.Rows.Count - 1)){
-                $sender.CurrentCell = $sender.Rows[$sender.CurrentCell.RowIndex + 1].Cells["Actual"]
+                $currentColumnName = [string]$sender.CurrentCell.OwningColumn.Name
+                if($currentColumnName -notmatch '^Actual\d+$'){ $currentColumnName = "Actual1" }
+                $sender.CurrentCell = $sender.Rows[$sender.CurrentCell.RowIndex + 1].Cells[$currentColumnName]
                 $sender.BeginEdit($true)
             }
         }
     })
 
-    $formResults.Controls.Add($grid)
+    $btnClearAllActual.Add_Click({
+        param($sender,$e)
+        $eventGrid = $sender.Tag
+        if(!$eventGrid){ $eventGrid = $grid }
+        try{
+            Write-ResultsViewDebugLog "Clear all enter" $eventGrid | Out-Null
+            if($eventGrid.IsCurrentCellInEditMode){ $eventGrid.EndEdit() }
+            $confirmClear = [System.Windows.Forms.MessageBox]::Show(
+                "Clear all Actual values in Results View?",
+                "Clear All Actual",
+                [System.Windows.Forms.MessageBoxButtons]::YesNo,
+                [System.Windows.Forms.MessageBoxIcon]::Warning
+            )
+            if($confirmClear -ne [System.Windows.Forms.DialogResult]::Yes){
+                Write-ResultsViewDebugLog "Clear all cancelled by user" $eventGrid | Out-Null
+                return
+            }
+
+            $actualColumns = @(Get-ResultsViewActualColumnNames $eventGrid)
+            $script:SuppressResultsViewRowSave = $true
+            try{
+                foreach($row in @($eventGrid.Rows)){
+                    if(!$row -or $row.IsNewRow){ continue }
+                    foreach($columnName in @($actualColumns)){
+                        if($eventGrid.Columns.Contains($columnName)){
+                            $row.Cells[$columnName].Value = ""
+                        }
+                    }
+                    Update-MeasurementGridRow $row
+                }
+            }
+            finally{
+                $script:SuppressResultsViewRowSave = $false
+            }
+
+            $script:MeasurementResults = @{}
+            Queue-SessionStateSave
+            $eventGrid.Refresh()
+            try{ if($txtOcrDebug){ $txtOcrDebug.Text = "Results View: cleared all Actual values." } } catch{}
+            Write-ResultsViewDebugLog "Clear all done" $eventGrid | Out-Null
+        }
+        catch{
+            Show-ResultsViewError "Clear all actual values" $eventGrid $_.Exception @{ RequestedAction = "ClearAll" }
+        }
+    })
+
+    $btnAddQtyColumn.Add_Click({
+        param($sender,$e)
+        $eventGrid = $sender.Tag
+        if(!$eventGrid){ $eventGrid = $grid }
+        try{
+            Write-ResultsViewDebugLog "Add button enter" $eventGrid | Out-Null
+            if($eventGrid.IsCurrentCellInEditMode){ $eventGrid.EndEdit() }
+            $currentActualColumns = @(Get-ResultsViewActualColumnNames $eventGrid)
+            $nextQty = [int]$currentActualColumns.Count + 1
+            $nextQty = Refresh-ResultsViewActualColumns $eventGrid $nextQty
+            $script:SuppressResultsViewRowSave = $true
+            try{
+                foreach($row in @($eventGrid.Rows)){
+                    if(!$row -or $row.IsNewRow){ continue }
+                    Update-MeasurementGridRow $row
+                }
+            }
+            finally{
+                $script:SuppressResultsViewRowSave = $false
+            }
+            [void](Set-ResultsViewQuantity $eventGrid $nextQty $null $null)
+            Queue-SessionStateSave
+            $eventForm = $eventGrid.FindForm()
+            if($eventForm){ $eventForm.Text = "Results View  +" + [string]$nextQty }
+            try{ if($txtOcrDebug){ $txtOcrDebug.Text = "Results View: added Actual column " + [string]$nextQty } } catch{}
+            Write-ResultsViewDebugLog "Add button done" $eventGrid @{ NextQty = [string]$nextQty } | Out-Null
+        }
+        catch{
+            Show-ResultsViewError "Add column button" $eventGrid $_.Exception @{ RequestedAction = "Add" }
+        }
+    })
+    $btnRemoveQtyColumn.Add_Click({
+        param($sender,$e)
+        $eventGrid = $sender.Tag
+        if(!$eventGrid){ $eventGrid = $grid }
+        try{
+            Write-ResultsViewDebugLog "Remove button enter" $eventGrid | Out-Null
+            if($eventGrid.IsCurrentCellInEditMode){ $eventGrid.EndEdit() }
+            $actualColumns = @(Get-ResultsViewActualColumnNames $eventGrid)
+            if($actualColumns.Count -le 1){
+                Write-ResultsViewDebugLog "Remove ignored at minimum column count" $eventGrid | Out-Null
+                return
+            }
+            $lastColumnName = [string]$actualColumns[$actualColumns.Count - 1]
+            $lastColumnHasData = $false
+            foreach($row in @($eventGrid.Rows)){
+                if(!$row -or $row.IsNewRow){ continue }
+                if(-not [string]::IsNullOrWhiteSpace([string]$row.Cells[$lastColumnName].Value)){
+                    $lastColumnHasData = $true
+                    break
+                }
+            }
+            if($lastColumnHasData){
+                $confirmRemove = [System.Windows.Forms.MessageBox]::Show(
+                    ("Column " + $eventGrid.Columns[$lastColumnName].HeaderText + " already has data. Remove it anyway?"),
+                    "Remove Actual Column",
+                    [System.Windows.Forms.MessageBoxButtons]::YesNo,
+                    [System.Windows.Forms.MessageBoxIcon]::Warning
+                )
+                if($confirmRemove -ne [System.Windows.Forms.DialogResult]::Yes){
+                    Write-ResultsViewDebugLog "Remove cancelled by user" $eventGrid @{ LastColumn = $lastColumnName } | Out-Null
+                    return
+                }
+            }
+            $nextQty = [Math]::Max(1,$actualColumns.Count - 1)
+            $nextQty = Refresh-ResultsViewActualColumns $eventGrid $nextQty
+            $script:SuppressResultsViewRowSave = $true
+            try{
+                foreach($row in @($eventGrid.Rows)){
+                    if(!$row -or $row.IsNewRow){ continue }
+                    Update-MeasurementGridRow $row
+                }
+            }
+            finally{
+                $script:SuppressResultsViewRowSave = $false
+            }
+            [void](Set-ResultsViewQuantity $eventGrid $nextQty $null $null)
+            Queue-SessionStateSave
+            $eventGrid.Refresh()
+            $eventForm = $eventGrid.FindForm()
+            if($eventForm){ $eventForm.Text = "Results View  -" + [string]$nextQty }
+            try{ if($txtOcrDebug){ $txtOcrDebug.Text = "Results View: removed to " + [string]$nextQty + " Actual column(s)" } } catch{}
+            Write-ResultsViewDebugLog "Remove button done" $eventGrid @{ NextQty = [string]$nextQty } | Out-Null
+        }
+        catch{
+            Show-ResultsViewError "Remove column button" $eventGrid $_.Exception @{ RequestedAction = "Remove" }
+        }
+    })
+    $formResults.Add_FormClosing({
+        param($sender,$e)
+        $closingGrid = $sender.Tag
+        if(!$closingGrid){ $closingGrid = $grid }
+        Write-ResultsViewDebugLog "Closing enter" $closingGrid | Out-Null
+        try{
+            if($closingGrid.IsCurrentCellInEditMode){
+                $closingGrid.EndEdit()
+            }
+        }
+        catch{
+            Show-ResultsViewError "Closing end edit" $closingGrid $_.Exception
+        }
+        try{
+            $closingActualColumns = @(Get-ResultsViewActualColumnNames $closingGrid)
+            [void](Set-ResultsViewQuantity $closingGrid ([int]$closingActualColumns.Count) $null $null)
+            Write-ResultsViewDebugLog "Closing quantity saved" $closingGrid @{ ClosingCount = [string]$closingActualColumns.Count } | Out-Null
+        }
+        catch{
+            Show-ResultsViewError "Closing quantity save" $closingGrid $_.Exception
+        }
+        if($script:ResultsViewForm -eq $formResults){
+            $script:ResultsViewForm = $null
+        }
+        Write-ResultsViewDebugLog "Closing done" $closingGrid | Out-Null
+    })
+
+    $resultsLayout.Controls.Add($grid,0,1)
+    Write-ResultsViewDebugLog "Show window done" $grid | Out-Null
     [void]$formResults.Show($form)
 }
 
 function Update-MeasurementGridRow($row){
     if(!$row){ return }
     $step = [string]$row.Cells["Step"].Value
-    $actual = [string]$row.Cells["Actual"].Value
-    $resultText = Get-MeasurementResult $row.Cells["Nominal"].Value $row.Cells["TolMinus"].Value $row.Cells["TolPlus"].Value $actual
+    if($row.DataGridView -and $row.DataGridView.Columns.Contains("Min") -and $row.DataGridView.Columns.Contains("Max")){
+        $minMaxTexts = @(Get-MeasurementMinMaxTexts $row.Cells["Nominal"].Value $row.Cells["TolMinus"].Value $row.Cells["TolPlus"].Value)
+        $row.Cells["Min"].Value = [string]$minMaxTexts[0]
+        $row.Cells["Max"].Value = [string]$minMaxTexts[1]
+    }
+    $actuals = @()
+    $results = @()
+    foreach($actualColumnName in @(Get-ResultsViewActualColumnNames $row.DataGridView)){
+        $actual = [string]$row.Cells[$actualColumnName].Value
+        $formattedActual = Format-MeasurementActualForNominal $row.Cells["Nominal"].Value $actual
+        if($formattedActual -ne $actual){
+            $row.Cells[$actualColumnName].Value = $formattedActual
+            $actual = $formattedActual
+        }
+        $actuals += $actual
+        if([string]::IsNullOrWhiteSpace($actual)){
+            $results += ""
+        }
+        else{
+            $results += (Get-MeasurementResult $row.Cells["Nominal"].Value $row.Cells["TolMinus"].Value $row.Cells["TolPlus"].Value $actual)
+        }
+    }
+    $resultText = Get-MeasurementAggregateResult $row.Cells["Nominal"].Value $row.Cells["TolMinus"].Value $row.Cells["TolPlus"].Value $actuals
     $row.Cells["Result"].Value = $resultText
     if(-not [string]::IsNullOrWhiteSpace($step)){
+        $firstActual = [string]($actuals | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Select-Object -First 1)
         $script:MeasurementResults[$step] = [PSCustomObject]@{
-            Actual = $actual
+            Actual = $firstActual
+            Actuals = @($actuals)
             Result = $resultText
+            Results = @($results)
             UpdatedAt = Get-Date
         }
-        Queue-SessionStateSave
+        if(-not [bool]$script:SuppressResultsViewRowSave){
+            Queue-SessionStateSave
+        }
     }
     Update-MeasurementGridRowStyle $row
 }
@@ -1587,14 +2337,19 @@ function Update-MeasurementGridRowStyle($row){
     switch($resultText){
         "OK" { $row.DefaultCellStyle.BackColor = [Drawing.Color]::Honeydew }
         "NG" { $row.DefaultCellStyle.BackColor = [Drawing.Color]::MistyRose }
-        "INVALID" { $row.DefaultCellStyle.BackColor = [Drawing.Color]::LemonChiffon }
+        "INVALID" { $row.DefaultCellStyle.BackColor = [Drawing.Color]::MistyRose }
         default { $row.DefaultCellStyle.BackColor = [Drawing.Color]::White }
     }
 }
 
 if($btnResultsView){
     $btnResultsView.Add_Click({
-        Show-ResultsViewWindow
+        try{
+            Show-ResultsViewWindow
+        }
+        catch{
+            Show-ResultsViewError "Open Results View" $null $_.Exception
+        }
     })
 }
 $pageList.Add_SelectedIndexChanged({
@@ -1683,6 +2438,9 @@ $script:selectionRect = $null
 $script:marks = @()
 $script:StepRects = @{}
 $script:MeasurementResults = @{}
+$script:ResultsViewForm = $null
+$script:SuppressResultsViewRowSave = $false
+$script:ResultsViewActualColumnCount = $null
 $script:dragMarkIndex = -1
 $script:isDraggingMark = $false
 $script:draggingMarkKind = $null
@@ -3438,11 +4196,13 @@ function Convert-MechanicalNumberToDouble($value,[ref]$number){
     $number.Value = 0.0
     if($null -eq $value){ return $false }
 
-    $text = ([string]$value).Trim()
+    $text = Normalize-MeasurementTypedText $value
+    $text = $text.ToUpperInvariant().Trim()
     if([string]::IsNullOrWhiteSpace($text)){ return $false }
 
     $text = $text -replace '，','.'
     $text = $text -replace '[°º]',''
+    $text = $text -replace '^(SR|CHAMFER|CH|DIAMETER|DIA|PHI)',''
     $text = $text -replace '^[CRØΦ]+',''
     $text = $text -replace '[^0-9\.\+\-]',''
     if([string]::IsNullOrWhiteSpace($text)){ return $false }
@@ -3864,6 +4624,13 @@ function Convert-ToStepToolState($value){
         '^(I|IGNORE|IND|INDETERMINATE)$' { return "I" }
         default { return "C" }
     }
+}
+
+function Get-ExportToolCode($rowData){
+    $toolState = Convert-ToStepToolState $rowData.ToolState
+    if($toolState -eq "I"){ return "" }
+    if($toolState -eq "B"){ return "B" }
+    return "C"
 }
 
 function Convert-ToStepImportantFlag($value){
@@ -4997,6 +5764,7 @@ function Bind-SelectedPage{
         $page = $script:DocumentPages[$targetIndex]
         $script:sourceBitmap = $page.Bitmap
         $script:CurrentSourcePath = $page.SourcePath
+        $script:LastImageMousePoint = $null
         Stop-DeferredTextZoneWarmup
         Restore-PageTextZoneCache $page
 
@@ -5397,6 +6165,7 @@ function Delete-CurrentSessionAndRelatedData{
     $script:PartNo = $null
     $script:MoldName = $null
 $script:PartQuantity = ""
+$script:ResultsViewActualColumnCount = $null
 $script:PartMaterial = ""
 $script:PartHrc = ""
 $script:PartUser = "7139"
@@ -5434,7 +6203,9 @@ function Get-AllInspectionRows{
                 TolPlus = [string]$entry.Cells[3]
                 Result = if($entry.Cells.Count -gt 4){ [string]$entry.Cells[4] } else { "" }
                 MeasurementActual = if($measurementOverride){ [string]$measurementOverride.Actual } else { "" }
+                MeasurementActuals = if($measurementOverride){ @($measurementOverride.Actuals) } else { @() }
                 MeasurementResult = if($measurementOverride){ [string]$measurementOverride.Result } else { "" }
+                MeasurementResults = if($measurementOverride){ @($measurementOverride.Results) } else { @() }
                 ToolState = if($entry.Cells.Count -gt 7){ (Convert-ToStepToolState $entry.Cells[7]) } else { "C" }
                 ImportantStep = if($entry.Cells.Count -gt 8){ (Convert-ToStepImportantFlag $entry.Cells[8]) } else { $false }
                 DisplayName = [string]$page.DisplayName
@@ -5580,11 +6351,41 @@ function Get-ExportMeasurementTextUnique($rowData,$absoluteSampleIndex,$usedText
     return $fallbackText
 }
 
+# Returns a [double] for the unique measurement (same seed logic as text variant),
+# or $null when the value cannot be parsed as a number.
+function Get-ExportMeasurementDoubleUnique($rowData,$absoluteSampleIndex,$usedValues){
+    $attemptSeeds = @("base","alt1","alt2","alt3","edge1","edge2","swing1","swing2")
+    $fallbackVal = $null
+
+    foreach($attemptSeed in $attemptSeeds){
+        $text = Get-ExportMeasurementText $rowData $absoluteSampleIndex $attemptSeed
+        if([string]::IsNullOrWhiteSpace([string]$text)){ continue }
+        $parsed = 0.0
+        if(-not [double]::TryParse($text,[System.Globalization.NumberStyles]::Any,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$parsed)){ continue }
+        if($fallbackVal -eq $null){ $fallbackVal = $parsed }
+        $key = $text
+        if(!$usedValues.ContainsKey($key)){
+            $usedValues[$key] = 1
+            return [double]$parsed
+        }
+    }
+
+    if($fallbackVal -ne $null){
+        $key = ([string]$fallbackVal)
+        if($usedValues.ContainsKey($key)){
+            $usedValues[$key] = [int]$usedValues[$key] + 1
+        } else {
+            $usedValues[$key] = 1
+        }
+    }
+    return $fallbackVal
+}
+
 function Write-InspectionSampleResults($sheet,$row,$rowData,$sampleStart,$sampleEnd){
 
     $sampleColumns = @(Get-InspectionSampleColumnNumbers)
     $sampleCount = [Math]::Min($sampleColumns.Count,[Math]::Max(0,([int]$sampleEnd - [int]$sampleStart + 1)))
-    $usedTexts = @{}
+    $usedValues = @{}
 
     $manualActual = [string](Get-StatePropertyValue $rowData "MeasurementActual")
     if(-not [string]::IsNullOrWhiteSpace($manualActual)){
@@ -6438,6 +7239,396 @@ function Save-AiPromptArea([double]$xRatio,[double]$yRatio){
     Save-GlobalRapidOcrSettings ([PSCustomObject]$ordered)
 }
 
+function Get-DrawingAssistantHistoryPath{
+    return (Join-Path $script:AppRoot "ocrtool-drawing-assistant-history.json")
+}
+
+function Convert-DrawingAssistantCellToString($value){
+    if($null -eq $value){ return "" }
+    return ([string]$value).Trim()
+}
+
+function Convert-DrawingAssistantCellToBool($value){
+    if($null -eq $value){ return $false }
+    if($value -is [bool]){ return [bool]$value }
+    $text = ([string]$value).Trim().ToLowerInvariant()
+    return ($text -in @("true","1","yes","y","checked","important"))
+}
+
+function Get-DrawingAssistantRows{
+    $rows = @()
+    if(!$table){ return @($rows) }
+
+    foreach($gridRow in @($table.Rows)){
+        if(!$gridRow -or $gridRow.IsNewRow){ continue }
+        $stepText = Convert-DrawingAssistantCellToString $gridRow.Cells[0].Value
+        if([string]::IsNullOrWhiteSpace($stepText)){ continue }
+
+        $rows += [PSCustomObject]@{
+            RowIndex = [int]$gridRow.Index
+            Step = $stepText
+            Nominal = Convert-DrawingAssistantCellToString $gridRow.Cells[1].Value
+            TolMinus = Convert-DrawingAssistantCellToString $gridRow.Cells[2].Value
+            TolPlus = Convert-DrawingAssistantCellToString $gridRow.Cells[3].Value
+            Result = Convert-DrawingAssistantCellToString $gridRow.Cells[4].Value
+            Duplicate = Convert-DrawingAssistantCellToString $gridRow.Cells[5].Value
+            Flag = Convert-DrawingAssistantCellToString $gridRow.Cells[7].Value
+            Important = Convert-DrawingAssistantCellToBool $gridRow.Cells[8].Value
+        }
+    }
+
+    return @($rows)
+}
+
+function Get-DrawingAssistantStats($rows){
+    $rows = @($rows)
+    $dupRows = @($rows | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.Duplicate) })
+    $flagRows = @($rows | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.Flag) })
+    $importantRows = @($rows | Where-Object { [bool]$_.Important })
+    $emptyNominalRows = @($rows | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.Nominal) })
+    $zeroTolRows = @($rows | Where-Object {
+        ([string]::IsNullOrWhiteSpace([string]$_.TolMinus) -or [string]$_.TolMinus -eq "0") -and
+        ([string]::IsNullOrWhiteSpace([string]$_.TolPlus) -or [string]$_.TolPlus -eq "0")
+    })
+
+    return [PSCustomObject]@{
+        Total = [int]$rows.Count
+        Duplicates = [int]$dupRows.Count
+        Flags = [int]$flagRows.Count
+        Important = [int]$importantRows.Count
+        EmptyNominal = [int]$emptyNominalRows.Count
+        ZeroTolerance = [int]$zeroTolRows.Count
+    }
+}
+
+function Format-DrawingAssistantRows($rows,[int]$limit = 20){
+    $lines = @()
+    foreach($row in @($rows | Select-Object -First $limit)){
+        $markers = @()
+        if(-not [string]::IsNullOrWhiteSpace([string]$row.Duplicate)){ $markers += ("Dup " + [string]$row.Duplicate) }
+        if(-not [string]::IsNullOrWhiteSpace([string]$row.Flag)){ $markers += ("Flag " + [string]$row.Flag) }
+        if([bool]$row.Important){ $markers += "Important" }
+        $suffix = if($markers.Count -gt 0){ " [" + ($markers -join ", ") + "]" } else { "" }
+        $lines += ("Step {0}: Nominal={1}, Tol-={2}, Tol+={3}{4}" -f $row.Step,$row.Nominal,$row.TolMinus,$row.TolPlus,$suffix)
+    }
+    if(@($rows).Count -gt $limit){
+        $lines += ("... còn {0} step nữa." -f (@($rows).Count - $limit))
+    }
+    return ($lines -join [Environment]::NewLine)
+}
+
+function Find-DrawingAssistantRows($query,$rows){
+    $queryText = ([string]$query).Trim()
+    if([string]::IsNullOrWhiteSpace($queryText)){ return @() }
+
+    $tokens = @(
+        $queryText -split '[\s,;:]+' |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+        ForEach-Object { ([string]$_).Trim() }
+    )
+    if($tokens.Count -le 0){ return @() }
+
+    $matches = @()
+    foreach($row in @($rows)){
+        $haystack = (@(
+            [string]$row.Step,
+            [string]$row.Nominal,
+            [string]$row.TolMinus,
+            [string]$row.TolPlus,
+            [string]$row.Duplicate,
+            [string]$row.Flag,
+            [string]$row.Result
+        ) -join " ").ToLowerInvariant()
+
+        $hit = $false
+        foreach($token in $tokens){
+            $tokenText = ([string]$token).ToLowerInvariant()
+            if($tokenText -in @("tim","tìm","kiem","kiếm","step","so","số","nominal","tol","dung","đúng","sai","loi","lỗi","du","dup","trung","trùng")){ continue }
+            if($haystack.Contains($tokenText)){
+                $hit = $true
+                break
+            }
+        }
+        if($hit){ $matches += $row }
+    }
+    return @($matches)
+}
+
+function Get-DrawingAssistantMetadataText{
+    $sourceName = if([string]::IsNullOrWhiteSpace([string]$script:CurrentSourcePath)){ "(chưa mở PDF)" } else { [System.IO.Path]::GetFileName([string]$script:CurrentSourcePath) }
+    $pageText = if($script:DocumentPages){ [string]$script:DocumentPages.Count } else { "0" }
+    $sessionText = if([string]::IsNullOrWhiteSpace([string]$script:CurrentSessionFilePath)){ "(chưa có)" } else { [System.IO.Path]::GetFileName([string]$script:CurrentSessionFilePath) }
+    return "PDF: $sourceName`r`nPages: $pageText`r`nSession: $sessionText"
+}
+
+function New-DrawingAssistantReport($rows){
+    $rows = @($rows)
+    $stats = Get-DrawingAssistantStats $rows
+    $issues = @($rows | Where-Object {
+        -not [string]::IsNullOrWhiteSpace([string]$_.Duplicate) -or
+        -not [string]::IsNullOrWhiteSpace([string]$_.Flag) -or
+        [string]::IsNullOrWhiteSpace([string]$_.Nominal)
+    })
+    $important = @($rows | Where-Object { [bool]$_.Important })
+
+    $text = New-Object System.Text.StringBuilder
+    [void]$text.AppendLine("Drawing Assistant Report")
+    [void]$text.AppendLine("========================")
+    [void]$text.AppendLine((Get-DrawingAssistantMetadataText))
+    [void]$text.AppendLine("")
+    [void]$text.AppendLine(("Total steps: {0}" -f $stats.Total))
+    [void]$text.AppendLine(("Important: {0}" -f $stats.Important))
+    [void]$text.AppendLine(("Duplicate warning: {0}" -f $stats.Duplicates))
+    [void]$text.AppendLine(("Flag warning: {0}" -f $stats.Flags))
+    [void]$text.AppendLine(("Missing nominal: {0}" -f $stats.EmptyNominal))
+    [void]$text.AppendLine(("Zero/empty tolerance: {0}" -f $stats.ZeroTolerance))
+    [void]$text.AppendLine("")
+    if($important.Count -gt 0){
+        [void]$text.AppendLine("Important steps:")
+        [void]$text.AppendLine((Format-DrawingAssistantRows $important 30))
+        [void]$text.AppendLine("")
+    }
+    if($issues.Count -gt 0){
+        [void]$text.AppendLine("Rows to review:")
+        [void]$text.AppendLine((Format-DrawingAssistantRows $issues 40))
+    }
+    else{
+        [void]$text.AppendLine("No obvious duplicate/flag/missing-nominal issues in the current table.")
+    }
+
+    return [string]$text.ToString().Trim()
+}
+
+function Get-DrawingAssistantPriorUserQuestion($history){
+    $candidate = ""
+    foreach($item in @($history | Select-Object -Last 20)){
+        if($item -and [string]$item.Role -eq "user" -and -not [string]::IsNullOrWhiteSpace([string]$item.Text)){
+            $candidate = [string]$item.Text
+        }
+    }
+    if([string]::IsNullOrWhiteSpace([string]$candidate)){ return "" }
+    return [string]$candidate
+}
+
+function Invoke-DrawingAssistantAnswer([string]$question,$history = $null){
+    $rows = @(Get-DrawingAssistantRows)
+    $stats = Get-DrawingAssistantStats $rows
+    $q = ([string]$question).Trim()
+    $ql = $q.ToLowerInvariant()
+    $effectiveQuestion = $q
+    if($ql -match '^(cai do|cái đó|tiep|tiếp|that|it|them|thêm)\b'){
+        $priorQuestion = Get-DrawingAssistantPriorUserQuestion $history
+        if(-not [string]::IsNullOrWhiteSpace($priorQuestion)){
+            $effectiveQuestion = ($priorQuestion + " " + $q)
+        }
+    }
+
+    if([string]::IsNullOrWhiteSpace($q)){
+        return "Bạn hỏi gì về bản vẽ/bảng OCR hiện tại? Ví dụ: thống kê lỗi, tìm step 12, sinh báo cáo, giải thích bản vẽ."
+    }
+
+    if($rows.Count -le 0){
+        return "Hiện chưa có dữ liệu MarkStep trong bảng. Hãy mở PDF hoặc Auto Map/OCR trước, rồi hỏi lại mình."
+    }
+
+    if($ql -match 'bao cao|báo cáo|report|summary|tong hop|tổng hợp'){
+        return (New-DrawingAssistantReport $rows)
+    }
+
+    if($ql -match 'thong ke|thống kê|stat|count|bao nhieu|bao nhiêu'){
+        return ("Thống kê hiện tại:`r`n- Total steps: {0}`r`n- Important: {1}`r`n- Dup warning: {2}`r`n- Flag warning: {3}`r`n- Missing nominal: {4}`r`n- Zero/empty tolerance: {5}" -f $stats.Total,$stats.Important,$stats.Duplicates,$stats.Flags,$stats.EmptyNominal,$stats.ZeroTolerance)
+    }
+
+    if($ql -match 'loi|lỗi|sai|dup|duplicate|trung|trùng|flag|canh bao|cảnh báo'){
+        $bad = @($rows | Where-Object {
+            -not [string]::IsNullOrWhiteSpace([string]$_.Duplicate) -or
+            -not [string]::IsNullOrWhiteSpace([string]$_.Flag) -or
+            [string]::IsNullOrWhiteSpace([string]$_.Nominal)
+        })
+        if($bad.Count -le 0){ return "Chưa thấy dòng có Dup/Flag hoặc thiếu Nominal trong bảng hiện tại." }
+        return ("Các dòng nên kiểm tra:`r`n" + (Format-DrawingAssistantRows $bad 35))
+    }
+
+    if($ql -match 'important|quan trong|quan trọng|mark'){
+        $important = @($rows | Where-Object { [bool]$_.Important })
+        if($important.Count -le 0){ return "Hiện chưa có step nào được tick Important." }
+        return ("Important steps:`r`n" + (Format-DrawingAssistantRows $important 40))
+    }
+
+    if($ql -match 'giai thich|giải thích|explain|ban ve|bản vẽ|drawing'){
+        $issueText = if(($stats.Duplicates + $stats.Flags + $stats.EmptyNominal) -gt 0){
+            "Có cảnh báo cần review: Dup=$($stats.Duplicates), Flag=$($stats.Flags), Missing nominal=$($stats.EmptyNominal)."
+        }
+        else{
+            "Bảng hiện tại chưa có cảnh báo Dup/Flag rõ ràng."
+        }
+        return ("Tóm tắt bản vẽ hiện tại:`r`n{0}`r`n`r`nApp đang có {1} MarkStep. Có {2} step Important. {3}`r`n`r`nGợi ý kiểm: xử lý hết Dup/Flag trước, sau đó kiểm lại các tolerance bằng 0 hoặc rỗng, rồi mới export/print." -f (Get-DrawingAssistantMetadataText),$stats.Total,$stats.Important,$issueText)
+    }
+
+    $matches = @(Find-DrawingAssistantRows $effectiveQuestion $rows)
+    if($matches.Count -gt 0){
+        return ("Mình tìm thấy {0} dòng liên quan:`r`n{1}" -f $matches.Count,(Format-DrawingAssistantRows $matches 30))
+    }
+
+    return ("Mình chưa thấy dữ liệu khớp trực tiếp với câu hỏi này. Dữ liệu hiện có: {0} steps, {1} dup warning, {2} flag warning, {3} important. Bạn có thể hỏi kiểu: `tìm 0.6`, `step 12`, `thống kê lỗi`, hoặc `sinh báo cáo`." -f $stats.Total,$stats.Duplicates,$stats.Flags,$stats.Important)
+}
+
+function Load-DrawingAssistantHistory{
+    $path = Get-DrawingAssistantHistoryPath
+    if(!(Test-Path -LiteralPath $path)){ return @() }
+    try{
+        $items = Get-Content -LiteralPath $path -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        return @($items)
+    }
+    catch{
+        return @()
+    }
+}
+
+function Save-DrawingAssistantHistory($history){
+    $path = Get-DrawingAssistantHistoryPath
+    try{
+        @($history | Select-Object -Last 120) | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $path -Encoding UTF8
+    }
+    catch{}
+}
+
+function Format-DrawingAssistantTranscript($history){
+    $lines = @()
+    foreach($item in @($history)){
+        $role = if([string]$item.Role -eq "assistant"){ "Assistant" } else { "You" }
+        $lines += ("[{0}] {1}`r`n{2}" -f ([string]$item.At),$role,([string]$item.Text))
+    }
+    return ($lines -join "`r`n`r`n")
+}
+
+function Show-DrawingAssistantWindow{
+    $dialog = New-Object System.Windows.Forms.Form
+    $dialog.Text = "Drawing Assistant"
+    $dialog.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterParent
+    $dialog.Size = New-Object System.Drawing.Size(760,620)
+    $dialog.MinimumSize = New-Object System.Drawing.Size(640,480)
+    $dialog.BackColor = [System.Drawing.Color]::White
+
+    $history = New-Object System.Collections.ArrayList
+    foreach($historyItem in @(Load-DrawingAssistantHistory)){
+        if($historyItem){ [void]$history.Add($historyItem) }
+    }
+
+    $txtChat = New-Object System.Windows.Forms.TextBox
+    $txtChat.Multiline = $true
+    $txtChat.ReadOnly = $true
+    $txtChat.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
+    $txtChat.Font = New-Object System.Drawing.Font("Consolas",10)
+    $txtChat.Location = New-Object System.Drawing.Point(12,12)
+    $txtChat.Size = New-Object System.Drawing.Size(718,410)
+    $txtChat.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $dialog.Controls.Add($txtChat)
+
+    $txtQuestion = New-Object System.Windows.Forms.TextBox
+    $txtQuestion.Multiline = $true
+    $txtQuestion.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
+    $txtQuestion.Font = New-Object System.Drawing.Font("Segoe UI",10)
+    $txtQuestion.Location = New-Object System.Drawing.Point(12,432)
+    $txtQuestion.Size = New-Object System.Drawing.Size(566,72)
+    $txtQuestion.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    $txtQuestion.Text = "thống kê lỗi"
+    $dialog.Controls.Add($txtQuestion)
+
+    $btnAsk = New-Object System.Windows.Forms.Button
+    $btnAsk.Text = "Ask"
+    $btnAsk.Font = New-Object System.Drawing.Font("Segoe UI",10,[System.Drawing.FontStyle]::Bold)
+    $btnAsk.Location = New-Object System.Drawing.Point(590,432)
+    $btnAsk.Size = New-Object System.Drawing.Size(140,34)
+    $btnAsk.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Right
+    $dialog.Controls.Add($btnAsk)
+
+    $btnReport = New-Object System.Windows.Forms.Button
+    $btnReport.Text = "Report"
+    $btnReport.Font = New-Object System.Drawing.Font("Segoe UI",10)
+    $btnReport.Location = New-Object System.Drawing.Point(590,470)
+    $btnReport.Size = New-Object System.Drawing.Size(140,34)
+    $btnReport.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Right
+    $dialog.Controls.Add($btnReport)
+
+    $btnCopy = New-Object System.Windows.Forms.Button
+    $btnCopy.Text = "Copy"
+    $btnCopy.Font = New-Object System.Drawing.Font("Segoe UI",9)
+    $btnCopy.Location = New-Object System.Drawing.Point(12,520)
+    $btnCopy.Size = New-Object System.Drawing.Size(92,30)
+    $btnCopy.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left
+    $dialog.Controls.Add($btnCopy)
+
+    $btnClear = New-Object System.Windows.Forms.Button
+    $btnClear.Text = "Clear Memory"
+    $btnClear.Font = New-Object System.Drawing.Font("Segoe UI",9)
+    $btnClear.Location = New-Object System.Drawing.Point(112,520)
+    $btnClear.Size = New-Object System.Drawing.Size(118,30)
+    $btnClear.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left
+    $dialog.Controls.Add($btnClear)
+
+    $lblHint = New-Object System.Windows.Forms.Label
+    $lblHint.Text = "Try: tìm 0.6 | step 12 | thống kê lỗi | sinh báo cáo | giải thích bản vẽ"
+    $lblHint.Font = New-Object System.Drawing.Font("Segoe UI",9)
+    $lblHint.AutoSize = $true
+    $lblHint.Location = New-Object System.Drawing.Point(244,526)
+    $lblHint.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left
+    $dialog.Controls.Add($lblHint)
+
+    $refreshChat = {
+        $txtChat.Text = Format-DrawingAssistantTranscript $history
+        $txtChat.SelectionStart = $txtChat.TextLength
+        $txtChat.ScrollToCaret()
+    }
+
+    $askAction = {
+        $question = [string]$txtQuestion.Text
+        if([string]::IsNullOrWhiteSpace($question)){ return }
+        $priorHistory = @($history)
+        $answer = Invoke-DrawingAssistantAnswer $question $priorHistory
+        [void]$history.Add([PSCustomObject]@{ Role = "user"; Text = $question; At = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss") })
+        [void]$history.Add([PSCustomObject]@{ Role = "assistant"; Text = $answer; At = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss") })
+        Save-DrawingAssistantHistory $history
+        & $refreshChat
+        $txtQuestion.Clear()
+        $txtQuestion.Focus()
+    }
+
+    $btnAsk.Add_Click($askAction)
+    $btnReport.Add_Click({
+        $txtQuestion.Text = "sinh báo cáo"
+        & $askAction
+    })
+    $btnCopy.Add_Click({
+        if(-not [string]::IsNullOrWhiteSpace($txtChat.Text)){
+            [System.Windows.Forms.Clipboard]::SetText($txtChat.Text)
+        }
+    })
+    $btnClear.Add_Click({
+        $history.Clear()
+        Save-DrawingAssistantHistory $history
+        & $refreshChat
+    })
+    $txtQuestion.Add_KeyDown({
+        if($_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::Enter){
+            & $askAction
+            $_.SuppressKeyPress = $true
+        }
+    })
+
+    if($history.Count -le 0){
+        [void]$history.Add([PSCustomObject]@{
+            Role = "assistant"
+            Text = "Mình đã sẵn sàng đọc bảng MarkStep hiện tại. Hỏi mình về lỗi, dup, important, thống kê, tìm kiếm step, hoặc sinh báo cáo."
+            At = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+        })
+        Save-DrawingAssistantHistory $history
+    }
+    & $refreshChat
+
+    [void]$dialog.ShowDialog($form)
+}
+
 function Get-MarkStepCurrentPrintFolder{
     $root = Join-Path ([System.IO.Path]::GetTempPath()) "RapidOcrProUpdate-Print"
     $jobName = Get-SafeWindowsPathComponent (Get-PreferredExportJobName) "InspectionJob"
@@ -6512,7 +7703,7 @@ function Show-PrintMarkedDrawingOptionsDialog{
     }
 }
 
-function Invoke-DirectPrintMarkedDocument([string]$printColorMode){
+function Invoke-DirectPrintMarkedDocument([string]$printColorMode,[bool]$showPrinterDialog = $true){
     Save-CurrentPageState
     Validate-StepState
 
@@ -6532,6 +7723,28 @@ function Invoke-DirectPrintMarkedDocument([string]$printColorMode){
     $printDoc.PrintController = New-Object System.Drawing.Printing.StandardPrintController
     $printDoc.PrinterSettings.DefaultPageSettings.Color = [bool]$isColorPrint
     $printDoc.DefaultPageSettings.Color = [bool]$isColorPrint
+
+    if($showPrinterDialog){
+        $printDialog = New-Object System.Windows.Forms.PrintDialog
+        try{
+            $printDialog.Document = $printDoc
+            $printDialog.AllowSomePages = $false
+            $printDialog.AllowSelection = $false
+            $printDialog.UseEXDialog = $true
+            $printDialog.PrinterSettings.DefaultPageSettings.Color = [bool]$isColorPrint
+            $dialogResult = $printDialog.ShowDialog($form)
+            if($dialogResult -ne [System.Windows.Forms.DialogResult]::OK){
+                if($printDoc){ $printDoc.Dispose() }
+                return $false
+            }
+            $printDoc.PrinterSettings = $printDialog.PrinterSettings
+            $printDoc.PrinterSettings.DefaultPageSettings.Color = [bool]$isColorPrint
+            $printDoc.DefaultPageSettings.Color = [bool]$isColorPrint
+        }
+        finally{
+            if($printDialog){ $printDialog.Dispose() }
+        }
+    }
 
     $pageIndex = 0
     $currentBitmap = $null
@@ -6594,6 +7807,7 @@ function Invoke-DirectPrintMarkedDocument([string]$printColorMode){
 
     try{
         $printDoc.Print()
+        return $true
     }
     finally{
         if($currentBitmap){
@@ -6625,7 +7839,8 @@ function Invoke-PrintCurrentMarkedDrawing{
         }
         Save-SessionState
 
-        Invoke-DirectPrintMarkedDocument $printColorMode
+        $printed = Invoke-DirectPrintMarkedDocument $printColorMode $true
+        if(-not $printed){ return }
         $modeText = if([string]::Equals([string]$printColorMode,"BlackWhite",[System.StringComparison]::OrdinalIgnoreCase)){ "black and white" } else { "color" }
         [System.Windows.Forms.MessageBox]::Show(("Current marked drawing was sent to the default printer in " + $modeText + " mode."),"Print Current Drawing",[System.Windows.Forms.MessageBoxButtons]::OK,[System.Windows.Forms.MessageBoxIcon]::Information) | Out-Null
     }
@@ -8147,6 +9362,7 @@ function Get-CurrentSessionState{
         PartNo = $script:PartNo
         MoldName = $script:MoldName
         PartQuantity = $script:PartQuantity
+        ResultsViewActualColumnCount = [int](Get-CurrentResultsViewQuantity)
         PartMaterial = $script:PartMaterial
         PartHrc = $script:PartHrc
         PartUser = $script:PartUser
@@ -8160,7 +9376,24 @@ function Get-CurrentSessionState{
                 [ordered]@{
                     Step = [string]$stepKey
                     Actual = [string]$measurement.Actual
+                    Actuals = @(
+                        if($measurement.PSObject.Properties.Name -contains "Actuals"){
+                            foreach($actual in @(Convert-SessionValueToList $measurement.Actuals)){
+                                [string]$actual
+                            }
+                        }
+                        elseif(-not [string]::IsNullOrWhiteSpace([string]$measurement.Actual)){
+                            [string]$measurement.Actual
+                        }
+                    )
                     Result = [string]$measurement.Result
+                    Results = @(
+                        if($measurement.PSObject.Properties.Name -contains "Results"){
+                            foreach($result in @(Convert-SessionValueToList $measurement.Results)){
+                                [string]$result
+                            }
+                        }
+                    )
                     UpdatedAt = $measurement.UpdatedAt
                 }
             }
@@ -8264,6 +9497,17 @@ function Apply-SessionStateObject($state){
         if(-not [string]::IsNullOrWhiteSpace($stateMoldName)){ $script:MoldName = $stateMoldName }
         $statePartQuantity = [string](Get-StatePropertyValue $state "PartQuantity")
         if(-not [string]::IsNullOrWhiteSpace($statePartQuantity)){ $script:PartQuantity = $statePartQuantity }
+        $stateResultsViewActualColumnCount = [string](Get-StatePropertyValue $state "ResultsViewActualColumnCount")
+        $stateResultsViewActualColumnCountValue = 0
+        if([int]::TryParse($stateResultsViewActualColumnCount,[ref]$stateResultsViewActualColumnCountValue) -and $stateResultsViewActualColumnCountValue -gt 0){
+            $script:ResultsViewActualColumnCount = [int]$stateResultsViewActualColumnCountValue
+        }
+        elseif(-not [string]::IsNullOrWhiteSpace($statePartQuantity)){
+            $statePartQuantityValue = 0
+            if([int]::TryParse($statePartQuantity,[ref]$statePartQuantityValue) -and $statePartQuantityValue -gt 0){
+                $script:ResultsViewActualColumnCount = [int]$statePartQuantityValue
+            }
+        }
         $statePartMaterial = [string](Get-StatePropertyValue $state "PartMaterial")
         if($statePartMaterial -ne $null){ $script:PartMaterial = $statePartMaterial }
         $statePartHrc = [string](Get-StatePropertyValue $state "PartHrc")
@@ -8287,9 +9531,18 @@ function Apply-SessionStateObject($state){
         foreach($measurement in @(Convert-SessionValueToList $stateMeasurementResults)){
             $step = [string](Get-StatePropertyValue $measurement "Step")
             if([string]::IsNullOrWhiteSpace($step)){ continue }
+            $actuals = @(Convert-SessionValueToList (Get-StatePropertyValue $measurement "Actuals"))
+            if($actuals.Count -eq 0){
+                $legacyActual = [string](Get-StatePropertyValue $measurement "Actual")
+                if(-not [string]::IsNullOrWhiteSpace($legacyActual)){
+                    $actuals = @($legacyActual)
+                }
+            }
             $script:MeasurementResults[$step] = [PSCustomObject]@{
                 Actual = [string](Get-StatePropertyValue $measurement "Actual")
+                Actuals = @($actuals | ForEach-Object { [string]$_ })
                 Result = [string](Get-StatePropertyValue $measurement "Result")
+                Results = @(Convert-SessionValueToList (Get-StatePropertyValue $measurement "Results") | ForEach-Object { [string]$_ })
                 UpdatedAt = Get-StatePropertyValue $measurement "UpdatedAt"
             }
         }
@@ -8813,6 +10066,13 @@ function Set-ExcelInspectionJudgeFormula($sheet,$row,$nominalText){
         }
     }
     catch{}
+}
+
+function Set-ExcelCellNumericValue($sheet,$row,$column,$number){
+    $cell = $sheet.Cells.Item([int]$row,[int]$column)
+    $cell.Value2 = [double]$number
+    # Clear any pre-existing text format so Excel treats the cell as a number
+    $cell.NumberFormat = "General"
 }
 
 function Set-ExcelCellBold($sheet,$row,$column,$isBold){
@@ -9429,6 +10689,19 @@ function Get-CurrentCrosshairImagePoint{
     return (New-Object Drawing.PointF([float]($script:sourceBitmap.Width / 2.0), [float]($script:sourceBitmap.Height / 2.0)))
 }
 
+function Get-ViewportCenterImagePoint{
+
+    if(!$script:sourceBitmap){ return $null }
+
+    $viewport = Get-ViewportSize
+    $centerPoint = New-Object Drawing.PointF(
+        [float]($viewport.Width / 2.0),
+        [float]($viewport.Height / 2.0)
+    )
+
+    return (Clamp-ImagePointToBitmap (Convert-ScreenPointToImagePoint $centerPoint))
+}
+
 function Get-NormalizedSelectionRect($startPoint,$endPoint){
 
     $safeStartPoint = Clamp-ImagePointToBitmap $startPoint
@@ -9663,10 +10936,22 @@ function Try-ParseAngleDmsText($text){
     $value = ([string]$text).Trim()
     $value = $value -replace ',', '.'
     $value = $value -replace '(?i)DEG',$degree
+    $value = $value -replace '(?i)ĐỘ',$degree
+    $value = $value -replace '(?i)(?<=[0-9])DO(?=[0-9\s]|$)',$degree
+    $value = $value -replace '(?i)(?<=[0-9])D(?=[0-9\s]|$)',$degree
+    $value = $value -replace '(?i)(?<=[0-9])M(?=[0-9\s]|$)',"'"
+    $value = $value -replace '(?i)(?<=[0-9])S(?=\s*$|[^A-Z])','"'
     $value = $value -replace ([string][char]186),$degree
     $value = $value -replace "''", '"'
     $value = $value -replace "[′’`´]","'"
     $value = $value -replace '[″“”]','"'
+    if($value -match "^\s*(?<deg>[-+]?\d+)\s+(?<min>\d{1,2})\s+(?<sec>\d{1,2}(?:\.\d+)?)\s*$"){
+        $degText = [string]$Matches['deg']
+        $minText = [string]$Matches['min']
+        $secText = [string]$Matches['sec']
+        $txt = ('{0}{1}{2}{3}{4}"' -f $degText,$degree,$minText,([string][char]39),$secText)
+        return [PSCustomObject]@{ Text = $txt; Degrees = $degText; Minutes = $minText; Seconds = $secText }
+    }
     $compact = ($value -replace '\s+','')
     # Parentheses around reference angle, e.g. (0.352°), are wrappers only.
     # OCR may also miss one side of the wrapper, so strip them before angle parse.
@@ -9760,6 +11045,13 @@ function Normalize-MechanicalOcrText($text){
     $value = $value -replace ',', '.'
     $value = $value -replace '：', ':'
     $value = $value -replace ':', '.'
+    # OCR can glue a leading symmetric tolerance to the nominal, e.g.
+    # "±0.00252.3975" should be treated as "±0.0025 2.3975".
+    $value = [regex]::Replace(
+        $value,
+        '(?<tol>[±+\-]\s*0?\.\d{3,5})(?<nom>[1-9]\d*\.\d+)',
+        '${tol} ${nom}'
+    )
     # Mechanical OCR often returns chamfer/radius prefixes like CO.100 / RO.5
     # where O is actually zero. Repair this before filtering non-mechanical text.
     $value = [regex]::Replace($value,'(?<![A-Z0-9])([CR])\s*O(?=\s*(?:\.\s*\d|\d))', '${1}0')
@@ -10323,7 +11615,11 @@ $miAdvanceRotatePage = $null
 $miAdvanceSampleAutoFill = $null
 $miAdvanceBulkAiRecovery = $null
 $miAdvanceCapturePromptArea = $null
+$miAdvanceDrawingAssistant = $null
 if($advanceMenu){
+    $miAdvanceDrawingAssistant = New-Object System.Windows.Forms.ToolStripMenuItem("Drawing Assistant")
+    if($miAdvanceOcrMenu){ [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceDrawingAssistant) }
+    else{ [void]$advanceMenu.Items.Add($miAdvanceDrawingAssistant) }
     $miAdvanceSampleAutoFill = New-Object System.Windows.Forms.ToolStripMenuItem("Sample Auto Fill On")
     if($miAdvanceOcrMenu){ [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceSampleAutoFill) }
     else{ [void]$advanceMenu.Items.Add($miAdvanceSampleAutoFill) }
@@ -10592,6 +11888,21 @@ if($miAdvanceSampleAutoFill){
         $script:InspectionSampleAutoFillEnabled = -not $script:InspectionSampleAutoFillEnabled
         Update-InspectionSampleAutoFillButton
         Save-SessionState
+    })
+}
+if($miAdvanceDrawingAssistant){
+    $miAdvanceDrawingAssistant.Add_Click({
+        try{
+            Show-DrawingAssistantWindow
+        }
+        catch{
+            [System.Windows.Forms.MessageBox]::Show(
+                ("Drawing Assistant failed: " + $_.Exception.Message),
+                "Drawing Assistant",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Error
+            ) | Out-Null
+        }
     })
 }
 if($miAdvanceBulkAiRecovery){
@@ -16494,11 +17805,53 @@ function Draw-PdfTextLayerZones($graphics){
     }
 }
 
-function Get-TextZoneHit($point){
+function Draw-YoloDetectedBoxes($graphics){
+    if(!$graphics -or !$script:ShowPdfTextZones){ return }
+    if(!$script:YoloDetectedBoxes -or @($script:YoloDetectedBoxes).Count -le 0){ return }
 
-    if(!$script:ShowPdfTextZones -or !$point){ return $null }
+    $boxPen = $null
+    $boxBrush = $null
+    $font = $null
+    $textBrush = $null
+    $textBgBrush = $null
+    try {
+        $lineWidth = [float][Math]::Max(1.0,(2.0 / [Math]::Max($script:zoom,0.0001)))
+        $fontSize = [float][Math]::Max(5.0,(8.0 / [Math]::Max($script:zoom,0.0001)))
+        $boxPen = New-Object Drawing.Pen([Drawing.Color]::FromArgb(230, 0, 140, 255), $lineWidth)
+        $boxBrush = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(30, 0, 140, 255))
+        $font = New-Object Drawing.Font("Segoe UI", $fontSize, [Drawing.FontStyle]::Bold)
+        $textBrush = New-Object Drawing.SolidBrush([Drawing.Color]::White)
+        $textBgBrush = New-Object Drawing.SolidBrush([Drawing.Color]::FromArgb(210, 0, 110, 220))
+
+        foreach($b in @($script:YoloDetectedBoxes)){
+            if(!$b -or !$b.Rect){ continue }
+            $r = $b.Rect
+            $graphics.FillRectangle($boxBrush, $r)
+            $graphics.DrawRectangle($boxPen, $r)
+
+            if($b.Conf -gt 0){
+                $label = ("YOLO {0:P0}" -f $b.Conf)
+                $sz = $graphics.MeasureString($label, $font)
+                $pt = New-Object Drawing.PointF([float]$r.X, [float]([Math]::Max(0, ($r.Y - $sz.Height))))
+                $graphics.FillRectangle($textBgBrush, $pt.X, $pt.Y, $sz.Width, $sz.Height)
+                $graphics.DrawString($label, $font, $textBrush, $pt)
+            }
+        }
+    }
+    finally {
+        if($boxPen){ $boxPen.Dispose() }
+        if($boxBrush){ $boxBrush.Dispose() }
+        if($font){ $font.Dispose() }
+        if($textBrush){ $textBrush.Dispose() }
+        if($textBgBrush){ $textBgBrush.Dispose() }
+    }
+}
+
+function Get-TextZoneHit($point){
+    if(!$point){ return $null }
     $zones = @($script:PdfTextLayerZones)
-    $handleRadius = [double][Math]::Max(8.0,(12.0 / [Math]::Max($script:zoom,0.0001)))
+    if($zones.Count -le 0){ return $null }
+    $handleRadius = [Math]::Max(4.0,(7.0 / [Math]::Max($script:zoom,0.0001)))
 
     $validStepRects = @()
     if($script:StepRects -and $script:StepRects.Count -gt 0){
