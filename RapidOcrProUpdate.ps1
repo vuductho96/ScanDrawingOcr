@@ -6031,21 +6031,14 @@ function Set-InspectionRowFormula($sheet,$row,$nominal,$tolMinus,$tolPlus,$sampl
 
     try{
         $cell = $sheet.Cells.Item([int]$row,[int]$remarkCol)
-        $cell.NumberFormat = "@"
+        $cell.NumberFormat = "General"
 
         if($isTextBased){
-            # Text comparison: all filled sample cells must equal nominal (within tolerance not applicable)
-            # For DMS/R/C we just check that every non-empty sample cell matches the nominal text exactly
-            # Formula: if no data → blank; if any sample differs from nominal → NG; else OK
             $nominalEscaped = $nominal -replace '"','""'
-            # COUNTA to check if any sample is filled; then check each with EXACT
-            # Build: =IF(COUNTA(range)=0,"",IF(SUMPRODUCT((LEN(range)>0)*(EXACT(range,"nominal")<>TRUE))>0,"NG","OK"))
             $formula = '=IF(COUNTA(' + $sampleRange + ')=0,"",IF(SUMPRODUCT((LEN(' + $sampleRange + ')>0)*(EXACT(' + $sampleRange + ',"' + $nominalEscaped + '")<>TRUE))>0,"NG","OK"))'
             $cell.Formula = $formula
         }
         else{
-            # Numeric: standard MIN/MAX check (same as template formula)
-            # Tol columns: C=3 (minus), D=4 (plus), B=2 (nominal)
             $nomCol  = [string](ColLetter 2)  # B
             $minCol  = [string](ColLetter 3)  # C
             $plusCol = [string](ColLetter 4)  # D
