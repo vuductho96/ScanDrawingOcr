@@ -1,4 +1,4 @@
-﻿Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName Microsoft.VisualBasic
 $script:AppRoot = $PSScriptRoot
@@ -2328,6 +2328,7 @@ $script:PartQuantity = $null
 $script:PartMaterial = $null
 $script:PartHrc = $null
 $script:PartUser = $null
+$script:PartDate = $null
 $script:CurrentSourcePath = $null
 $script:CurrentSessionFilePath = $null
 $script:DocumentPages = @()
@@ -3141,6 +3142,7 @@ function Get-DrawingMetadataFromState($state){
         Material = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "PartMaterial")
         Hrc = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "PartHrc")
         User = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "PartUser")
+        Date = [string](Get-StatePropertyValue $state "PartDate")
         JobName = $jobName
     }
 }
@@ -3191,7 +3193,7 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
     $dialog.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
     $dialog.MaximizeBox = $false
     $dialog.MinimizeBox = $false
-    $dialog.ClientSize = New-Object System.Drawing.Size(430,291)
+    $dialog.ClientSize = New-Object System.Drawing.Size(430,327)
     $dialog.TopMost = $true
 
     $font = New-Object System.Drawing.Font("Segoe UI",9)
@@ -3202,7 +3204,8 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
         @{ Text = "Qty"; Y = 90 },
         @{ Text = "Material"; Y = 126 },
         @{ Text = "HRC"; Y = 162 },
-        @{ Text = "User"; Y = 198 }
+        @{ Text = "User"; Y = 198 },
+        @{ Text = "Date"; Y = 234 }
     )
     foreach($item in $labels){
         $lbl = New-Object System.Windows.Forms.Label
@@ -3255,16 +3258,28 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
     $txtUser.Text = [string]$defaults.User
     $dialog.Controls.Add($txtUser)
 
+    $defaultDate = if(-not [string]::IsNullOrWhiteSpace([string]$defaults.Date)){
+        [string]$defaults.Date
+    } else {
+        (Get-Date).ToString("dd/MM/yyyy")
+    }
+    $txtDate = New-Object System.Windows.Forms.TextBox
+    $txtDate.Location = New-Object System.Drawing.Point(116,232)
+    $txtDate.Size = New-Object System.Drawing.Size(160,24)
+    $txtDate.Font = $font
+    $txtDate.Text = $defaultDate
+    $dialog.Controls.Add($txtDate)
+
     $lblHint = New-Object System.Windows.Forms.Label
     $lblHint.Text = "Thong tin nay duoc dung de canh bao trung ban ve truoc khi danh so."
-    $lblHint.Location = New-Object System.Drawing.Point(16,232)
+    $lblHint.Location = New-Object System.Drawing.Point(16,268)
     $lblHint.Size = New-Object System.Drawing.Size(396,24)
     $lblHint.Font = $font
     $dialog.Controls.Add($lblHint)
 
     $btnOk = New-Object System.Windows.Forms.Button
     $btnOk.Text = "OK"
-    $btnOk.Location = New-Object System.Drawing.Point(246,256)
+    $btnOk.Location = New-Object System.Drawing.Point(246,292)
     $btnOk.Size = New-Object System.Drawing.Size(80,26)
     $btnOk.DialogResult = [System.Windows.Forms.DialogResult]::OK
     $btnOk.Add_Click({
@@ -3295,7 +3310,7 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
 
     $btnCancel = New-Object System.Windows.Forms.Button
     $btnCancel.Text = "Cancel"
-    $btnCancel.Location = New-Object System.Drawing.Point(332,256)
+    $btnCancel.Location = New-Object System.Drawing.Point(332,292)
     $btnCancel.Size = New-Object System.Drawing.Size(80,26)
     $btnCancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
     $dialog.Controls.Add($btnCancel)
@@ -3314,6 +3329,8 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
     $material = Normalize-DrawingMetadataText $txtMaterial.Text
     $hrc = Normalize-DrawingMetadataText $txtHrc.Text
     $user = Normalize-DrawingMetadataText $txtUser.Text
+    $date = ([string]$txtDate.Text).Trim()
+    if([string]::IsNullOrWhiteSpace($date)){ $date = (Get-Date).ToString("dd/MM/yyyy") }
 
     $dialog.Dispose()
 
@@ -3340,6 +3357,7 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
         Material = $material
         Hrc = $hrc
         User = $user
+        Date = $date
         JobName = $jobName
     }
 }
@@ -5985,6 +6003,57 @@ function Get-ExportMeasurementTextUnique($rowData,$absoluteSampleIndex,$usedText
         }
     }
     return $fallbackText
+}
+
+function Set-InspectionRowFormula($sheet,$row,$nominal,$tolMinus,$tolPlus,$sampleStart,$sampleEnd){
+    # Column P (16) = Remark/Judgement
+    $remarkCol = 16
+
+    # Sample columns F..O = 6..15
+    $sampleCols = @(Get-InspectionSampleColumnNumbers)
+    $usedSampleCount = [Math]::Min($sampleCols.Count,[Math]::Max(0,([int]$sampleEnd - [int]$sampleStart + 1)))
+    if($usedSampleCount -le 0){ return }
+
+    $firstSampleCol = $sampleCols[0]
+    $lastSampleCol  = $sampleCols[$usedSampleCount - 1]
+
+    # Convert column index to Excel letter
+    function ColLetter($n){ [char]([int][char]'A' + $n - 1) }
+    $firstLetter = [string](ColLetter $firstSampleCol)
+    $lastLetter  = [string](ColLetter $lastSampleCol)
+    $sampleRange = "${firstLetter}${row}:${lastLetter}${row}"
+
+    # Detect DMS: contains °, ', "
+    $isDms = $nominal -match '[°\u00b0\u00ba]' -and ($nominal -match "[']" -or $nominal -match '["]')
+
+    # Detect R/C prefix (radius/chamfer) or plain degree (45°)
+    $isTextBased = $isDms -or ($nominal -match '^[RC]')
+
+    try{
+        $cell = $sheet.Cells.Item([int]$row,[int]$remarkCol)
+        $cell.NumberFormat = "@"
+
+        if($isTextBased){
+            # Text comparison: all filled sample cells must equal nominal (within tolerance not applicable)
+            # For DMS/R/C we just check that every non-empty sample cell matches the nominal text exactly
+            # Formula: if no data → blank; if any sample differs from nominal → NG; else OK
+            $nominalEscaped = $nominal -replace '"','""'
+            # COUNTA to check if any sample is filled; then check each with EXACT
+            # Build: =IF(COUNTA(range)=0,"",IF(SUMPRODUCT((LEN(range)>0)*(EXACT(range,"nominal")<>TRUE))>0,"NG","OK"))
+            $formula = '=IF(COUNTA(' + $sampleRange + ')=0,"",IF(SUMPRODUCT((LEN(' + $sampleRange + ')>0)*(EXACT(' + $sampleRange + ',"' + $nominalEscaped + '")<>TRUE))>0,"NG","OK"))'
+            $cell.Formula = $formula
+        }
+        else{
+            # Numeric: standard MIN/MAX check (same as template formula)
+            # Tol columns: C=3 (minus), D=4 (plus), B=2 (nominal)
+            $nomCol  = [string](ColLetter 2)  # B
+            $minCol  = [string](ColLetter 3)  # C
+            $plusCol = [string](ColLetter 4)  # D
+            $formula = '=IF(COUNT(' + $sampleRange + ')=0,"",IF(OR(MIN(' + $sampleRange + ')<(' + $nomCol + [string]$row + '+' + $minCol + [string]$row + '),MAX(' + $sampleRange + ')>(' + $nomCol + [string]$row + '+' + $plusCol + [string]$row + ')),"NG","OK"))'
+            $cell.Formula = $formula
+        }
+    }
+    catch{}
 }
 
 function Write-InspectionSampleResults($sheet,$row,$rowData,$sampleStart,$sampleEnd){
@@ -8849,6 +8918,7 @@ function Get-CurrentSessionState{
         PartMaterial = $script:PartMaterial
         PartHrc = $script:PartHrc
         PartUser = $script:PartUser
+        PartDate = $script:PartDate
         BalloonColorPreset = $script:BalloonColorPreset
         MeasurementResults = @(
             foreach($stepKey in @($script:MeasurementResults.Keys)){
@@ -8995,6 +9065,8 @@ function Apply-SessionStateObject($state){
         if($statePartHrc -ne $null){ $script:PartHrc = $statePartHrc }
         $statePartUser = [string](Get-StatePropertyValue $state "PartUser")
         if(-not [string]::IsNullOrWhiteSpace($statePartUser)){ $script:PartUser = $statePartUser }
+        $statePartDate = [string](Get-StatePropertyValue $state "PartDate")
+        if(-not [string]::IsNullOrWhiteSpace($statePartDate)){ $script:PartDate = $statePartDate }
         $stateBalloonColorPreset = [string](Get-StatePropertyValue $state "BalloonColorPreset")
         if(-not [string]::IsNullOrWhiteSpace($stateBalloonColorPreset)){
             $script:BalloonColorPreset = $stateBalloonColorPreset
@@ -9437,10 +9509,10 @@ function Restore-SessionState{
 function Clear-InspectionSheet($sheet,$rowStart,$maxPerPage){
 
     $lastRow = $rowStart + $maxPerPage - 1
-    $sheet.Range([string]("A{0}:O{1}" -f [int]$rowStart,[int]$lastRow)).ClearContents()
+    $sheet.Range([string]("A{0}:P{1}" -f [int]$rowStart,[int]$lastRow)).ClearContents()
 }
 
-function Set-InspectionHeader($sheet,$model,$mold,$qty = "",$material = "",$hrc = "",$user = ""){
+function Set-InspectionHeader($sheet,$model,$mold,$qty = "",$material = "",$hrc = "",$user = "",$measureDate = ""){
 
     $sheet.Range("C5").Value2 = [string]$model
     $sheet.Range("G5").Value2 = [string]$mold
@@ -9460,7 +9532,8 @@ function Set-InspectionHeader($sheet,$model,$mold,$qty = "",$material = "",$hrc 
     }
     $dateCell = $sheet.Range("N4")
     $dateCell.NumberFormat = "@"
-    $dateCell.Value2 = (Get-Date).ToString("dd-MMM-yyyy",[System.Globalization.CultureInfo]::InvariantCulture)
+    $resolvedDate = if(-not [string]::IsNullOrWhiteSpace([string]$measureDate)){ [string]$measureDate } else { (Get-Date).ToString("dd/MM/yyyy") }
+    $dateCell.Value2 = $resolvedDate
 }
 
 function Get-InspectionBatchLabel($sampleStart,$sampleEnd){
@@ -9577,6 +9650,7 @@ function Get-ExportJobInfo{
     $script:PartMaterial = $metadata.Material
     $script:PartHrc = $metadata.Hrc
     $script:PartUser = $metadata.User
+    $script:PartDate = $metadata.Date
     $script:JobName = $metadata.JobName
 
     $folderDialog = New-Object Windows.Forms.FolderBrowserDialog
@@ -21471,6 +21545,7 @@ $btnExcel.Add_Click({
     $material = [string]$script:PartMaterial
     $hrc = [string]$script:PartHrc
     $user = if([string]::IsNullOrWhiteSpace([string]$script:PartUser)){ "7139" } else { [string]$script:PartUser }
+    $measureDate = if(-not [string]::IsNullOrWhiteSpace([string]$script:PartDate)){ [string]$script:PartDate } else { (Get-Date).ToString("dd/MM/yyyy") }
     $sampleBatches = @(Get-InspectionSampleBatches $qty)
     $savedExcelPaths = New-Object System.Collections.Generic.List[string]
     $hasImportantSteps = Test-AnyImportantInspectionSteps
@@ -21529,12 +21604,15 @@ $btnExcel.Add_Click({
             $exportStage = "Open template"
             Update-ExportProgress ("Opening Excel template... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 15
             $wb = $excel.Workbooks.Open([string]$script:ExcelTemplate)
-            $ws = $wb.Worksheets.Item([int]1)
+            $templateSheet = $wb.Worksheets.Item([int]1)
 
             $exportStage = "Prepare sheet"
             Update-ExportProgress ("Preparing sheet... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 18
+            # Copy template to a fresh working sheet
+            $templateSheet.Copy($wb.Worksheets.Item([int]1))
+            $ws = $wb.Worksheets.Item([int]1)
             Clear-InspectionSheet $ws $rowStart $maxPerPage
-            Set-InspectionHeader $ws $model $mold $qty $material $hrc $user
+            Set-InspectionHeader $ws $model $mold $qty $material $hrc $user $measureDate
             Set-InspectionSampleHeaders $ws $batchStart $batchEnd
             $initialEnd = if($exportRows.Count -gt 0){ [Math]::Min($maxPerPage,$exportRows.Count) } else { 1 }
             $ws.Name = [string](Get-InspectionSheetName 1 $initialEnd)
@@ -21549,7 +21627,8 @@ $btnExcel.Add_Click({
                     $page++
 
                     $exportStage = "Copy sheet"
-                    $ws.Copy($wb.Worksheets.Item([int]$wb.Worksheets.Count))
+                    # Copy a fresh template sheet for the next page (not the current data sheet)
+                    $templateSheet.Copy($wb.Worksheets.Item([int]$wb.Worksheets.Count))
                     if($ws){
                         [System.Runtime.Interopservices.Marshal]::ReleaseComObject($ws) | Out-Null
                         $ws = $null
@@ -21558,7 +21637,7 @@ $btnExcel.Add_Click({
                     $ws = $wb.Worksheets.Item([int]$wb.Worksheets.Count)
                     $exportStage = "Prepare copied sheet"
                     Clear-InspectionSheet $ws $rowStart $maxPerPage
-                    Set-InspectionHeader $ws $model $mold $qty $material $hrc $user
+                    Set-InspectionHeader $ws $model $mold $qty $material $hrc $user $measureDate
                     Set-InspectionSampleHeaders $ws $batchStart $batchEnd
 
                     $pageStartIndex = (($page - 1) * $maxPerPage) + 1
@@ -21582,9 +21661,22 @@ $btnExcel.Add_Click({
                 Set-ExcelCellTextValue $ws $row 4 ([string]$rowData.TolPlus)
                 Set-ExcelCellTextValue $ws $row 5 (Get-ExportToolCode $rowData)
                 Write-InspectionSampleResults $ws $row $rowData $batchStart $batchEnd
+                Set-InspectionRowFormula $ws $row ([string]$rowData.Nominal) ([string]$rowData.TolMinus) ([string]$rowData.TolPlus) $batchStart $batchEnd
 
                 $row++
                 $count++
+            }
+
+            # Delete the original template sheet (it's now unused, working sheets were copied from it)
+            $excel.DisplayAlerts = $false
+            try{
+                $templateSheet.Delete()
+            }
+            catch{}
+            $excel.DisplayAlerts = $false
+            if($templateSheet){
+                [System.Runtime.Interopservices.Marshal]::ReleaseComObject($templateSheet) | Out-Null
+                $templateSheet = $null
             }
 
             $exportStage = "Save workbook"
