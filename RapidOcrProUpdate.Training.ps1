@@ -987,19 +987,20 @@ function Update-TrainingReadinessUi{
     $snapshot = Get-TrainingReadinessSnapshot
     $grpOcrDebug.Text = ("OCR Debug | Ready {0}%" -f $snapshot.Percent)
     if($txtOcrDebug){
-        $summary = Get-TrainingReadinessDebugSummary $snapshot
-        $existingText = [string]$txtOcrDebug.Text
-        $existingText = [System.Text.RegularExpressions.Regex]::Replace(
-            $existingText,
-            '^Training Ready:.*?(?:\r?\n){2}',
-            '',
-            [System.Text.RegularExpressions.RegexOptions]::Singleline
-        ).TrimStart()
+        $singleLineSummary = "Training: {0}% | Crop: {1} | Nominal: {2} | Tol: {3} | Auto: {4}" -f $snapshot.Percent, $snapshot.Manual, $snapshot.Nominal, $snapshot.Tol, $snapshot.Auto
+        $fullSummary = Get-TrainingReadinessDebugSummary $snapshot
+        
+        try{
+            if($script:TrainingToolTip -eq $null){
+                $script:TrainingToolTip = New-Object Windows.Forms.ToolTip
+            }
+            $script:TrainingToolTip.SetToolTip($txtOcrDebug, $fullSummary)
+            $script:TrainingToolTip.SetToolTip($grpOcrDebug, $fullSummary)
+        }catch{}
 
-        if([string]::IsNullOrWhiteSpace($existingText)){
-            $txtOcrDebug.Text = $summary
-        } else {
-            $txtOcrDebug.Text = $summary + [Environment]::NewLine + [Environment]::NewLine + $existingText
+        $existingText = [string]$txtOcrDebug.Text
+        if([string]::IsNullOrWhiteSpace($existingText) -or $existingText -match '^Training: \d+%|^Training Ready:'){
+            $txtOcrDebug.Text = $singleLineSummary
         }
     }
 }

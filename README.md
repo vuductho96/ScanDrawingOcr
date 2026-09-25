@@ -16,6 +16,7 @@ DimensionOCR is a Windows PDF drawing OCR tool for extracting mechanical dimensi
 
 - Opens PDF drawings for dimension review.
 - Detects dimension callouts from embedded PDF text layers.
+- Detects text zones automatically using trained YOLO11 ONNX model (`CustomTrainonx\AutoScan_YOLO_Trained_Model\best.onnx`).
 - Supports manual crop correction for difficult callouts.
 - Supports region-based Auto Map PDF ordering.
 - Shows editable text-zone bounding boxes for cleanup before mapping.
@@ -45,6 +46,16 @@ Auto Map PDF uses the PDF text layer and lets the operator choose mapping order 
 3. Use `Text Zones`, `Clear Gray Box`, and `Delete BBox` to clean bad boxes before finishing.
 4. Check duplicate warnings inside the selected regions.
 5. Click `Finish` to create MarkSteps in region order.
+
+## Auto YOLO Text Zone Detection & Auto Fill Table
+
+Click **Auto YOLO** (or press `Ctrl + Y`):
+- Runs the trained YOLO11 ONNX model to detect mechanical text & dimension zones.
+- Extracts dimensions and tolerances from the detected zones.
+- Spatially sorts candidates in standard CAD drawing reading order (top-to-bottom bands, left-to-right).
+- Generates numbered MarkSteps and places balloon badges beside each dimension.
+- Automatically populates the right-hand table (`Step`, `Nominal`, `Tol -`, `Tol +`) without needing an extra click.
+- Press `T` to toggle the visibility of text zone bounding boxes if needed.
 
 ## Bulk Google AI Recovery
 
@@ -81,6 +92,7 @@ STEP=3 Nominal=2,002 Tol+=0,000 Tol-=0,000
 | `E` | Keep hidden duplicate candidate as new |
 | `Ctrl + Shift + R` | Rotate page 90 degrees |
 | `Ctrl + B` | Toggle side panel |
+| `Ctrl + Y` | Auto YOLO Detect & Auto-Fill Table |
 | `Ctrl + S` | Google AI recovery for selected step |
 | `Ctrl + P` | Print current marked drawing |
 | `Ctrl + Z` | Undo deleted step |

@@ -1,5 +1,6 @@
 tools/*
 !tools/autoscan_bridge.py
+!tools/yolo_textzone_detector.py
 SecureBuild/
 TrainingDataset/
 PreparedDataset/

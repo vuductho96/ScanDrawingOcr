@@ -1,4 +1,4 @@
-$form = New-Object Windows.Forms.Form
+﻿$form = New-Object Windows.Forms.Form
 $form.Text = "RapidOCR PDF Scan Tool"
 $form.Width = 1800
 $form.Height = 900
@@ -210,24 +210,101 @@ $lblPreviewTitle.Location = New-Object Drawing.Point(1240,170)
 $lblPreviewTitle.Visible = $false
 $tabDraw.Controls.Add($lblPreviewTitle)
 $grpOcrDebug = New-Object Windows.Forms.GroupBox
-$grpOcrDebug.Text = "Status"
+$grpOcrDebug.Text = "OCR Debug"
 $grpOcrDebug.Font = $groupFont
 $grpOcrDebug.Location = New-Object Drawing.Point(1240,320)
-$grpOcrDebug.Size = New-Object Drawing.Size(400,44)
+$grpOcrDebug.Size = New-Object Drawing.Size(400,120)
 $tabDraw.Controls.Add($grpOcrDebug)
 
 $txtOcrDebug = New-Object Windows.Forms.TextBox
-$txtOcrDebug.Font = New-Object System.Drawing.Font("Consolas",9)
-$txtOcrDebug.Location = New-Object Drawing.Point(8,18)
-$txtOcrDebug.Size = New-Object Drawing.Size(384,20)
-$txtOcrDebug.Multiline = $false
+$txtOcrDebug.Font = New-Object System.Drawing.Font("Consolas",8)
+$txtOcrDebug.Location = New-Object Drawing.Point(10,22)
+$txtOcrDebug.Size = New-Object Drawing.Size(380,88)
+$txtOcrDebug.Multiline = $true
 $txtOcrDebug.ReadOnly = $true
+$txtOcrDebug.ScrollBars = "Vertical"
 $txtOcrDebug.WordWrap = $false
 $grpOcrDebug.Controls.Add($txtOcrDebug)
 
-# Dead AI Vision group removed
-$grpAiVision = $null
-$txtAiResult = $null
+$grpAiVision = New-Object Windows.Forms.GroupBox
+$grpAiVision.Text = "AI Vision"
+$grpAiVision.Font = $groupFont
+$grpAiVision.Location = New-Object Drawing.Point(1240,446)
+$grpAiVision.Size = New-Object Drawing.Size(400,192)
+$grpAiVision.Visible = $false
+$tabDraw.Controls.Add($grpAiVision)
+
+$lblAiModel = New-Object Windows.Forms.Label
+$lblAiModel.Text = "Model"
+$lblAiModel.Font = $uiFont
+$lblAiModel.AutoSize = $true
+$lblAiModel.Location = New-Object Drawing.Point(10,26)
+$grpAiVision.Controls.Add($lblAiModel)
+
+$cmbAiModel = New-Object Windows.Forms.ComboBox
+$cmbAiModel.Font = $uiFont
+$cmbAiModel.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
+$cmbAiModel.Location = New-Object Drawing.Point(62,22)
+$cmbAiModel.Size = New-Object Drawing.Size(192,28)
+[void]$cmbAiModel.Items.AddRange(@(
+    "ollama:qwen2.5vl:3b",
+    "ollama:minicpm-v"
+))
+$cmbAiModel.SelectedIndex = 0
+$grpAiVision.Controls.Add($cmbAiModel)
+
+$btnAiUseEnv = New-Object Windows.Forms.Button
+$btnAiUseEnv.Text = "Rescan AI"
+$btnAiUseEnv.Font = $uiFont
+$btnAiUseEnv.Location = New-Object Drawing.Point(262,21)
+$btnAiUseEnv.Size = New-Object Drawing.Size(124,28)
+$grpAiVision.Controls.Add($btnAiUseEnv)
+
+$chkAiTestOnly = New-Object Windows.Forms.CheckBox
+$chkAiTestOnly.Text = "AI test only on"
+$chkAiTestOnly.Font = $uiFont
+$chkAiTestOnly.AutoSize = $true
+$chkAiTestOnly.Location = New-Object Drawing.Point(10,58)
+$grpAiVision.Controls.Add($chkAiTestOnly)
+
+$chkAiExperiment = New-Object Windows.Forms.CheckBox
+$chkAiExperiment.Text = "Experiment mode"
+$chkAiExperiment.Font = $uiFont
+$chkAiExperiment.AutoSize = $true
+$chkAiExperiment.Location = New-Object Drawing.Point(150,58)
+$grpAiVision.Controls.Add($chkAiExperiment)
+
+$btnAiTest = New-Object Windows.Forms.Button
+$btnAiTest.Text = "Test AI Only"
+$btnAiTest.Font = $uiFont
+$btnAiTest.Location = New-Object Drawing.Point(10,85)
+$btnAiTest.Size = New-Object Drawing.Size(118,30)
+$grpAiVision.Controls.Add($btnAiTest)
+
+$btnAiAccept = New-Object Windows.Forms.Button
+$btnAiAccept.Text = "Accept AI"
+$btnAiAccept.Font = $uiFont
+$btnAiAccept.Location = New-Object Drawing.Point(136,85)
+$btnAiAccept.Size = New-Object Drawing.Size(118,30)
+$btnAiAccept.Enabled = $false
+$grpAiVision.Controls.Add($btnAiAccept)
+
+$btnAiClear = New-Object Windows.Forms.Button
+$btnAiClear.Text = "Clear"
+$btnAiClear.Font = $uiFont
+$btnAiClear.Location = New-Object Drawing.Point(262,85)
+$btnAiClear.Size = New-Object Drawing.Size(124,30)
+$grpAiVision.Controls.Add($btnAiClear)
+
+$txtAiResult = New-Object Windows.Forms.TextBox
+$txtAiResult.Font = New-Object System.Drawing.Font("Consolas",8)
+$txtAiResult.Location = New-Object Drawing.Point(10,120)
+$txtAiResult.Size = New-Object Drawing.Size(376,62)
+$txtAiResult.Multiline = $true
+$txtAiResult.ReadOnly = $true
+$txtAiResult.ScrollBars = "Vertical"
+$txtAiResult.WordWrap = $true
+$grpAiVision.Controls.Add($txtAiResult)
 
 # =========================
 # TOLERANCE MODE
@@ -237,45 +314,45 @@ $grpTolMode = New-Object Windows.Forms.GroupBox
 $grpTolMode.Text = "Tolerance Mode"
 $grpTolMode.Font = $groupFont
 $grpTolMode.Location = New-Object Drawing.Point(1250,250)
-$grpTolMode.Size = New-Object Drawing.Size(400,96)
+$grpTolMode.Size = New-Object Drawing.Size(400,135)
 
 $tabDraw.Controls.Add($grpTolMode)
 
 $rbPM = New-Object Windows.Forms.RadioButton
 $rbPM.Text = "±"
-$rbPM.Font = $uiBoldFont
-$rbPM.Location = New-Object Drawing.Point(16,24)
+$rbPM.Font = $uiFont
+$rbPM.Location = "12,28"
 $rbPM.Checked = $true
-$rbPM.Size = New-Object Drawing.Size(60,28)
+$rbPM.Width = 40
 $grpTolMode.Controls.Add($rbPM)
 
 $rbPlus = New-Object Windows.Forms.RadioButton
 $rbPlus.Text = "+"
-$rbPlus.Font = $uiBoldFont
-$rbPlus.Location = New-Object Drawing.Point(16,56)
-$rbPlus.Size = New-Object Drawing.Size(60,28)
+$rbPlus.Font = $uiFont
+$rbPlus.Location = "12,60"
+$rbPlus.Width = 40
 $grpTolMode.Controls.Add($rbPlus)
+
+$rbMinus = New-Object Windows.Forms.RadioButton
+$rbMinus.Text = "-"
+$rbMinus.Font = $uiFont
+$rbMinus.Location = "232,28"
+$rbMinus.Width = 50
+$grpTolMode.Controls.Add($rbMinus)
 
 $rbPP = New-Object Windows.Forms.RadioButton
 $rbPP.Text = "++"
-$rbPP.Font = $uiBoldFont
-$rbPP.Location = New-Object Drawing.Point(110,24)
-$rbPP.Size = New-Object Drawing.Size(70,28)
+$rbPP.Font = $uiFont
+$rbPP.Location = "122,28"
+$rbPP.Width = 60
 $grpTolMode.Controls.Add($rbPP)
 
 $rbMM = New-Object Windows.Forms.RadioButton
 $rbMM.Text = "--"
-$rbMM.Font = $uiBoldFont
-$rbMM.Location = New-Object Drawing.Point(110,56)
-$rbMM.Size = New-Object Drawing.Size(70,28)
+$rbMM.Font = $uiFont
+$rbMM.Location = "122,60"
+$rbMM.Width = 60
 $grpTolMode.Controls.Add($rbMM)
-
-$rbMinus = New-Object Windows.Forms.RadioButton
-$rbMinus.Text = "-"
-$rbMinus.Font = $uiBoldFont
-$rbMinus.Location = New-Object Drawing.Point(210,24)
-$rbMinus.Size = New-Object Drawing.Size(60,28)
-$grpTolMode.Controls.Add($rbMinus)
 # =========================
 # BUTTONS
 # =========================
@@ -367,11 +444,13 @@ $btnLoad.Width = 150
 $tabDraw.Controls.Add($btnLoad)
 
 $btnTranslateLens = New-Object Windows.Forms.Button
+$btnTranslateLens.Text = "Translator"
+$btnTranslateLens.Font = $uiFont
 $btnTranslateLens.Visible = $false
 $tabDraw.Controls.Add($btnTranslateLens)
 
 $btnAdvance = New-Object Windows.Forms.Button
-$btnAdvance.Text = "Advance"
+$btnAdvance.Text = "Option"
 $btnAdvance.Font = $uiFont
 $tabDraw.Controls.Add($btnAdvance)
 
@@ -385,42 +464,45 @@ $btnToggleSidePanel.TabStop = $false
 $tabDraw.Controls.Add($btnToggleSidePanel)
 
 $btnYellowPen = New-Object Windows.Forms.Button
-$btnYellowPen.Visible = $false
+$btnYellowPen.Text = "Yellow Pen Off"
+$btnYellowPen.Font = $uiFont
 $tabDraw.Controls.Add($btnYellowPen)
 
 $btnEraser = New-Object Windows.Forms.Button
-$btnEraser.Visible = $false
+$btnEraser.Text = "Eraser Off"
+$btnEraser.Font = $uiFont
 $tabDraw.Controls.Add($btnEraser)
 
 $advanceMenu = New-Object Windows.Forms.ContextMenuStrip
 
-$miAdvanceTemplate = New-Object Windows.Forms.ToolStripMenuItem("Choose Template")
-$miAdvanceTranslate = New-Object Windows.Forms.ToolStripMenuItem("Translate")
-$miAdvanceEditSteps = New-Object Windows.Forms.ToolStripMenuItem("Edit Steps")
-$miAdvanceSearchSessions = New-Object Windows.Forms.ToolStripMenuItem("Search Sessions")
-$miAdvanceYellowPen = New-Object Windows.Forms.ToolStripMenuItem("Yellow Pen Off")
-$miAdvanceEraser = New-Object Windows.Forms.ToolStripMenuItem("Eraser Off")
-$miAdvanceSortSteps = New-Object Windows.Forms.ToolStripMenuItem("Sort Steps")
-$miAdvanceCopyView = New-Object Windows.Forms.ToolStripMenuItem("Copy View Off")
-$miAdvanceAutoMapPdf = New-Object Windows.Forms.ToolStripMenuItem("Auto Map PDF")
-$miAdvancePdfTextZones = New-Object Windows.Forms.ToolStripMenuItem("Text Zones Off")
+# ===============================
+# SUBMENU 1: VIEW (HIỂN THỊ TRỰC QUAN TRÊN BẢN VẼ)
+# ===============================
+$miOptionViewMenu = New-Object Windows.Forms.ToolStripMenuItem("View")
+
+$miOptionBalloon = New-Object Windows.Forms.ToolStripMenuItem("Balloon")
+$miOptionBalloon.ShortcutKeyDisplayString = "B"
+$miOptionBalloon.CheckOnClick = $true
+$miOptionBalloon.Checked = $true
+
+$miOptionLeaderLine = New-Object Windows.Forms.ToolStripMenuItem("Leader Line")
+$miOptionLeaderLine.ShortcutKeyDisplayString = "L"
+$miOptionLeaderLine.CheckOnClick = $true
+$miOptionLeaderLine.Checked = $false
+
+$miOptionTextZone = New-Object Windows.Forms.ToolStripMenuItem("Text Zone")
+$miOptionTextZone.ShortcutKeyDisplayString = "T"
+$miOptionTextZone.CheckOnClick = $true
+$miOptionTextZone.Checked = $false
+
+$miAdvancePdfTextZones = $miOptionTextZone
+$miAdvanceCopyView = New-Object Windows.Forms.ToolStripMenuItem("Copy View (C)")
+$miAdvanceCopyView.ShortcutKeyDisplayString = "C"
+
 $miAdvanceToggleSidePanel = New-Object Windows.Forms.ToolStripMenuItem("Hide Side Panel")
 $miAdvanceToggleSidePanel.ShortcutKeyDisplayString = "Ctrl+B"
-$miAdvanceClearGray = New-Object Windows.Forms.ToolStripMenuItem("Clear Gray Boxes")
-$miAdvanceLeaderLine = New-Object Windows.Forms.ToolStripMenuItem("Leader Line On")
-$miAdvanceLeaderLine.ShortcutKeyDisplayString = "L"
-$miAdvanceAiModel = New-Object Windows.Forms.ToolStripMenuItem("AI Model")
-$miAdvanceAiModelQwen = New-Object Windows.Forms.ToolStripMenuItem("Qwen2.5VL 3B")
-$miAdvanceAiModelMiniCpm = New-Object Windows.Forms.ToolStripMenuItem("MiniCPM-V")
-[void]$miAdvanceAiModel.DropDownItems.Add($miAdvanceAiModelQwen)
-[void]$miAdvanceAiModel.DropDownItems.Add($miAdvanceAiModelMiniCpm)
 
-$miAdvanceEditMenu = New-Object Windows.Forms.ToolStripMenuItem("Edit")
-$miAdvanceAutoShrink = New-Object Windows.Forms.ToolStripMenuItem("Auto Shrink Balloons Off")
-$miAdvanceViewMenu = New-Object Windows.Forms.ToolStripMenuItem("View")
-$miAdvanceOcrMenu = New-Object Windows.Forms.ToolStripMenuItem("OCR")
-$miAdvanceDevMenu = New-Object Windows.Forms.ToolStripMenuItem("Developer")
-$miAdvanceDangerMenu = New-Object Windows.Forms.ToolStripMenuItem("Danger")
+$miAdvanceClearGray = New-Object Windows.Forms.ToolStripMenuItem("Clear Gray Boxes")
 
 $miAdvanceBalloonColor = New-Object Windows.Forms.ToolStripMenuItem("Balloon Color")
 $miAdvanceBalloonWhite = New-Object Windows.Forms.ToolStripMenuItem("White")
@@ -434,49 +516,81 @@ $miAdvanceBalloonOrange = New-Object Windows.Forms.ToolStripMenuItem("Orange")
 [void]$miAdvanceBalloonColor.DropDownItems.Add($miAdvanceBalloonGreen)
 [void]$miAdvanceBalloonColor.DropDownItems.Add($miAdvanceBalloonOrange)
 
-$miAdvanceTrainingExport = New-Object Windows.Forms.ToolStripMenuItem("Training Save/Export On")
+[void]$miOptionViewMenu.DropDownItems.Add($miOptionBalloon)
+[void]$miOptionViewMenu.DropDownItems.Add($miOptionLeaderLine)
+[void]$miOptionViewMenu.DropDownItems.Add($miOptionTextZone)
+[void]$miOptionViewMenu.DropDownItems.Add((New-Object Windows.Forms.ToolStripSeparator))
+[void]$miOptionViewMenu.DropDownItems.Add($miAdvanceCopyView)
+[void]$miOptionViewMenu.DropDownItems.Add($miAdvanceToggleSidePanel)
+[void]$miOptionViewMenu.DropDownItems.Add($miAdvanceBalloonColor)
+[void]$miOptionViewMenu.DropDownItems.Add($miAdvanceClearGray)
 
-[void]$miAdvanceEditMenu.DropDownItems.Add($miAdvanceTemplate)
+# ===============================
+# SUBMENU 2: SETTING (CÀI ĐẶT THÔNG SỐ)
+# ===============================
+$miOptionSettingMenu = New-Object Windows.Forms.ToolStripMenuItem("Setting")
+
+$miOptionDefaultTol = New-Object Windows.Forms.ToolStripMenuItem("Default Tol (±)")
+$miOptionDefaultTol.CheckOnClick = $true
+$miOptionDefaultTol.Checked = $true
+
+$miAdvanceTemplate = New-Object Windows.Forms.ToolStripMenuItem("Choose Template")
+
+$miAdvanceAiModel = New-Object Windows.Forms.ToolStripMenuItem("AI Model")
+$miAdvanceAiModelQwen = New-Object Windows.Forms.ToolStripMenuItem("Qwen2.5VL 3B")
+$miAdvanceAiModelMiniCpm = New-Object Windows.Forms.ToolStripMenuItem("MiniCPM-V")
+[void]$miAdvanceAiModel.DropDownItems.Add($miAdvanceAiModelQwen)
+[void]$miAdvanceAiModel.DropDownItems.Add($miAdvanceAiModelMiniCpm)
+
+[void]$miOptionSettingMenu.DropDownItems.Add($miOptionDefaultTol)
+[void]$miOptionSettingMenu.DropDownItems.Add($miAdvanceTemplate)
+[void]$miOptionSettingMenu.DropDownItems.Add($miAdvanceAiModel)
+
+# ===============================
+# SUBMENU 3: TRAIN MODE (CHẾ ĐỘ THU THẬP DỮ LIỆU HUẤN LUYỆN)
+# ===============================
+$miOptionTrainMenu = New-Object Windows.Forms.ToolStripMenuItem("Train Mode")
+
+$miOptionTrainModeToggle = New-Object Windows.Forms.ToolStripMenuItem("Train Mode")
+$miOptionTrainModeToggle.CheckOnClick = $true
+$miOptionTrainModeToggle.Checked = $false
+
+$miOptionExportYoloSample = New-Object Windows.Forms.ToolStripMenuItem("Export YOLO Dataset")
+$miOptionOpenTrainFolder = New-Object Windows.Forms.ToolStripMenuItem("Open Dataset Folder")
+
+[void]$miOptionTrainMenu.DropDownItems.Add($miOptionTrainModeToggle)
+[void]$miOptionTrainMenu.DropDownItems.Add($miOptionExportYoloSample)
+[void]$miOptionTrainMenu.DropDownItems.Add($miOptionOpenTrainFolder)
+
+# ===============================
+# SUBMENU 4: EDIT (CHỈNH SỬA BƯỚC)
+# ===============================
+$miAdvanceEditMenu = New-Object Windows.Forms.ToolStripMenuItem("Edit")
+$miAdvanceEditSteps = New-Object Windows.Forms.ToolStripMenuItem("Edit Steps")
+$miAdvanceSearchSessions = New-Object Windows.Forms.ToolStripMenuItem("Search Sessions")
+$miAdvanceSortSteps = New-Object Windows.Forms.ToolStripMenuItem("Sort Steps")
 [void]$miAdvanceEditMenu.DropDownItems.Add($miAdvanceEditSteps)
 [void]$miAdvanceEditMenu.DropDownItems.Add($miAdvanceSearchSessions)
 [void]$miAdvanceEditMenu.DropDownItems.Add($miAdvanceSortSteps)
 
-[void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceCopyView)
-[void]$miAdvanceViewMenu.DropDownItems.Add($miAdvancePdfTextZones)
-[void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceToggleSidePanel)
-[void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceAutoMapPdf)
-[void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceClearGray)
-[void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceLeaderLine)
-[void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceAutoShrink)
-[void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceBalloonColor)
+# Aliases and compatibility references
+$miAdvanceTranslate = New-Object Windows.Forms.ToolStripMenuItem("Translate")
+$miAdvanceYellowPen = New-Object Windows.Forms.ToolStripMenuItem("Yellow Pen Off")
+$miAdvanceEraser = New-Object Windows.Forms.ToolStripMenuItem("Eraser Off")
+$miAdvanceAutoMapPdf = New-Object Windows.Forms.ToolStripMenuItem("Auto Map PDF")
+$miAdvanceAutoYolo = New-Object Windows.Forms.ToolStripMenuItem("Scan")
+$miAdvanceAutoYolo.ShortcutKeyDisplayString = "Ctrl+Y"
+$miAdvanceTrainingExport = New-Object Windows.Forms.ToolStripMenuItem("Training Save/Export On")
+$miAdvanceViewMenu = $miOptionViewMenu
+$miAdvanceOcrMenu = New-Object Windows.Forms.ToolStripMenuItem("OCR")
+$miAdvanceDevMenu = New-Object Windows.Forms.ToolStripMenuItem("Developer")
+$miAdvanceDangerMenu = New-Object Windows.Forms.ToolStripMenuItem("Danger")
 
-[void]$miAdvanceDevMenu.DropDownItems.Add($miAdvanceYellowPen)
-[void]$miAdvanceDevMenu.DropDownItems.Add($miAdvanceEraser)
-[void]$miAdvanceDevMenu.DropDownItems.Add($miAdvanceTrainingExport)
-
+# Add to main Option menu
+[void]$advanceMenu.Items.Add($miOptionViewMenu)
+[void]$advanceMenu.Items.Add($miOptionSettingMenu)
+[void]$advanceMenu.Items.Add($miOptionTrainMenu)
 [void]$advanceMenu.Items.Add($miAdvanceEditMenu)
-$miAdvanceAutoScan = New-Object Windows.Forms.ToolStripMenuItem("⚡ Auto-Scan (YOLO + PP-OCR)")
-[void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceAutoScan)
-
-$miOcrModelSep = New-Object Windows.Forms.ToolStripSeparator
-[void]$miAdvanceOcrMenu.DropDownItems.Add($miOcrModelSep)
-
-$miOcrModelMenu = New-Object Windows.Forms.ToolStripMenuItem("OCR Model")
-$miOcrModelV6 = New-Object Windows.Forms.ToolStripMenuItem("PP-OCRv6 CAD (Fine-Tuned Mới)")
-$miOcrModelV6.Checked = $true
-$miOcrModelV4 = New-Object Windows.Forms.ToolStripMenuItem("PP-OCRv4 CAD (Cũ)")
-$miOcrModelHybrid = New-Object Windows.Forms.ToolStripMenuItem("Hybrid (V6 Nhãn + V4 Dung Sai)")
-$miOcrModelBuiltin = New-Object Windows.Forms.ToolStripMenuItem("RapidOCR (Hiện Hành App PS1)")
-$miOcrModelGoogleAi = New-Object Windows.Forms.ToolStripMenuItem("Google AI Web (Playwright Bot)")
-[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelV6)
-[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelV4)
-[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelHybrid)
-[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelBuiltin)
-[void]$miOcrModelMenu.DropDownItems.Add($miOcrModelGoogleAi)
-[void]$miAdvanceOcrMenu.DropDownItems.Add($miOcrModelMenu)
-[void]$advanceMenu.Items.Add($miAdvanceViewMenu)
-[void]$advanceMenu.Items.Add($miAdvanceOcrMenu)
-[void]$advanceMenu.Items.Add($miAdvanceDevMenu)
 [void]$advanceMenu.Items.Add($miAdvanceDangerMenu)
 
 $btnEditStep = New-Object Windows.Forms.Button
@@ -498,6 +612,15 @@ $btnTemplate.Location = New-Object System.Drawing.Point(1250,20)
 
 
 # ==============================
+# BUTTON: AUTO YOLO
+# ===============================
+$btnAutoYolo = New-Object System.Windows.Forms.Button
+$btnAutoYolo.Text = "Scan"
+$btnAutoYolo.Font = $uiBoldFont
+$btnAutoYolo.BackColor = [System.Drawing.Color]::FromArgb(232, 245, 233)
+$tabDraw.Controls.Add($btnAutoYolo)
+
+# ==============================
 # BUTTON: EXPORT EXCEL
 # ===============================
 $btnExcel = New-Object System.Windows.Forms.Button
@@ -507,26 +630,6 @@ $btnExcel.Size = New-Object System.Drawing.Size(120,34)
 $btnExcel.Location = New-Object System.Drawing.Point(1250,80)
 
 $tabDraw.Controls.Add($btnExcel)
-$tabDraw.Controls.Add($btnCopyView)
-$tabDraw.Controls.Add($btnAutoMapPdf)
-$tabDraw.Controls.Add($btnPdfTextZones)
-$tabDraw.Controls.Add($btnClearGrayZones)
-$tabDraw.Controls.Add($btnAutoScan)
-
-# ==============================
-# BUTTON: AUTO-SCAN
-# ==============================
-$btnAutoScan = New-Object System.Windows.Forms.Button
-$btnAutoScan.Text = "⚡ Auto-Scan (YOLO + PP)"
-$btnAutoScan.Font = New-Object System.Drawing.Font("Segoe UI",11,[System.Drawing.FontStyle]::Bold)
-$btnAutoScan.BackColor = [System.Drawing.Color]::FromArgb(0,122,204)
-$btnAutoScan.ForeColor = [System.Drawing.Color]::White
-$btnAutoScan.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-$btnAutoScan.FlatAppearance.BorderSize = 0
-$btnAutoScan.Cursor = [System.Windows.Forms.Cursors]::Hand
-$btnAutoScan.Size = New-Object System.Drawing.Size(250,36)
-$btnAutoScan.Location = New-Object System.Drawing.Point(1250,124)
-$tabDraw.Controls.Add($btnAutoScan)
 
 $btnCopyView = New-Object System.Windows.Forms.Button
 $btnCopyView.Text = "Copy View Off"
@@ -552,17 +655,14 @@ $btnClearGrayZones.Font = $uiFont
 $btnClearGrayZones.Size = New-Object System.Drawing.Size(150,28)
 $btnClearGrayZones.Location = New-Object System.Drawing.Point(1250,178)
 
-$btnAutoScan = New-Object System.Windows.Forms.Button
-$btnAutoScan.Text = "YOLO Auto Scan"
-$btnAutoScan.Font = $uiFont
-$btnAutoScan.Size = New-Object System.Drawing.Size(150,28)
-$btnAutoScan.Location = New-Object System.Drawing.Point(1410,178)
-$btnAutoScan.BackColor = [System.Drawing.Color]::FromArgb(230,245,255)
-
 # =========================
 # Save MarkImage
 # =========================
 $btnSave = New-Object Windows.Forms.Button
+$btnSave.Text = "Export PDF"
+$btnSave.Font = $buttonFont
+$btnSave.Location = New-Object Drawing.Point(1250,320)
+$btnSave.Width = 150
 $btnSave.Visible = $false
 # =========================
 # OCR RESULT TABLE
@@ -732,7 +832,10 @@ $btnResultsView.Font = $uiFont
 $tabDraw.Controls.Add($btnResultsView)
 
 $txtCopiedUi = New-Object Windows.Forms.TextBox
+$txtCopiedUi.Font = $uiFont
+$txtCopiedUi.ReadOnly = $true
 $txtCopiedUi.Visible = $false
+$tabDraw.Controls.Add($txtCopiedUi)
 
 foreach($textInput in @($txtTol0,$txtTol1,$txtTol2,$txtTol3,$txtTableSearch)){
     $textInput.Add_Enter({

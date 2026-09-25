@@ -1,0 +1,4500 @@
+images/syn_001514.png	8.308±0.002
+images/syn_002659.png	Ø94.212 +0.006/+0.001
+images/syn_000916.png	30°±10'
+images/syn_002284.png	3.032 +0.01/0
+images/syn_000042.png	11.631 0/-0.002
+images/syn_003788.png	12 -0.01/-0.013
+images/syn_001239.png	90°46'57"
+images/syn_001273.png	56.003 0/-0.015
+images/syn_003857.png	4.026 +0.05/0
+images/syn_002433.png	Ø73.65±0.05
+images/syn_000074.png	59.688 +0.002/0
+images/syn_001459.png	C44.591 -0.005/-0.01
+images/syn_004537.png	35.310 -0.003/-0.008
+images/syn_003747.png	90°50'54"
+images/syn_004895.png	0.3142 +0.006/+0.001
+images/syn_003712.png	M1.998 0/-0.05
+images/syn_002129.png	60°±10'
+images/syn_002913.png	R56.051 +0.01/-0.002
+images/syn_001551.png	M73.65 0/-0.03
+images/syn_001701.png	43.539 +0.006/+0.001
+images/syn_001799.png	Ø31.824 -0.002/-0.005
+images/syn_003446.png	Ø0.25 0/-0.003
+images/syn_002308.png	43.212 +0.015/-0.03
+images/syn_003645.png	2.75 +0.01/0
+images/syn_000484.png	67.957±0.005
+images/syn_003318.png	73.293 +0.02/-0.03
+images/syn_004863.png	7.525 +0.015/-0.03
+images/syn_000482.png	Ø26.197 +0.003/0
+images/syn_004758.png	15.80 0/-0.003
+images/syn_001207.png	45°±0.5°
+images/syn_000837.png	12°58'
+images/syn_000267.png	Ø33.613 +0.005/0
+images/syn_002410.png	Ø11.89 +0.005/-0.005
+images/syn_004851.png	73.65 +0.002/0
+images/syn_000431.png	C0.1208 -0.003/-0.008
+images/syn_000978.png	Ø16
+images/syn_004304.png	Ø7.525 0/-0.002
+images/syn_003266.png	33.613±0.002
+images/syn_002869.png	Ø0.4807 +0.005/-0.002
+images/syn_001156.png	Ø5.04 +0.004/+0.001
+images/syn_002619.png	0.1695 0/-0.015
+images/syn_002205.png	45°±1°
+images/syn_001030.png	81.674 -0.003/-0.008
+images/syn_002316.png	45.833±0.025
+images/syn_000894.png	Ø57.63 -0.001/-0.004
+images/syn_002456.png	35.726±0.015
+images/syn_004167.png	25 0/-0.005
+images/syn_001292.png	17.014 +0.01/+0.005
+images/syn_002529.png	2.75 0/-0.003
+images/syn_001012.png	Ø73.65 +0.013/+0.01
+images/syn_004292.png	M7.525 +0.01/-0.03
+images/syn_002824.png	75±0.015
+images/syn_003965.png	24.524 +0.006/+0.001
+images/syn_003263.png	4.04 +0.02/-0.002
+images/syn_004116.png	Ø25.795 +0.003/0
+images/syn_002074.png	R2.162 0/-0.005
+images/syn_000861.png	Ø24 +0.01/-0.03
+images/syn_000037.png	Ø38.350 +0.003/0
+images/syn_001710.png	31.157 0/-0.01
+images/syn_001958.png	Ø87.291±0.1
+images/syn_001983.png	17.649 +0.002/0
+images/syn_003934.png	79.469 0/-0.05
+images/syn_001840.png	75 +0.01/-0.03
+images/syn_003085.png	12.50±0.005
+images/syn_004477.png	0.1050 0/-0.008
+images/syn_000144.png	R0.12MIN
+images/syn_000743.png	0.3763 -0.001/-0.003
+images/syn_000814.png	100
+images/syn_004810.png	2.75 0/-0.005
+images/syn_003868.png	5.04 +0.003/+0.001
+images/syn_003148.png	10
+images/syn_000724.png	14.941 0/-0.003
+images/syn_000709.png	30°
+images/syn_003167.png	R0.1899 -0.005/-0.007
+images/syn_004423.png	9.777±0.005
+images/syn_002674.png	3.142°
+images/syn_002775.png	0.0750 -0.003/-0.005
+images/syn_000284.png	12°12'10"
+images/syn_001772.png	120°
+images/syn_000066.png	56.881±0.05
+images/syn_001315.png	2.75 +0.008/+0.005
+images/syn_004171.png	57.63 +0.007/+0.005
+images/syn_000306.png	R4.04 +0.02/-0.02
+images/syn_004907.png	Ø12.155 0/-0.003
+images/syn_004341.png	60°34'
+images/syn_001103.png	5° 48' 17"
+images/syn_003225.png	1°11'50"
+images/syn_000008.png	Ø75 +0.015/0
+images/syn_000105.png	27.938 +0.05/0
+images/syn_000730.png	0.1108 +0.015/0
+images/syn_000534.png	20±0.05
+images/syn_002193.png	73.65 0/-0.02
+images/syn_002929.png	16 +0.008/+0.005
+images/syn_002258.png	Ø12.150 +0.012/+0.01
+images/syn_001152.png	R1.5 MAX
+images/syn_003543.png	58.598 -0.001/-0.003
+images/syn_003277.png	4.026 +0.007/+0.002
+images/syn_001856.png	0.4806 +0.015/0
+images/syn_003083.png	R3MIN
+images/syn_002609.png	Ø2.75 +0.015/-0.03
+images/syn_002251.png	21.999 0/-0.003
+images/syn_003004.png	12.50±0.02
+images/syn_002803.png	Ø12
+images/syn_000009.png	R81.436±0.005
+images/syn_003379.png	M48.156±0.02
+images/syn_001923.png	75±0.015
+images/syn_003824.png	90°±15'
+images/syn_002706.png	50.00 +0.02/-0.002
+images/syn_004639.png	0.0944 -0.001/-0.004
+images/syn_002821.png	R0.05MAX
+images/syn_004635.png	50.797 0/-0.002
+images/syn_000676.png	0.4253 0/-0.03
+images/syn_003164.png	Ø0.941 -0.005/-0.007
+images/syn_004314.png	Ø73.65±0.1
+images/syn_000957.png	12.150 +0.015/0
+images/syn_003206.png	Ø2.75 0/-0.02
+images/syn_002392.png	Ø11.89±0.05
+images/syn_000897.png	8±0.005
+images/syn_001526.png	57.63 +0.002/0
+images/syn_003010.png	15°43'
+images/syn_003258.png	57.971 -0.001/-0.003
+images/syn_001564.png	12.160
+images/syn_000093.png	2.160 0/-0.01
+images/syn_004424.png	7.525 0/-0.02
+images/syn_000168.png	57.340±0.025
+images/syn_003900.png	62.305 +0.03/0
+images/syn_001853.png	7.525 -0.001/-0.004
+images/syn_004367.png	C0.1
+images/syn_002014.png	0.5°
+images/syn_001616.png	5 -0.01/-0.012
+images/syn_003171.png	45°15'
+images/syn_002516.png	C1.0
+images/syn_000876.png	73.65 +0.015/-0.03
+images/syn_002997.png	60° 10' 38"
+images/syn_003858.png	60°±10'
+images/syn_003911.png	0°38'
+images/syn_001066.png	Ø70.587 0/-0.015
+images/syn_003752.png	R4.04 +0.003/0
+images/syn_000923.png	Ø7.525 +0.002/0
+images/syn_001912.png	90° 52'
+images/syn_003789.png	0.2922 +0.02/-0.005
+images/syn_001783.png	Ø16.350 0/-0.008
+images/syn_001931.png	C73.65 +0.015/0
+images/syn_003493.png	30°±5'
+images/syn_003724.png	1.998 +0.005/0
+images/syn_000052.png	Ø32.506 +0.05/-0.002
+images/syn_001284.png	C0.941 +0.002/0
+images/syn_000964.png	15°±5'
+images/syn_004135.png	Ø0.652 +0.005/0
+images/syn_001777.png	5°1'21"
+images/syn_001062.png	Ø44.963 -0.003/-0.008
+images/syn_003337.png	Ø24.50 +0.012/+0.01
+images/syn_000758.png	R0.12 MIN
+images/syn_004652.png	62.599±0.025
+images/syn_000583.png	C0.05
+images/syn_001370.png	61.090 +0.002/0
+images/syn_001372.png	Ø24±0.025
+images/syn_002373.png	R32 +0.005/+0.002
+images/syn_000519.png	32.432 +0.005/0
+images/syn_003354.png	75 +0.01/-0.01
+images/syn_003065.png	R0.25 MIN
+images/syn_000163.png	3.032 +0.013/+0.01
+images/syn_002897.png	Ø12.123±0.015
+images/syn_003089.png	C0.25
+images/syn_001649.png	12°34'53"
+images/syn_002816.png	12.50 0/-0.005
+images/syn_004966.png	1.309
+images/syn_001780.png	15°51'
+images/syn_003526.png	30±0.1
+images/syn_004250.png	Ø5.04 +0.004/+0.001
+images/syn_004938.png	R0.1054±0.025
+images/syn_001809.png	Ø11.89 -0.01/-0.015
+images/syn_003270.png	12.155
+images/syn_000620.png	78.479
+images/syn_004691.png	0.0484 +0.03/0
+images/syn_004303.png	Ø0.2620 0/-0.002
+images/syn_003938.png	R25.350 0/-0.015
+images/syn_000454.png	32±0.1
+images/syn_002421.png	Ø4.026 0/-0.015
+images/syn_003696.png	8.720 -0.003/-0.005
+images/syn_001644.png	90.5°
+images/syn_002452.png	Ø12.155±0.1
+images/syn_001097.png	12.50 -0.003/-0.005
+images/syn_002635.png	11.89
+images/syn_002500.png	R12.160 -0.002/-0.004
+images/syn_001434.png	21.243±0.1
+images/syn_003284.png	Ø73.65 +0.02/-0.005
+images/syn_001340.png	Ø16 0/-0.003
+images/syn_004466.png	0.25 +0.05/0
+images/syn_000799.png	60°±0.5°
+images/syn_000776.png	10.50 +0.02/0
+images/syn_004253.png	C1.5
+images/syn_002664.png	Ø0.941 -0.002/-0.005
+images/syn_002008.png	4.033
+images/syn_003078.png	12°18'
+images/syn_002564.png	0.5°
+images/syn_004236.png	R86.366 -0.005/-0.008
+images/syn_004010.png	56.140 -0.005/-0.007
+images/syn_004944.png	Ø16
+images/syn_004181.png	89°42'58"
+images/syn_001032.png	35.474 +0.01/0
+images/syn_001050.png	73.65 +0.003/0
+images/syn_004485.png	Ø6
+images/syn_002859.png	Ø50.324 -0.003/-0.008
+images/syn_002098.png	5.748 +0.02/0
+images/syn_001653.png	2.094°
+images/syn_004723.png	Ø2.160 0/-0.03
+images/syn_002025.png	25 +0.05/-0.03
+images/syn_001248.png	45°±1°
+images/syn_000393.png	C0.2
+images/syn_002191.png	C0.290 +0.002/0
+images/syn_004920.png	Ø0.2742 0/-0.002
+images/syn_002214.png	R0.5 MAX
+images/syn_004230.png	Ø15.423 0/-0.01
+images/syn_004821.png	Ø0.4415 +0.01/-0.005
+images/syn_002769.png	8.308 +0.01/-0.01
+images/syn_003847.png	100 -0.01/-0.012
+images/syn_000109.png	15°
+images/syn_003813.png	Ø7.525 -0.002/-0.007
+images/syn_004718.png	56.655 +0.01/-0.03
+images/syn_000603.png	15°15'
+images/syn_003580.png	C16.790 0/-0.003
+images/syn_001276.png	30.247 +0.02/-0.01
+images/syn_004370.png	R0.4375±0.01
+images/syn_004388.png	87.498 +0.015/0
+images/syn_003031.png	15.80 +0.02/-0.01
+images/syn_004642.png	0.2232 +0.01/0
+images/syn_002020.png	45.5°
+images/syn_000602.png	57.63 +0.003/0
+images/syn_001826.png	90°±30'
+images/syn_004767.png	14.941 +0.015/+0.01
+images/syn_004208.png	30°2'38"
+images/syn_000470.png	25°16'45"
+images/syn_004023.png	Ø0.25±0.015
+images/syn_001708.png	0.4236 +0.02/-0.01
+images/syn_003301.png	R0.03MAX
+images/syn_003647.png	0.3405±0.1
+images/syn_003811.png	R0.1 MIN
+images/syn_001552.png	Ø0.3096 0/-0.003
+images/syn_003892.png	2°20'48"
+images/syn_001676.png	R40 -0.01/-0.015
+images/syn_003194.png	90°7'45"
+images/syn_002581.png	12.155
+images/syn_000265.png	16.350 0/-0.005
+images/syn_002651.png	12.160 0/-0.003
+images/syn_001905.png	90.5°
+images/syn_000643.png	Ø78.885±0.01
+images/syn_000207.png	0°22'
+images/syn_000446.png	56.003 0/-0.002
+images/syn_000700.png	12.50±0.015
+images/syn_002971.png	C0.05
+images/syn_004315.png	15°18'
+images/syn_000044.png	32±0.1
+images/syn_001553.png	Ø2.160 +0.02/0
+images/syn_000198.png	Ø2.75 -0.003/-0.006
+images/syn_002655.png	C0.25
+images/syn_003477.png	M78.085 +0.015/-0.01
+images/syn_001428.png	5 +0.005/0
+images/syn_001689.png	R0.25MIN
+images/syn_003729.png	4.026±0.015
+images/syn_000151.png	Ø15.434 0/-0.015
+images/syn_002085.png	Ø75.192 -0.001/-0.003
+images/syn_004036.png	90°±0.5°
+images/syn_001613.png	20±0.005
+images/syn_003423.png	11.89 -0.01/-0.013
+images/syn_002925.png	C0.1
+images/syn_000515.png	30°11'47"
+images/syn_000036.png	2.75 +0.01/0
+images/syn_003052.png	6.919
+images/syn_001122.png	75°58'32"
+images/syn_000081.png	25.259±0.02
+images/syn_004056.png	Ø20 +0.002/0
+images/syn_001215.png	0.941 +0.013/+0.01
+images/syn_001745.png	41.210 +0.02/-0.002
+images/syn_000969.png	12.50 0/-0.015
+images/syn_004047.png	50.00 -0.001/-0.003
+images/syn_004887.png	69.876 +0.02/-0.002
+images/syn_001643.png	C0.290±0.002
+images/syn_000429.png	77.809 -0.002/-0.004
+images/syn_003424.png	67.535 0/-0.002
+images/syn_004061.png	35.726 -0.003/-0.008
+images/syn_002233.png	75.074
+images/syn_003444.png	12.155 -0.005/-0.008
+images/syn_000233.png	8.308 +0.01/0
+images/syn_004894.png	Ø2.160 +0.03/0
+images/syn_000775.png	1.998 +0.02/-0.002
+images/syn_004798.png	Ø25.4
+images/syn_002350.png	0.5°
+images/syn_000353.png	C46.633 +0.02/-0.02
+images/syn_000685.png	45°40'
+images/syn_001116.png	1.571°
+images/syn_000831.png	41.274 0/-0.008
+images/syn_000684.png	2.75 +0.02/0
+images/syn_001768.png	12.50 0/-0.005
+images/syn_002555.png	Ø30.812 +0.005/0
+images/syn_002598.png	2° 43' 58"
+images/syn_001145.png	30 0/-0.01
+images/syn_003595.png	90°±5'
+images/syn_003634.png	40
+images/syn_003651.png	C9.733 +0.01/0
+images/syn_001129.png	Ø4.026 +0.05/0
+images/syn_003365.png	68.986 +0.05/0
+images/syn_002593.png	R0.03 MIN
+images/syn_002839.png	32 +0.05/0
+images/syn_004506.png	30° 25' 3"
+images/syn_000457.png	3.142°
+images/syn_002691.png	Ø2.014 +0.002/0
+images/syn_003633.png	15°11'4"
+images/syn_002119.png	88.091 0/-0.03
+images/syn_000380.png	R0.25±0.1
+images/syn_000190.png	45°8'56"
+images/syn_003797.png	75±0.02
+images/syn_003338.png	30°19'31"
+images/syn_000658.png	8.308 +0.005/0
+images/syn_002331.png	Ø68.287±0.005
+images/syn_000854.png	0.3565 -0.002/-0.004
+images/syn_003211.png	25.273 0/-0.05
+images/syn_001279.png	2° 23' 3"
+images/syn_002887.png	12.150 +0.003/0
+images/syn_000408.png	Ø5.04±0.005
+images/syn_004069.png	R0.3016 0/-0.015
+images/syn_002863.png	R12.160 +0.01/-0.01
+images/syn_001973.png	Ø50.324 +0.015/-0.005
+images/syn_001150.png	15°24'18"
+images/syn_003038.png	Ø26.197 +0.005/-0.005
+images/syn_002013.png	31.205±0.05
+images/syn_001071.png	Ø6
+images/syn_003088.png	R73.65 -0.005/-0.01
+images/syn_004162.png	65.942 +0.01/-0.03
+images/syn_003866.png	30°
+images/syn_004404.png	12.150 0/-0.05
+images/syn_004999.png	37.645±0.002
+images/syn_003438.png	12° 55' 15"
+images/syn_003538.png	R1.0 MAX
+images/syn_000641.png	Ø92.488±0.015
+images/syn_002090.png	5°8'
+images/syn_004177.png	Ø16.350 0/-0.05
+images/syn_004864.png	11.89 +0.002/0
+images/syn_002063.png	7.525 -0.002/-0.005
+images/syn_004551.png	3.032 0/-0.03
+images/syn_003309.png	1.998±0.005
+images/syn_003430.png	45°±5'
+images/syn_002551.png	R76.461 0/-0.008
+images/syn_001612.png	Ø14.941 +0.003/0
+images/syn_001808.png	R1.0MIN
+images/syn_000586.png	M12.155 -0.003/-0.006
+images/syn_000403.png	0.2672 0/-0.002
+images/syn_003674.png	Ø27.976 +0.01/-0.01
+images/syn_000099.png	Ø20 0/-0.003
+images/syn_004831.png	Ø33.613 0/-0.003
+images/syn_001345.png	R0.05 MIN
+images/syn_000289.png	60° 40' 10"
+images/syn_000677.png	8 +0.002/0
+images/syn_001549.png	50.324 +0.005/0
+images/syn_003823.png	C2.160 0/-0.01
+images/syn_001945.png	14.941 -0.005/-0.007
+images/syn_001650.png	12° 53'
+images/syn_003905.png	5 -0.005/-0.01
+images/syn_004219.png	Ø75.460 +0.012/+0.01
+images/syn_000420.png	R0.25 MIN
+images/syn_001480.png	Ø60.567 +0.002/0
+images/syn_003547.png	Ø4.04 0/-0.01
+images/syn_004330.png	6.952 +0.003/0
+images/syn_002195.png	Ø15±0.005
+images/syn_001408.png	14.497±0.01
+images/syn_003280.png	50.00 +0.05/-0.002
+images/syn_003141.png	90° 20'
+images/syn_000622.png	Ø19.403±0.025
+images/syn_001358.png	C30 0/-0.03
+images/syn_001579.png	15°2'10"
+images/syn_001369.png	67.311 +0.015/0
+images/syn_004978.png	79.129±0.002
+images/syn_001395.png	C0.2
+images/syn_000495.png	15.8
+images/syn_002700.png	Ø8.308 +0.015/0
+images/syn_000609.png	2° 14' 51"
+images/syn_000347.png	50.00±0.002
+images/syn_000096.png	Ø47.702 0/-0.03
+images/syn_004834.png	C30±0.1
+images/syn_003416.png	Ø10±0.1
+images/syn_001002.png	5.04 +0.002/0
+images/syn_004486.png	M21.912 +0.007/+0.005
+images/syn_001410.png	R15.163±0.005
+images/syn_004707.png	89°17'5"
+images/syn_003047.png	50.00 -0.001/-0.006
+images/syn_003775.png	1°39'31"
+images/syn_001775.png	R0.5MIN
+images/syn_004836.png	Ø12.155 +0.02/-0.01
+images/syn_002027.png	10.50 +0.015/0
+images/syn_000021.png	0.652 +0.01/0
+images/syn_003709.png	0.25 0/-0.05
+images/syn_001748.png	Ø0.25 -0.01/-0.013
+images/syn_004559.png	34.057 +0.007/+0.005
+images/syn_001866.png	5.04 +0.015/-0.02
+images/syn_001891.png	0°19'
+images/syn_004224.png	52.004 0/-0.015
+images/syn_004397.png	0.262°
+images/syn_003937.png	2x M4
+images/syn_001466.png	Ø35.078 +0.015/-0.01
+images/syn_000777.png	C25 -0.001/-0.003
+images/syn_000667.png	R10.171 +0.02/-0.02
+images/syn_004269.png	60° 38'
+images/syn_004867.png	Ø6
+images/syn_001197.png	Ø0.3253 0/-0.008
+images/syn_004571.png	C14.941±0.002
+images/syn_003630.png	91.521
+images/syn_002666.png	C1.0
+images/syn_000385.png	7.525±0.015
+images/syn_000560.png	61.140±0.1
+images/syn_001515.png	30
+images/syn_004276.png	Ø12.155
+images/syn_000903.png	Ø24 +0.008/+0.005
+images/syn_000505.png	54.908
+images/syn_001953.png	M8
+images/syn_002288.png	10.50 -0.01/-0.015
+images/syn_000171.png	21.191±0.005
+images/syn_004565.png	0°55'
+images/syn_000751.png	Ø0.0660 +0.05/-0.02
+images/syn_004281.png	0.941 +0.015/-0.02
+images/syn_003583.png	60°12'
+images/syn_000050.png	M12
+images/syn_002292.png	11.89 0/-0.03
+images/syn_003333.png	3.032 +0.01/0
+images/syn_000111.png	50 TYP
+images/syn_003364.png	16 +0.05/-0.005
+images/syn_004917.png	12.50 +0.005/+0.002
+images/syn_000359.png	12.5°
+images/syn_000070.png	Ø10 +0.01/-0.02
+images/syn_001224.png	20.819 0/-0.003
+images/syn_002580.png	R57.63 0/-0.03
+images/syn_001835.png	C2.0
+images/syn_003116.png	45.5°
+images/syn_003707.png	28.65°
+images/syn_002951.png	C0.3
+images/syn_003132.png	60°±0.5°
+images/syn_003381.png	62.313 +0.002/0
+images/syn_001682.png	Ø50 +0.05/-0.02
+images/syn_000956.png	45°±30'
+images/syn_001709.png	43.053
+images/syn_003350.png	35.726±0.02
+images/syn_003021.png	Ø0.1884 +0.01/0
+images/syn_004343.png	26.197 -0.01/-0.012
+images/syn_001430.png	12°40'33"
+images/syn_002766.png	0°26'
+images/syn_004246.png	8 -0.002/-0.007
+images/syn_003125.png	90° 50' 10"
+images/syn_003268.png	12° 27' 36"
+images/syn_000244.png	C0.25
+images/syn_004643.png	R0.5 MAX
+images/syn_002614.png	47.533 -0.001/-0.006
+images/syn_003235.png	Ø10.50±0.1
+images/syn_000145.png	0.613 +0.005/-0.005
+images/syn_002694.png	Ø5.04 +0.015/0
+images/syn_001933.png	15.80 -0.01/-0.012
+images/syn_003241.png	C56.003 0/-0.008
+images/syn_004743.png	8.308 +0.02/0
+images/syn_002813.png	Ø50
+images/syn_003924.png	26.197 +0.005/-0.002
+images/syn_004903.png	Ø73.65±0.025
+images/syn_000944.png	15°23'
+images/syn_004560.png	Ø0.2370 0/-0.05
+images/syn_002016.png	4.04±0.015
+images/syn_002185.png	15°±10'
+images/syn_001513.png	Ø0.941 +0.01/0
+images/syn_003506.png	Ø26.697 -0.002/-0.004
+images/syn_002467.png	41.612±0.02
+images/syn_003554.png	56.346 +0.01/0
+images/syn_001233.png	Ø0.1341 -0.002/-0.004
+images/syn_003479.png	75°15'6"
+images/syn_001655.png	10.685 +0.03/0
+images/syn_002144.png	C0.05
+images/syn_003006.png	50.00±0.1
+images/syn_002305.png	92.501 +0.03/0
+images/syn_001303.png	15°±10'
+images/syn_004277.png	4x M6
+images/syn_000706.png	15.8
+images/syn_001728.png	R55.905 0/-0.003
+images/syn_003232.png	15.80±0.025
+images/syn_003255.png	40.149 +0.01/0
+images/syn_001598.png	C1.0
+images/syn_004375.png	89°35'14"
+images/syn_004363.png	M18.011 -0.001/-0.003
+images/syn_004009.png	0.1170 +0.004/+0.001
+images/syn_000229.png	5°32'
+images/syn_000366.png	Ø66.424 +0.01/-0.01
+images/syn_000806.png	15.80 -0.01/-0.015
+images/syn_002910.png	Ø79.951±0.02
+images/syn_003084.png	0.0515 -0.001/-0.004
+images/syn_000911.png	0.25 +0.01/-0.005
+images/syn_003294.png	53.313±0.025
+images/syn_001821.png	35.726 +0.007/+0.005
+images/syn_002583.png	10 -0.001/-0.004
+images/syn_001890.png	Ø30
+images/syn_003345.png	90.5°
+images/syn_004437.png	81.274 -0.01/-0.013
+images/syn_000499.png	12.50 +0.015/-0.03
+images/syn_004526.png	R73.65 -0.01/-0.013
+images/syn_002424.png	84.166 0/-0.02
+images/syn_003096.png	(0.25)
+images/syn_002104.png	Ø0.0117 +0.002/0
+images/syn_003940.png	Ø8.308 +0.008/+0.005
+images/syn_001754.png	Ø2.160 +0.003/0
+images/syn_001431.png	24 +0.03/0
+images/syn_001548.png	Ø24±0.1
+images/syn_000140.png	R0.2 MAX
+images/syn_002133.png	Ø60 0/-0.02
+images/syn_000310.png	0.941 0/-0.03
+images/syn_004414.png	15° 38'
+images/syn_002261.png	C1.5
+images/syn_004692.png	0.652 -0.01/-0.015
+images/syn_003926.png	Ø0.2753 +0.01/-0.02
+images/syn_003179.png	5°6'
+images/syn_001376.png	Ø20
+images/syn_004165.png	C0.5
+images/syn_001755.png	C73.65±0.005
+images/syn_003213.png	C0.2
+images/syn_000984.png	Ø61.180 +0.01/+0.005
+images/syn_003588.png	57.63
+images/syn_002475.png	65.351 -0.001/-0.006
+images/syn_002375.png	15° 24'
+images/syn_001705.png	0.0329 0/-0.008
+images/syn_001294.png	10.50±0.025
+images/syn_001382.png	33.613 +0.005/0
+images/syn_003429.png	M12.544±0.005
+images/syn_002831.png	74.317±0.015
+images/syn_001124.png	35.726 +0.005/0
+images/syn_001581.png	Ø24 -0.001/-0.003
+images/syn_004512.png	5±0.01
+images/syn_003042.png	Ø2.75 +0.02/0
+images/syn_004254.png	25 +0.05/0
+images/syn_003177.png	12.160 +0.002/0
+images/syn_000413.png	53.551 -0.005/-0.008
+images/syn_001939.png	Ø12.150 -0.003/-0.008
+images/syn_001920.png	R6.969±0.02
+images/syn_001461.png	8.308 +0.008/+0.005
+images/syn_000041.png	Ø32±0.02
+images/syn_001070.png	54.040 +0.01/0
+images/syn_002219.png	1.047°
+images/syn_004924.png	8.308 +0.015/-0.005
+images/syn_000185.png	75.445±0.05
+images/syn_004698.png	0.2118 0/-0.02
+images/syn_001005.png	50.00±0.02
+images/syn_004189.png	50.819±0.002
+images/syn_003772.png	R12±0.01
+images/syn_001009.png	R56.003 +0.004/+0.002
+images/syn_004888.png	Ø30
+images/syn_002952.png	41.154±0.01
+images/syn_004225.png	8 +0.02/-0.02
+images/syn_004579.png	M38.491±0.002
+images/syn_004306.png	25.828 0/-0.002
+images/syn_002548.png	61.391 +0.02/0
+images/syn_001191.png	0.4130±0.01
+images/syn_003394.png	3.142°
+images/syn_002450.png	C50 0/-0.015
+images/syn_000727.png	44.420 0/-0.008
+images/syn_001075.png	15°53'27"
+images/syn_000450.png	24.50 -0.005/-0.01
+images/syn_000115.png	12.160
+images/syn_000546.png	11.89±0.05
+images/syn_004093.png	5 0/-0.002
+images/syn_002321.png	0.5°
+images/syn_001814.png	Ø0.4749 +0.01/-0.002
+images/syn_004197.png	Ø11.752±0.002
+images/syn_002385.png	25.4
+images/syn_000733.png	0.941 -0.003/-0.005
+images/syn_004890.png	R12.155 0/-0.02
+images/syn_000120.png	0.3077 -0.005/-0.007
+images/syn_001597.png	Ø76.628 0/-0.03
+images/syn_001109.png	15.80 +0.002/0
+images/syn_002617.png	2°11'9"
+images/syn_002533.png	R9.004 0/-0.02
+images/syn_004765.png	14.941 0/-0.002
+images/syn_004094.png	1.047°
+images/syn_000554.png	Ø50.00 +0.002/0
+images/syn_002200.png	51.583±0.005
+images/syn_004198.png	12.155±0.025
+images/syn_004664.png	26.197 0/-0.01
+images/syn_000705.png	Ø5±0.05
+images/syn_003456.png	R19.961 0/-0.008
+images/syn_004716.png	15°±15'
+images/syn_001975.png	60° 16'
+images/syn_001108.png	4X M6
+images/syn_000040.png	7.525 0/-0.03
+images/syn_004608.png	50.00 0/-0.015
+images/syn_001077.png	Ø8
+images/syn_004068.png	R12 +0.015/-0.03
+images/syn_001270.png	Ø58.669 +0.01/-0.01
+images/syn_003956.png	0.008 +0.02/0
+images/syn_001275.png	45.628 +0.03/0
+images/syn_004103.png	Ø5 0/-0.05
+images/syn_002998.png	33.613±0.02
+images/syn_002764.png	Ø88.669±0.005
+images/syn_003801.png	2.094°
+images/syn_003212.png	C92.260 0/-0.02
+images/syn_001022.png	C1.5
+images/syn_003363.png	Ø7.525 0/-0.005
+images/syn_000504.png	C0.5
+images/syn_002970.png	C0.1
+images/syn_002638.png	15° 39' 5"
+images/syn_004871.png	15.80 0/-0.01
+images/syn_002073.png	45.5°
+images/syn_003500.png	Ø4.026 +0.05/-0.02
+images/syn_004025.png	4X Ø6.5
+images/syn_001767.png	5.04±0.05
+images/syn_002891.png	50.581
+images/syn_001723.png	50 -0.01/-0.015
+images/syn_003393.png	50.324 +0.05/-0.002
+images/syn_001450.png	0.785°
+images/syn_003969.png	R20 +0.03/0
+images/syn_001636.png	R11.89±0.005
+images/syn_003358.png	50.00 +0.007/+0.002
+images/syn_000888.png	Ø4.026 +0.008/+0.005
+images/syn_004741.png	15.092 0/-0.01
+images/syn_004837.png	11.89±0.1
+images/syn_004585.png	M10
+images/syn_003732.png	1.879 +0.03/0
+images/syn_000251.png	56.003 +0.015/0
+images/syn_003688.png	60°
+images/syn_004004.png	R0.25 MIN
+images/syn_000264.png	80.649 0/-0.015
+images/syn_000909.png	59.655 +0.012/+0.01
+images/syn_001774.png	Ø25.081±0.02
+images/syn_002912.png	73.65 0/-0.05
+images/syn_000045.png	120°45'
+images/syn_001196.png	180°
+images/syn_001448.png	0.008 +0.02/0
+images/syn_003128.png	63.906 +0.007/+0.002
+images/syn_002958.png	25 0/-0.03
+images/syn_001900.png	R5MIN
+images/syn_003107.png	0.290 +0.01/-0.03
+images/syn_004102.png	60°51'43"
+images/syn_003081.png	Ø12.155
+images/syn_000127.png	R73.65 0/-0.002
+images/syn_004596.png	12.50 +0.05/-0.02
+images/syn_004699.png	12.160 +0.008/+0.005
+images/syn_004524.png	Ø77.704 +0.01/-0.03
+images/syn_003537.png	R0.25 MAX
+images/syn_001788.png	53.760 -0.001/-0.003
+images/syn_004981.png	Ø56.003±0.015
+images/syn_001879.png	M7.525 +0.02/-0.02
+images/syn_002510.png	Ø10.50±0.05
+images/syn_001139.png	15°5'
+images/syn_001813.png	Ø62.169 +0.005/+0.002
+images/syn_002393.png	4X M6
+images/syn_001666.png	14.025±0.1
+images/syn_000357.png	28°13'
+images/syn_003578.png	C81.499 +0.03/0
+images/syn_002143.png	90° 52'
+images/syn_004273.png	Ø12.150 0/-0.003
+images/syn_004835.png	C90.909 +0.003/0
+images/syn_002930.png	5.102 +0.005/0
+images/syn_000729.png	15.80 0/-0.002
+images/syn_004045.png	R4.026±0.015
+images/syn_002400.png	67.519
+images/syn_002827.png	0.3942 +0.05/-0.005
+images/syn_004712.png	R11.89 +0.005/-0.02
+images/syn_002982.png	43.685 +0.005/+0.002
+images/syn_000083.png	56.003 +0.005/-0.002
+images/syn_003473.png	5° 7' 52"
+images/syn_002108.png	15°±10'
+images/syn_004169.png	Ø0.0466 +0.003/0
+images/syn_002751.png	Ø50±0.01
+images/syn_003291.png	Ø0.941 -0.002/-0.005
+images/syn_003616.png	5 +0.05/-0.005
+images/syn_002470.png	C10 0/-0.01
+images/syn_004812.png	0.941 -0.002/-0.007
+images/syn_000426.png	Ø90.431 -0.002/-0.005
+images/syn_001651.png	15.80±0.01
+images/syn_004265.png	Ø32.826±0.1
+images/syn_002401.png	11.89
+images/syn_004740.png	C35.726 +0.008/+0.005
+images/syn_003481.png	3.032 0/-0.05
+images/syn_003714.png	90.5°
+images/syn_002815.png	Ø4.04 0/-0.015
+images/syn_004783.png	Ø0.2280 0/-0.003
+images/syn_001861.png	45°24'
+images/syn_003226.png	4.04 +0.05/0
+images/syn_002749.png	Ø10.50 +0.004/+0.001
+images/syn_001971.png	89°44'2"
+images/syn_000416.png	M8
+images/syn_003641.png	Ø0.941 +0.006/+0.001
+images/syn_000479.png	Ø30 -0.005/-0.008
+images/syn_004719.png	C4.491 +0.005/0
+images/syn_003204.png	Ø16±0.005
+images/syn_000652.png	5.04 +0.005/0
+images/syn_000669.png	C0.3
+images/syn_001568.png	C10±0.002
+images/syn_004686.png	26.197 0/-0.008
+images/syn_000535.png	24.50 +0.02/0
+images/syn_003991.png	Ø26.625±0.05
+images/syn_004287.png	74.226 0/-0.005
+images/syn_004794.png	Ø3.032 0/-0.015
+images/syn_002081.png	Ø57.63 +0.015/-0.01
+images/syn_004449.png	0.25 +0.015/-0.005
+images/syn_001163.png	4.026±0.002
+images/syn_002483.png	12.5°
+images/syn_000808.png	Ø32 0/-0.03
+images/syn_000274.png	60°40'
+images/syn_001679.png	11.568±0.005
+images/syn_004934.png	12.155 +0.02/-0.002
+images/syn_003812.png	C10.50 +0.015/0
+images/syn_001985.png	C60 +0.02/0
+images/syn_002152.png	11.89 -0.01/-0.013
+images/syn_004558.png	C0.5
+images/syn_000846.png	11.065 +0.008/+0.005
+images/syn_001065.png	Ø0.4660 0/-0.008
+images/syn_003417.png	Ø7.881 +0.008/+0.005
+images/syn_003564.png	67.694 -0.005/-0.007
+images/syn_004427.png	90°±30'
+images/syn_002096.png	Ø10 +0.01/-0.01
+images/syn_004326.png	C0.2
+images/syn_000123.png	16.350 +0.01/+0.005
+images/syn_004706.png	R5.04 +0.015/0
+images/syn_000860.png	14.941±0.025
+images/syn_000488.png	28°27'
+images/syn_004052.png	12.150 +0.03/0
+images/syn_001405.png	R17.686±0.005
+images/syn_000213.png	Ø24.50 +0.005/-0.03
+images/syn_000630.png	73.65
+images/syn_003842.png	0.941±0.005
+images/syn_003476.png	C0.5
+images/syn_001390.png	8±0.025
+images/syn_003999.png	73.287 0/-0.03
+images/syn_003334.png	Ø12.155
+images/syn_001110.png	0.941±0.1
+images/syn_003795.png	14.941 -0.002/-0.005
+images/syn_004865.png	35.726 +0.02/0
+images/syn_004994.png	2.160 0/-0.003
+images/syn_001989.png	10.50 +0.005/0
+images/syn_003427.png	Ø94.781 +0.003/+0.001
+images/syn_002876.png	28°44'
+images/syn_003215.png	R0.1MAX
+images/syn_004769.png	5.04 +0.015/0
+images/syn_001011.png	76.653±0.002
+images/syn_003200.png	13.164 0/-0.005
+images/syn_000755.png	12°2'12"
+images/syn_003372.png	120°4'
+images/syn_001952.png	M44.625 +0.007/+0.005
+images/syn_004377.png	M0.25 +0.01/+0.005
+images/syn_001942.png	32 +0.02/0
+images/syn_003917.png	26.197 +0.05/0
+images/syn_002513.png	4.04 0/-0.02
+images/syn_001757.png	0°47'
+images/syn_003964.png	18.867 0/-0.003
+images/syn_003607.png	50.190 0/-0.02
+images/syn_002562.png	4.026 +0.003/0
+images/syn_002943.png	4.026 +0.02/-0.01
+images/syn_002846.png	0.25 -0.005/-0.008
+images/syn_000637.png	0.3107±0.02
+images/syn_000579.png	15° 7' 57"
+images/syn_000953.png	1.25°
+images/syn_002734.png	1°6'15"
+images/syn_000822.png	45° 57' 58"
+images/syn_001278.png	0.1654 0/-0.03
+images/syn_002922.png	4.04 +0.01/0
+images/syn_000458.png	R1.998±0.025
+images/syn_000368.png	1.998 0/-0.03
+images/syn_003009.png	50.00 0/-0.005
+images/syn_001029.png	R12.160±0.025
+images/syn_001323.png	Ø0.290 +0.002/0
+images/syn_002743.png	R0.05MIN
+images/syn_002689.png	R12.160 0/-0.002
+images/syn_001476.png	M8.114 -0.001/-0.004
+images/syn_004535.png	75°28'28"
+images/syn_002927.png	30°11'
+images/syn_000853.png	0.2847 +0.03/0
+images/syn_002540.png	5 +0.003/+0.001
+images/syn_002440.png	R3MAX
+images/syn_002397.png	0.052°
+images/syn_000859.png	0.25 +0.05/0
+images/syn_001133.png	Ø5.04 +0.005/0
+images/syn_000073.png	69.635±0.025
+images/syn_002496.png	0.2647±0.1
+images/syn_002934.png	0.2764 +0.02/0
+images/syn_003774.png	5°46'2"
+images/syn_004308.png	R0.1458±0.002
+images/syn_003646.png	33.613 0/-0.003
+images/syn_004893.png	Ø36.669 -0.002/-0.004
+images/syn_004935.png	57.096±0.02
+images/syn_001699.png	50.00 -0.003/-0.008
+images/syn_001871.png	0.290 +0.003/0
+images/syn_003748.png	4.04 -0.005/-0.008
+images/syn_004096.png	R2MAX
+images/syn_003374.png	R80.428 +0.01/+0.005
+images/syn_003920.png	24.50 0/-0.03
+images/syn_002353.png	Ø5.04 +0.01/0
+images/syn_002605.png	73.65 0/-0.003
+images/syn_000523.png	C2.0
+images/syn_004157.png	Ø4.04 +0.02/0
+images/syn_002625.png	2.935 +0.01/-0.002
+images/syn_001313.png	45.5°
+images/syn_003461.png	60±0.02
+images/syn_003382.png	Ø28.814 -0.005/-0.007
+images/syn_000114.png	Ø30 +0.02/0
+images/syn_004785.png	33.742 +0.05/-0.03
+images/syn_001982.png	Ø12
+images/syn_002871.png	10.50 +0.02/-0.01
+images/syn_004205.png	Ø34.972 +0.05/0
+images/syn_004874.png	C1.5
+images/syn_002276.png	R0.25 MIN
+images/syn_003080.png	Ø12.50 0/-0.002
+images/syn_003737.png	45°44'23"
+images/syn_000131.png	11.89 +0.02/-0.03
+images/syn_002886.png	5° 6' 10"
+images/syn_000558.png	4x M6
+images/syn_003119.png	Ø30
+images/syn_000687.png	0.0904 +0.05/-0.03
+images/syn_004344.png	C1.0
+images/syn_004407.png	Ø0.0664 0/-0.03
+images/syn_003939.png	56.003 +0.015/-0.03
+images/syn_004298.png	Ø49.082 +0.003/0
+images/syn_001494.png	Ø11.538 +0.003/0
+images/syn_002206.png	16.350 0/-0.003
+images/syn_000531.png	1.25°
+images/syn_001060.png	17.544
+images/syn_002358.png	0.1378 0/-0.003
+images/syn_003357.png	1.571°
+images/syn_003487.png	11.89 0/-0.015
+images/syn_002720.png	Ø53.421 +0.01/-0.01
+images/syn_000024.png	45° 56'
+images/syn_003723.png	0.25
+images/syn_002036.png	R27.553 +0.05/0
+images/syn_004988.png	Ø2.75 +0.004/+0.001
+images/syn_002870.png	73.973 0/-0.015
+images/syn_003553.png	0.2179 +0.05/0
+images/syn_004139.png	0.941 +0.02/0
+images/syn_003791.png	R5 MIN
+images/syn_004357.png	Ø8
+images/syn_000929.png	11.189 0/-0.002
+images/syn_001831.png	0.052°
+images/syn_004390.png	0.052°
+images/syn_000177.png	3.285 0/-0.008
+images/syn_003570.png	25° 58' 41"
+images/syn_004634.png	R2
+images/syn_001719.png	24.894 -0.003/-0.005
+images/syn_004220.png	66.142±0.1
+images/syn_004369.png	91.989 +0.015/-0.005
+images/syn_000136.png	16.350 +0.02/0
+images/syn_002224.png	10.207±0.002
+images/syn_003401.png	75.368 +0.01/-0.01
+images/syn_001300.png	R78.547 -0.005/-0.01
+images/syn_003881.png	65.711 -0.01/-0.012
+images/syn_000801.png	24.269 -0.003/-0.005
+images/syn_000670.png	30°45'
+images/syn_001356.png	Ø60.473 -0.005/-0.01
+images/syn_003425.png	4x M6
+images/syn_004657.png	0.4008±0.005
+images/syn_001048.png	R76.105 0/-0.005
+images/syn_002241.png	Ø50.212 -0.01/-0.015
+images/syn_004054.png	30°43'
+images/syn_002996.png	Ø2.160 0/-0.05
+images/syn_003098.png	0.017°
+images/syn_003377.png	Ø51.713 -0.003/-0.005
+images/syn_003121.png	45.479±0.025
+images/syn_001658.png	0.25 0/-0.008
+images/syn_001099.png	Ø50 +0.05/-0.03
+images/syn_001781.png	8 -0.003/-0.008
+images/syn_003882.png	1.998±0.05
+images/syn_003778.png	C0.25 0/-0.03
+images/syn_004666.png	28°26'
+images/syn_000851.png	80.426 +0.003/0
+images/syn_002800.png	2.75 0/-0.003
+images/syn_004624.png	60°±15'
+images/syn_003229.png	0.0098 +0.015/+0.01
+images/syn_001898.png	R5 MAX
+images/syn_002836.png	11.89 0/-0.003
+images/syn_000124.png	90°±15'
+images/syn_000082.png	10.50±0.015
+images/syn_000442.png	15°27'19"
+images/syn_003923.png	Ø12
+images/syn_000029.png	1.998±0.1
+images/syn_002178.png	33.613±0.1
+images/syn_004154.png	Ø10
+images/syn_000035.png	R5 MIN
+images/syn_004630.png	50.00 +0.02/-0.03
+images/syn_002439.png	90° 30' 41"
+images/syn_003216.png	16.902 0/-0.05
+images/syn_001633.png	Ø23.607 +0.007/+0.005
+images/syn_004192.png	0.941 +0.05/-0.01
+images/syn_000862.png	0.290 0/-0.02
+images/syn_001165.png	Ø30 -0.001/-0.006
+images/syn_004962.png	14.941 +0.005/-0.03
+images/syn_001462.png	12.155 REF
+images/syn_000649.png	28°57'
+images/syn_002383.png	3.032±0.005
+images/syn_000025.png	11.264±0.02
+images/syn_001082.png	Ø0.3899±0.002
+images/syn_001460.png	75°30'54"
+images/syn_004358.png	53.840 -0.002/-0.005
+images/syn_002762.png	C0.0972 0/-0.05
+images/syn_001024.png	0.652 -0.003/-0.008
+images/syn_004243.png	20 +0.007/+0.005
+images/syn_003322.png	Ø56.003±0.002
+images/syn_000791.png	Ø55.598±0.002
+images/syn_001855.png	30
+images/syn_000491.png	Ø11.89 0/-0.005
+images/syn_000112.png	50.324 0/-0.005
+images/syn_004790.png	50.00
+images/syn_002322.png	Ø24 0/-0.05
+images/syn_004761.png	R3
+images/syn_000387.png	Ø0.652 +0.012/+0.01
+images/syn_001044.png	4.04 +0.015/0
+images/syn_004257.png	60°
+images/syn_001061.png	4.04
+images/syn_003491.png	0.523°
+images/syn_003290.png	Ø100 0/-0.05
+images/syn_002730.png	Ø16
+images/syn_000055.png	C16 +0.01/0
+images/syn_004222.png	C4.04 -0.003/-0.005
+images/syn_001245.png	0.941±0.015
+images/syn_002134.png	12.155 -0.01/-0.015
+images/syn_003264.png	C12.150 -0.01/-0.015
+images/syn_004993.png	45°±15'
+images/syn_001878.png	Ø10.50 +0.05/0
+images/syn_002537.png	75°45'55"
+images/syn_001321.png	R11.140±0.015
+images/syn_001580.png	3.142°
+images/syn_000508.png	4.574 +0.005/-0.02
+images/syn_004546.png	Ø15.80 +0.015/0
+images/syn_002820.png	0.25 +0.005/+0.002
+images/syn_002915.png	90°
+images/syn_001577.png	0.941 -0.01/-0.012
+images/syn_002584.png	10.50 +0.015/-0.005
+images/syn_004603.png	(0.25)
+images/syn_002396.png	R0.4713 +0.01/+0.005
+images/syn_000287.png	50.00 0/-0.002
+images/syn_000206.png	Ø5.04 0/-0.003
+images/syn_003664.png	0.0215 0/-0.005
+images/syn_004156.png	Ø0.2538 -0.002/-0.005
+images/syn_002672.png	50.714
+images/syn_004750.png	Ø0.3912 +0.02/0
+images/syn_001605.png	R1.5 MAX
+images/syn_000844.png	10.50 +0.005/0
+images/syn_000311.png	0.268 +0.005/-0.002
+images/syn_004237.png	C6.306±0.05
+images/syn_002062.png	38.950±0.05
+images/syn_004444.png	14.864 +0.005/0
+images/syn_002757.png	Ø24.50 -0.01/-0.012
+images/syn_004891.png	5° 9'
+images/syn_001503.png	11.89±0.005
+images/syn_001609.png	R1.0MIN
+images/syn_004746.png	60°±5'
+images/syn_001870.png	Ø25.761 +0.005/+0.002
+images/syn_003684.png	100
+images/syn_000141.png	R0.05MAX
+images/syn_000293.png	75° 30' 38"
+images/syn_003276.png	12.150±0.025
+images/syn_002293.png	Ø12.50 +0.005/0
+images/syn_000273.png	Ø40±0.025
+images/syn_000784.png	2.75 -0.001/-0.006
+images/syn_004027.png	2.75 -0.005/-0.007
+images/syn_003087.png	16.350 +0.005/-0.01
+images/syn_000753.png	Ø56.003±0.025
+images/syn_004627.png	5° 7' 23"
+images/syn_003822.png	59.322 0/-0.01
+images/syn_001665.png	Ø5.04 0/-0.015
+images/syn_000183.png	50.00 0/-0.002
+images/syn_000785.png	R1.5MIN
+images/syn_003619.png	Ø12 -0.003/-0.005
+images/syn_000146.png	83.261 +0.004/+0.001
+images/syn_000979.png	37.463 +0.03/0
+images/syn_002900.png	Ø74.200 +0.007/+0.005
+images/syn_001422.png	0.3159 0/-0.005
+images/syn_004361.png	Ø79.083 -0.001/-0.003
+images/syn_002357.png	45°±10'
+images/syn_003086.png	11.89 +0.003/0
+images/syn_002340.png	50.00 0/-0.015
+images/syn_000017.png	2.75 -0.002/-0.007
+images/syn_001686.png	R15.80 0/-0.01
+images/syn_000912.png	86.555 +0.01/-0.005
+images/syn_001393.png	5°23'36"
+images/syn_001064.png	35.726 +0.05/0
+images/syn_000464.png	Ø0.3277 +0.05/-0.03
+images/syn_001216.png	0°38'
+images/syn_004752.png	M10
+images/syn_002646.png	Ø0.941 +0.005/0
+images/syn_004380.png	15°30'11"
+images/syn_000438.png	R0.03MAX
+images/syn_000003.png	R1.998 +0.02/0
+images/syn_000195.png	32 +0.003/+0.001
+images/syn_004422.png	0.0941 -0.002/-0.005
+images/syn_002774.png	R1.0 MIN
+images/syn_001343.png	30.334±0.025
+images/syn_004015.png	1.998±0.002
+images/syn_004734.png	C2.0
+images/syn_003240.png	60°±10'
+images/syn_002315.png	R0.1MAX
+images/syn_002528.png	0°15'49"
+images/syn_000812.png	24.50 0/-0.02
+images/syn_002893.png	5.04±0.1
+images/syn_003649.png	27.731 0/-0.005
+images/syn_003490.png	Ø12.150 +0.005/+0.002
+images/syn_003472.png	30.110 0/-0.03
+images/syn_000762.png	60.993±0.005
+images/syn_004320.png	1.5
+images/syn_002795.png	0.2672 0/-0.03
+images/syn_003210.png	41.672 -0.002/-0.004
+images/syn_001341.png	Ø26.197±0.002
+images/syn_000192.png	16.350 0/-0.003
+images/syn_002645.png	M5 0/-0.015
+images/syn_004713.png	21.603 +0.003/0
+images/syn_004904.png	12.50 +0.03/0
+images/syn_002575.png	50.324 +0.01/0
+images/syn_000271.png	90.150 0/-0.015
+images/syn_004566.png	R1.5MIN
+images/syn_004745.png	7.525±0.1
+images/syn_004605.png	M43.710 -0.002/-0.005
+images/syn_000002.png	12.5°
+images/syn_003419.png	94.141 0/-0.015
+images/syn_004391.png	Ø0.1950 0/-0.02
+images/syn_004584.png	0.0659 +0.02/-0.002
+images/syn_002428.png	90°±15'
+images/syn_002687.png	R1.5
+images/syn_004332.png	45°6'28"
+images/syn_003413.png	90°35'
+images/syn_003480.png	M2.160±0.01
+images/syn_004561.png	5° 44'
+images/syn_000100.png	R0.1 MAX
+images/syn_001398.png	56.795 0/-0.003
+images/syn_003931.png	16.350 +0.003/+0.001
+images/syn_002228.png	60° 31' 40"
+images/syn_002223.png	60 +0.01/0
+images/syn_004227.png	3.032 +0.02/0
+images/syn_004825.png	Ø2.75 +0.015/-0.002
+images/syn_004786.png	Ø34.597 -0.001/-0.003
+images/syn_000692.png	12.160 +0.01/0
+images/syn_004803.png	Ø6
+images/syn_000662.png	1°28'23"
+images/syn_002015.png	75.455 +0.007/+0.002
+images/syn_001677.png	14.941 -0.005/-0.008
+images/syn_003392.png	Ø25.4
+images/syn_001771.png	4.026±0.1
+images/syn_003669.png	Ø0.25 0/-0.05
+images/syn_000815.png	12.5°
+images/syn_001899.png	(25.4)
+images/syn_002878.png	10.50 0/-0.05
+images/syn_000734.png	70.693±0.025
+images/syn_004384.png	R0.03
+images/syn_001361.png	15°±5'
+images/syn_001301.png	26.811 0/-0.015
+images/syn_004386.png	R2 MAX
+images/syn_001497.png	46.158 0/-0.003
+images/syn_002246.png	R0.290 +0.005/-0.005
+images/syn_002916.png	Ø14.941 -0.002/-0.005
+images/syn_000006.png	57.63 +0.003/0
+images/syn_001192.png	Ø14.941±0.02
+images/syn_004408.png	0.25±0.005
+images/syn_001000.png	C74.805 +0.005/0
+images/syn_004319.png	45°3'
+images/syn_000756.png	24.50 +0.01/-0.01
+images/syn_001423.png	C0.2
+images/syn_004959.png	C2.0
+images/syn_004033.png	Ø100±0.02
+images/syn_001056.png	90°22'
+images/syn_002999.png	Ø0.4973 -0.003/-0.005
+images/syn_003612.png	63.781±0.01
+images/syn_002844.png	0.290 +0.05/0
+images/syn_003193.png	46.959
+images/syn_002135.png	25 0/-0.02
+images/syn_000769.png	0.652 +0.015/0
+images/syn_002106.png	15.80 0/-0.05
+images/syn_003890.png	12.155±0.015
+images/syn_004714.png	24.110±0.015
+images/syn_001608.png	M0.2746 +0.005/0
+images/syn_003501.png	R5.04 +0.004/+0.002
+images/syn_000292.png	35.726 +0.015/0
+images/syn_003606.png	2.75 +0.002/0
+images/syn_002819.png	3.593±0.015
+images/syn_001385.png	0.25 +0.005/0
+images/syn_002222.png	Ø0.652±0.025
+images/syn_002141.png	24.032 +0.015/-0.002
+images/syn_000660.png	10.50 +0.05/-0.005
+images/syn_001457.png	57.63±0.025
+images/syn_002772.png	R0.03 MIN
+images/syn_000512.png	M2.160 -0.005/-0.008
+images/syn_000272.png	48.287 0/-0.003
+images/syn_002187.png	25°46'47"
+images/syn_000260.png	90°±15'
+images/syn_002388.png	60°1'41"
+images/syn_000568.png	120°48'
+images/syn_001601.png	50.00 +0.01/-0.02
+images/syn_004625.png	12°33'6"
+images/syn_004557.png	50.324±0.01
+images/syn_004792.png	8.331 -0.005/-0.008
+images/syn_002983.png	Ø67.127 0/-0.02
+images/syn_002249.png	12°42'
+images/syn_002462.png	10 +0.005/0
+images/syn_002415.png	75
+images/syn_002987.png	R0.05MAX
+images/syn_003915.png	30°43'
+images/syn_002599.png	93.339 +0.015/0
+images/syn_004185.png	C0.1
+images/syn_000663.png	R73.65 +0.01/-0.005
+images/syn_001656.png	7.525±0.002
+images/syn_001104.png	Ø15.80 +0.05/-0.03
+images/syn_001743.png	R1.5MIN
+images/syn_003733.png	15.612±0.05
+images/syn_001091.png	45°±30'
+images/syn_002703.png	R1.998 0/-0.05
+images/syn_003133.png	32 +0.015/+0.01
+images/syn_002856.png	Ø0.1769 +0.003/+0.001
+images/syn_003766.png	R24.50 +0.013/+0.01
+images/syn_004111.png	73.65 REF
+images/syn_001916.png	Ø0.0097 -0.003/-0.006
+images/syn_004132.png	R0.25
+images/syn_000340.png	Ø6
+images/syn_004028.png	C0.3
+images/syn_004868.png	Ø12.160±0.1
+images/syn_001250.png	20
+images/syn_002590.png	11.89±0.02
+images/syn_003450.png	R3MAX
+images/syn_004147.png	Ø31.368 +0.02/0
+images/syn_001205.png	60°55'
+images/syn_001776.png	16.350 +0.005/+0.002
+images/syn_001930.png	4.378 +0.015/-0.03
+images/syn_002339.png	26.197 +0.02/-0.002
+images/syn_001589.png	8.308 +0.01/-0.002
+images/syn_002180.png	77.243 +0.004/+0.002
+images/syn_000900.png	90° 18' 10"
+images/syn_003035.png	10.50 0/-0.003
+images/syn_002905.png	R0.05MIN
+images/syn_004588.png	60.903
+images/syn_004381.png	79.444
+images/syn_002130.png	90°±1°
+images/syn_001727.png	55.373±0.01
+images/syn_004431.png	Ø16.350 +0.05/0
+images/syn_002768.png	R73.695 0/-0.005
+images/syn_003876.png	30°±1°
+images/syn_002978.png	R25 -0.001/-0.006
+images/syn_002677.png	58.819 +0.008/+0.005
+images/syn_000871.png	C73.65 +0.004/+0.002
+images/syn_002523.png	12±0.01
+images/syn_003469.png	16.350 +0.012/+0.01
+images/syn_003452.png	11.89 +0.05/-0.02
+images/syn_003458.png	Ø50
+images/syn_003722.png	Ø24.5
+images/syn_003862.png	0.017°
+images/syn_001550.png	5.04 +0.02/0
+images/syn_003721.png	8.129 0/-0.05
+images/syn_000752.png	Ø50
+images/syn_002525.png	45.501±0.02
+images/syn_001588.png	0.652 0/-0.008
+images/syn_002684.png	28.65°
+images/syn_003624.png	89°50'58"
+images/syn_003913.png	12.155 +0.007/+0.002
+images/syn_002299.png	2°51'31"
+images/syn_004255.png	57.63 0/-0.005
+images/syn_002156.png	0.008 +0.03/0
+images/syn_003279.png	53.227 0/-0.05
+images/syn_003136.png	8±0.05
+images/syn_002669.png	57.63 +0.01/0
+images/syn_003190.png	C0.3
+images/syn_004824.png	50 +0.03/0
+images/syn_000937.png	0.2491 +0.03/0
+images/syn_001599.png	28°23'
+images/syn_000345.png	40 0/-0.003
+images/syn_004592.png	60° 31' 31"
+images/syn_001102.png	0.523°
+images/syn_000461.png	Ø8.308 +0.02/0
+images/syn_002524.png	23.811 +0.012/+0.01
+images/syn_004076.png	C0.3199 +0.005/0
+images/syn_003103.png	40 +0.005/-0.002
+images/syn_000452.png	R4.04 -0.01/-0.012
+images/syn_004773.png	0.0631±0.005
+images/syn_003329.png	14.941 +0.01/0
+images/syn_000064.png	0.2043 +0.006/+0.001
+images/syn_001158.png	R0.25MIN
+images/syn_004575.png	30.558 0/-0.02
+images/syn_002011.png	12.155 +0.004/+0.002
+images/syn_004879.png	Ø0.941±0.01
+images/syn_003705.png	C1.5
+images/syn_001455.png	R33.613 +0.02/-0.005
+images/syn_001833.png	C0.25
+images/syn_001008.png	16.350±0.025
+images/syn_002567.png	1.998 +0.012/+0.01
+images/syn_003849.png	45°45'
+images/syn_002323.png	20 +0.01/-0.02
+images/syn_001338.png	Ø40.090 +0.05/0
+images/syn_001036.png	74.727 -0.005/-0.01
+images/syn_001151.png	28.65°
+images/syn_003046.png	0.3112 0/-0.03
+images/syn_001670.png	56.003 +0.004/+0.001
+images/syn_000400.png	4.401 0/-0.005
+images/syn_004830.png	50.324 +0.05/0
+images/syn_004014.png	50.00 +0.003/0
+images/syn_000020.png	0.5°
+images/syn_000736.png	Ø15.80 +0.013/+0.01
+images/syn_004628.png	45°±0.5°
+images/syn_003690.png	30°49'21"
+images/syn_004118.png	C47.594 +0.02/0
+images/syn_004218.png	0.25 REF
+images/syn_000384.png	0.941 0/-0.05
+images/syn_000288.png	12°19'39"
+images/syn_002262.png	R10.50 +0.005/0
+images/syn_003650.png	0.652 +0.002/0
+images/syn_000342.png	12.50 +0.03/0
+images/syn_001137.png	Ø11.89 +0.015/0
+images/syn_000355.png	15°22'
+images/syn_001869.png	C2.0
+images/syn_001714.png	12°31'
+images/syn_004672.png	C1.5
+images/syn_001302.png	82.819 +0.004/+0.002
+images/syn_004943.png	0.1585 +0.015/+0.01
+images/syn_000381.png	12.150 +0.005/0
+images/syn_004941.png	25°2'28"
+images/syn_000786.png	12.150 +0.03/0
+images/syn_004354.png	Ø3.032±0.015
+images/syn_004791.png	50.00 +0.015/-0.005
+images/syn_004640.png	72.663 +0.05/0
+images/syn_001893.png	R0.2 MIN
+images/syn_004909.png	0.1635±0.025
+images/syn_003441.png	12.150 0/-0.003
+images/syn_000290.png	R16.674 0/-0.002
+images/syn_001421.png	Ø0.4289 0/-0.008
+images/syn_004757.png	12.150 +0.01/+0.005
+images/syn_002061.png	7.525 +0.05/0
+images/syn_000240.png	75±0.002
+images/syn_003592.png	R10.50 0/-0.03
+images/syn_004211.png	4X Ø6.5
+images/syn_000242.png	Ø91.712 0/-0.05
+images/syn_001744.png	R1.5 MAX
+images/syn_004822.png	28.65°
+images/syn_001377.png	0.1141 +0.015/0
+images/syn_003545.png	Ø33.613 +0.002/0
+images/syn_002419.png	R77.705 0/-0.05
+images/syn_001259.png	R5.04±0.015
+images/syn_002457.png	67.280 +0.003/+0.001
+images/syn_001640.png	50.324 -0.001/-0.003
+images/syn_003930.png	Ø3.032 0/-0.008
+images/syn_004452.png	15.205 -0.005/-0.01
+images/syn_002504.png	37.732±0.025
+images/syn_002840.png	5±0.015
+images/syn_001265.png	0.0174 +0.015/-0.03
+images/syn_004668.png	72.702 +0.02/0
+images/syn_001732.png	14.941 +0.013/+0.01
+images/syn_002924.png	R12.155 +0.004/+0.001
+images/syn_004992.png	50.00 +0.01/+0.005
+images/syn_003837.png	3.032 +0.005/0
+images/syn_001203.png	2.711 -0.003/-0.006
+images/syn_002197.png	Ø2.75±0.05
+images/syn_004464.png	R35.726±0.01
+images/syn_000796.png	50.00
+images/syn_004498.png	R0.290 0/-0.05
+images/syn_000642.png	30°
+images/syn_001309.png	M56.003 +0.008/+0.005
+images/syn_001081.png	2.75±0.005
+images/syn_004199.png	R25 +0.003/0
+images/syn_003104.png	C0.3521 +0.01/-0.01
+images/syn_000538.png	20
+images/syn_001988.png	0.0040 +0.013/+0.01
+images/syn_001993.png	70.601 -0.001/-0.004
+images/syn_004923.png	0.008 +0.008/+0.005
+images/syn_003675.png	M12.160 0/-0.002
+images/syn_000750.png	0.0220 +0.01/-0.02
+images/syn_002131.png	0.052°
+images/syn_004606.png	24.50±0.002
+images/syn_001638.png	51.434 +0.003/0
+images/syn_000209.png	Ø24.50 +0.015/0
+images/syn_004153.png	50.00 0/-0.008
+images/syn_000129.png	12.50 0/-0.003
+images/syn_003978.png	R87.639 -0.003/-0.006
+images/syn_003409.png	0.0017 +0.01/0
+images/syn_003321.png	0.4819 0/-0.02
+images/syn_003498.png	9.313 0/-0.01
+images/syn_000571.png	R3MIN
+images/syn_003361.png	0.0421 0/-0.008
+images/syn_002478.png	30°±15'
+images/syn_003016.png	87.641 +0.01/0
+images/syn_004859.png	Ø0.0796±0.05
+images/syn_000797.png	90°±5'
+images/syn_000880.png	Ø0.2854±0.015
+images/syn_004291.png	C50 0/-0.02
+images/syn_000921.png	0.262°
+images/syn_000405.png	2°13'17"
+images/syn_001258.png	11.89 0/-0.01
+images/syn_004313.png	Ø57.63 +0.01/0
+images/syn_000060.png	Ø12.150±0.1
+images/syn_001987.png	45° 11'
+images/syn_004383.png	7.525 0/-0.005
+images/syn_003657.png	55.477 +0.007/+0.002
+images/syn_004126.png	35.726±0.02
+images/syn_003585.png	1° 24' 30"
+images/syn_000378.png	R5MAX
+images/syn_004725.png	R12 +0.01/0
+images/syn_000830.png	0.785°
+images/syn_003248.png	5°21'
+images/syn_004844.png	24.50 0/-0.01
+images/syn_000947.png	16.350 0/-0.015
+images/syn_004505.png	M12.155±0.01
+images/syn_001147.png	M0.25 +0.01/0
+images/syn_000678.png	Ø2.75 +0.05/0
+images/syn_002955.png	75°33'8"
+images/syn_003859.png	82.998±0.002
+images/syn_002053.png	Ø50.00 -0.003/-0.008
+images/syn_001057.png	30°±0.5°
+images/syn_002545.png	20 -0.001/-0.004
+images/syn_004295.png	70.272±0.025
+images/syn_002070.png	1.998 0/-0.015
+images/syn_002976.png	25±0.002
+images/syn_003014.png	5.04 0/-0.03
+images/syn_002463.png	M8
+images/syn_001328.png	R17.326 +0.005/0
+images/syn_002380.png	Ø25.205 +0.003/+0.001
+images/syn_001740.png	30°±10'
+images/syn_003735.png	2° 43' 14"
+images/syn_004339.png	0.652 0/-0.003
+images/syn_001456.png	89°56'37"
+images/syn_003403.png	12.155 +0.015/-0.03
+images/syn_000092.png	11.89 0/-0.008
+images/syn_004234.png	73.65 +0.02/0
+images/syn_002923.png	15°±15'
+images/syn_003023.png	Ø0.652 -0.01/-0.013
+images/syn_003539.png	Ø33.613 -0.01/-0.012
+images/syn_001427.png	12 +0.015/-0.02
+images/syn_002848.png	33.613 0/-0.03
+images/syn_004960.png	15 +0.003/+0.001
+images/syn_002307.png	Ø2.160 +0.01/0
+images/syn_000976.png	0.290 +0.01/0
+images/syn_002950.png	0°37'52"
+images/syn_000990.png	84.660±0.1
+images/syn_002023.png	14.941 +0.02/0
+images/syn_002122.png	7.525 +0.002/0
+images/syn_003841.png	Ø50.00 +0.02/-0.01
+images/syn_002606.png	86.389
+images/syn_000703.png	C0.1
+images/syn_000639.png	73.65 TYP
+images/syn_002858.png	75 +0.02/-0.01
+images/syn_000291.png	0.941 +0.02/0
+images/syn_001496.png	Ø30 +0.015/-0.002
+images/syn_003505.png	90°21'
+images/syn_004436.png	R30.218±0.02
+images/syn_000176.png	Ø82.380 +0.012/+0.01
+images/syn_000852.png	28°17'
+images/syn_002597.png	Ø8
+images/syn_003325.png	56.003 0/-0.005
+images/syn_004299.png	45°±10'
+images/syn_000051.png	Ø56.003 +0.015/0
+images/syn_004168.png	26.197 +0.003/0
+images/syn_003351.png	Ø57.261 0/-0.015
+images/syn_004122.png	R24.50 0/-0.002
+images/syn_002739.png	83.367 -0.005/-0.008
+images/syn_001206.png	57.63 0/-0.015
+images/syn_003515.png	7.525 0/-0.005
+images/syn_004138.png	89°57'51"
+images/syn_000949.png	15.80 0/-0.005
+images/syn_000802.png	R14.941 -0.01/-0.012
+images/syn_000767.png	Ø87.747 0/-0.002
+images/syn_002333.png	M0.3455 +0.05/0
+images/syn_000453.png	0.1037 0/-0.002
+images/syn_002536.png	43.870 +0.05/-0.02
+images/syn_001409.png	75°26'16"
+images/syn_003049.png	32 0/-0.003
+images/syn_003370.png	3.002 0/-0.002
+images/syn_001063.png	30.910±0.002
+images/syn_003032.png	12.155 +0.015/-0.01
+images/syn_004053.png	25° 50' 58"
+images/syn_003069.png	Ø0.2323±0.015
+images/syn_003432.png	25 +0.05/0
+images/syn_000202.png	12.50 +0.013/+0.01
+images/syn_003591.png	32 -0.003/-0.005
+images/syn_000217.png	R1.0MAX
+images/syn_001977.png	90°±5'
+images/syn_002837.png	30°±0.5°
+images/syn_000680.png	M0.290 +0.05/-0.02
+images/syn_002269.png	M18.071 +0.005/0
+images/syn_000819.png	2X Ø5
+images/syn_001325.png	41.156 -0.001/-0.003
+images/syn_003852.png	24.430±0.1
+images/syn_002806.png	120°39'
+images/syn_001154.png	M8
+images/syn_000091.png	86.213 +0.015/0
+images/syn_001255.png	12.50±0.015
+images/syn_002444.png	Ø16.350 +0.02/-0.03
+images/syn_000341.png	Ø12.689 0/-0.005
+images/syn_000728.png	60°±5'
+images/syn_003019.png	56.003 +0.03/0
+images/syn_001347.png	1°24'37"
+images/syn_002812.png	33.613 +0.015/0
+images/syn_003305.png	26.197 0/-0.015
+images/syn_000224.png	60°±5'
+images/syn_002118.png	Ø50.00 +0.05/-0.002
+images/syn_003897.png	R12.160 +0.01/0
+images/syn_002294.png	56.003 +0.007/+0.005
+images/syn_001996.png	R0.0746 +0.015/0
+images/syn_002243.png	C0.05
+images/syn_002138.png	4.04 +0.03/0
+images/syn_001834.png	Ø60 -0.002/-0.004
+images/syn_001437.png	60°
+images/syn_000737.png	71.791±0.1
+images/syn_001620.png	8 -0.005/-0.008
+images/syn_000076.png	40 +0.01/-0.03
+images/syn_001114.png	Ø0.2820 +0.003/0
+images/syn_004590.png	0.5
+images/syn_002093.png	34.806 0/-0.015
+images/syn_002938.png	C26.197 0/-0.03
+images/syn_003397.png	19.271±0.005
+images/syn_003154.png	0.0387±0.02
+images/syn_003600.png	4.04 +0.015/-0.002
+images/syn_004762.png	56.003±0.005
+images/syn_000821.png	Ø73.65 +0.01/-0.03
+images/syn_001193.png	50.00 0/-0.02
+images/syn_003015.png	30°±10'
+images/syn_004459.png	3.032 -0.01/-0.013
+images/syn_003533.png	92.939 +0.012/+0.01
+images/syn_003001.png	R0.05MAX
+images/syn_004113.png	11.89 -0.01/-0.012
+images/syn_002541.png	60° 17' 56"
+images/syn_000867.png	0.2462 +0.002/0
+images/syn_001465.png	C46.541 0/-0.05
+images/syn_002376.png	Ø57.63 +0.005/-0.01
+images/syn_004748.png	Ø77.669 +0.013/+0.01
+images/syn_002920.png	Ø50.00±0.015
+images/syn_000496.png	24.50 +0.05/-0.01
+images/syn_004675.png	16 +0.01/0
+images/syn_002297.png	Ø57.63 +0.015/0
+images/syn_003507.png	0.785°
+images/syn_002895.png	90.5°
+images/syn_001379.png	12.155 0/-0.01
+images/syn_002227.png	0.290 +0.005/0
+images/syn_004048.png	0.1968 +0.05/0
+images/syn_004858.png	R1.0
+images/syn_003741.png	3.032 +0.05/-0.01
+images/syn_002833.png	4.04 +0.005/-0.005
+images/syn_004317.png	(50)
+images/syn_004556.png	50 0/-0.008
+images/syn_002748.png	Ø0.652 +0.03/0
+images/syn_002414.png	Ø8 0/-0.03
+images/syn_003048.png	0.008 0/-0.003
+images/syn_002416.png	50.00±0.1
+images/syn_000430.png	Ø75.447 +0.03/0
+images/syn_003422.png	Ø20
+images/syn_004670.png	C0.15
+images/syn_004336.png	57.63 +0.005/0
+images/syn_000056.png	C12.150±0.002
+images/syn_003637.png	R33.613 0/-0.003
+images/syn_002097.png	2°3'17"
+images/syn_003495.png	R3
+images/syn_002704.png	45° 30' 32"
+images/syn_003259.png	30°
+images/syn_001213.png	R0.03 MAX
+images/syn_000410.png	73.65 0/-0.015
+images/syn_004882.png	30°±30'
+images/syn_003702.png	56.003 0/-0.03
+images/syn_003314.png	Ø10.50 +0.012/+0.01
+images/syn_004180.png	44.587
+images/syn_003981.png	67.027 -0.005/-0.007
+images/syn_002676.png	90°42'
+images/syn_004201.png	50.00±0.1
+images/syn_000575.png	45° 17'
+images/syn_004493.png	Ø0.3777 0/-0.01
+images/syn_000668.png	R2MIN
+images/syn_004779.png	12.150±0.005
+images/syn_001602.png	2.75 0/-0.03
+images/syn_001180.png	12.150±0.005
+images/syn_001006.png	50.00 0/-0.008
+images/syn_001297.png	Ø2.75 -0.01/-0.013
+images/syn_002550.png	Ø42.273 +0.013/+0.01
+images/syn_004075.png	10.50 +0.05/0
+images/syn_003996.png	0.2281 +0.01/-0.02
+images/syn_004942.png	1.998 0/-0.05
+images/syn_003805.png	Ø50.324 0/-0.03
+images/syn_004570.png	1°10'36"
+images/syn_000644.png	Ø12.155 +0.02/-0.005
+images/syn_000982.png	R50.00 +0.01/0
+images/syn_004311.png	12.160 +0.005/-0.01
+images/syn_002866.png	R25.313±0.025
+images/syn_003632.png	0.4015 0/-0.03
+images/syn_003658.png	R34.734 0/-0.002
+images/syn_003130.png	90°±10'
+images/syn_004086.png	14.941 +0.013/+0.01
+images/syn_002797.png	56.003 +0.05/0
+images/syn_004110.png	Ø0.3472 -0.003/-0.005
+images/syn_001334.png	54.881 +0.01/-0.01
+images/syn_003611.png	57.63
+images/syn_001687.png	3.032 0/-0.01
+images/syn_001671.png	0.2827 +0.005/0
+images/syn_002909.png	60°16'50"
+images/syn_000686.png	Ø57.63 +0.02/0
+images/syn_000902.png	32.565 +0.02/-0.02
+images/syn_003221.png	R0.0217 +0.015/+0.01
+images/syn_002051.png	61.313 0/-0.002
+images/syn_001647.png	Ø21.938 -0.001/-0.003
+images/syn_002328.png	12° 34' 15"
+images/syn_002994.png	74.824 +0.015/+0.01
+images/syn_001724.png	5.04 -0.005/-0.007
+images/syn_000681.png	12.155
+images/syn_000811.png	R0.652 +0.01/-0.002
+images/syn_002610.png	10.50 +0.02/0
+images/syn_004568.png	Ø27.870 +0.002/0
+images/syn_004082.png	26.197 -0.005/-0.008
+images/syn_003779.png	(50)
+images/syn_002092.png	12.5°
+images/syn_004392.png	0.25
+images/syn_002381.png	Ø24.50 +0.015/-0.01
+images/syn_002422.png	1.047°
+images/syn_001217.png	R4.026 +0.002/0
+images/syn_003984.png	0.0417 0/-0.008
+images/syn_002714.png	12.50 0/-0.05
+images/syn_001477.png	0.008±0.05
+images/syn_000506.png	Ø80.356 +0.02/0
+images/syn_004578.png	57.63 -0.002/-0.004
+images/syn_003727.png	89°48'54"
+images/syn_004063.png	Ø5 0/-0.002
+images/syn_000158.png	C3.032 +0.002/0
+images/syn_001603.png	0.290 0/-0.01
+images/syn_004373.png	C0.5
+images/syn_002698.png	52.380 0/-0.01
+images/syn_000863.png	Ø73.65 +0.002/0
+images/syn_002579.png	1.25°
+images/syn_000891.png	Ø71.725 +0.012/+0.01
+images/syn_004632.png	0.447 +0.005/+0.002
+images/syn_004702.png	0.785°
+images/syn_004129.png	12.50 0/-0.015
+images/syn_004682.png	R0.03MAX
+images/syn_002256.png	Ø77.375 +0.004/+0.001
+images/syn_004641.png	0.652 0/-0.03
+images/syn_000551.png	Ø12.150 0/-0.02
+images/syn_000285.png	8.308 0/-0.002
+images/syn_002022.png	40 +0.01/0
+images/syn_000780.png	5.04±0.002
+images/syn_001404.png	C8.308 0/-0.01
+images/syn_003710.png	12°6'6"
+images/syn_001068.png	Ø50±0.025
+images/syn_002985.png	33.613 0/-0.03
+images/syn_002854.png	R3MAX
+images/syn_002004.png	2.75
+images/syn_001854.png	0.2733 +0.02/0
+images/syn_002665.png	50 0/-0.008
+images/syn_002082.png	73.65±0.02
+images/syn_004554.png	35.726 -0.01/-0.013
+images/syn_004961.png	38.629
+images/syn_002065.png	R7.525 +0.02/-0.002
+images/syn_003181.png	M8
+images/syn_000848.png	Ø26.197 +0.005/0
+images/syn_002203.png	Ø12.663 0/-0.008
+images/syn_004245.png	Ø10.50 0/-0.01
+images/syn_000789.png	C0.25
+images/syn_003306.png	Ø71.314 +0.005/0
+images/syn_003184.png	5° 30' 53"
+images/syn_001607.png	50.00 +0.013/+0.01
+images/syn_001225.png	M13.036±0.05
+images/syn_004272.png	30°44'
+images/syn_002113.png	Ø0.008 +0.05/-0.02
+images/syn_003706.png	M24.50 -0.001/-0.006
+images/syn_000725.png	53.053 +0.015/0
+images/syn_000184.png	0.2229±0.02
+images/syn_004973.png	R50.324 +0.005/-0.02
+images/syn_004915.png	Ø12.150±0.01
+images/syn_004956.png	4.04 +0.005/0
+images/syn_003165.png	Ø18.500 +0.015/0
+images/syn_003352.png	24.50 0/-0.008
+images/syn_003582.png	12.50 +0.005/+0.002
+images/syn_004097.png	Ø0.3198 -0.001/-0.003
+images/syn_004913.png	15° 14' 22"
+images/syn_000419.png	0.25 -0.002/-0.004
+images/syn_001105.png	Ø12.155 +0.003/0
+images/syn_001475.png	Ø6.591±0.015
+images/syn_003757.png	Ø10 -0.003/-0.005
+images/syn_002369.png	55.296 +0.03/0
+images/syn_003523.png	Ø45.327 0/-0.01
+images/syn_000375.png	C0.3
+images/syn_004080.png	79.722 0/-0.05
+images/syn_003045.png	1.571°
+images/syn_004037.png	57.63
+images/syn_001596.png	12°2'
+images/syn_004163.png	4.026 +0.004/+0.001
+images/syn_002075.png	C12.50 +0.05/-0.03
+images/syn_002784.png	M6
+images/syn_001098.png	R0.25MIN
+images/syn_004372.png	R0.2MAX
+images/syn_003838.png	R39.080 +0.05/0
+images/syn_002560.png	2.160 +0.015/+0.01
+images/syn_003034.png	12.50±0.1
+images/syn_000352.png	33.613 +0.015/-0.03
+images/syn_004039.png	M10
+images/syn_000761.png	14.941 0/-0.008
+images/syn_003584.png	R40.947 +0.004/+0.001
+images/syn_001538.png	0.4871 0/-0.002
+images/syn_001458.png	12.50 0/-0.003
+images/syn_004263.png	100 0/-0.02
+images/syn_003163.png	24.50 +0.012/+0.01
+images/syn_003288.png	M11.89±0.05
+images/syn_003367.png	5.04±0.005
+images/syn_000122.png	0.052°
+images/syn_001337.png	R12.50 0/-0.05
+images/syn_002474.png	0°6'47"
+images/syn_001396.png	4.026±0.1
+images/syn_000312.png	9.862 +0.05/0
+images/syn_000951.png	33.613 0/-0.015
+images/syn_001791.png	15°±30'
+images/syn_000401.png	Ø4.04 0/-0.005
+images/syn_000220.png	5.04 -0.002/-0.007
+images/syn_001417.png	56.003 +0.007/+0.005
+images/syn_004194.png	R0.0390 -0.003/-0.006
+images/syn_000322.png	Ø10
+images/syn_002183.png	C1.5
+images/syn_001573.png	Ø0.0193 +0.02/-0.005
+images/syn_001359.png	50.324 +0.003/0
+images/syn_001594.png	25°34'30"
+images/syn_000985.png	3.340 +0.01/0
+images/syn_002464.png	15°51'50"
+images/syn_002759.png	C0.5
+images/syn_000316.png	27.964 +0.004/+0.001
+images/syn_002992.png	89.752 -0.001/-0.004
+images/syn_002654.png	12.50 0/-0.003
+images/syn_003719.png	12°14'
+images/syn_003149.png	33.613 0/-0.005
+images/syn_001289.png	0.25 TYP
+images/syn_002151.png	Ø0.290±0.005
+images/syn_003762.png	73.65 +0.03/0
+images/syn_004770.png	4.04±0.02
+images/syn_004214.png	Ø45.236 +0.05/-0.02
+images/syn_000191.png	R2.160 -0.01/-0.013
+images/syn_002527.png	8.308±0.05
+images/syn_001948.png	2.75 +0.003/0
+images/syn_004548.png	C0.1
+images/syn_000942.png	4.04 0/-0.002
+images/syn_000175.png	73.65 -0.01/-0.013
+images/syn_004310.png	R0.1MAX
+images/syn_003530.png	Ø71.975 +0.015/0
+images/syn_004131.png	73.65 0/-0.008
+images/syn_003825.png	Ø74.299 0/-0.003
+images/syn_003621.png	0.5
+images/syn_004412.png	Ø12.150 +0.015/+0.01
+images/syn_004108.png	0.290 0/-0.02
+images/syn_004001.png	Ø1.998 +0.005/-0.01
+images/syn_004801.png	4.026 0/-0.003
+images/syn_002242.png	12.5°
+images/syn_003488.png	0.087°
+images/syn_003323.png	12.155 +0.005/+0.002
+images/syn_004460.png	90.5°
+images/syn_002354.png	15°±30'
+images/syn_003643.png	Ø21.351±0.002
+images/syn_002847.png	0°39'
+images/syn_000926.png	R0.5 MIN
+images/syn_003391.png	24.50 +0.01/0
+images/syn_001881.png	10.50 +0.005/0
+images/syn_002755.png	C4.026 +0.005/-0.02
+images/syn_002165.png	R0.4543 +0.01/-0.01
+images/syn_002409.png	5.04 0/-0.02
+images/syn_001626.png	C0.2
+images/syn_001095.png	11.89 +0.05/-0.005
+images/syn_002565.png	7.525 +0.03/0
+images/syn_001034.png	2.094°
+images/syn_003205.png	15°36'
+images/syn_002265.png	Ø4.026±0.1
+images/syn_000610.png	60°30'
+images/syn_002473.png	8 0/-0.01
+images/syn_000395.png	C0.652 -0.001/-0.004
+images/syn_000439.png	45.665 +0.02/0
+images/syn_000735.png	M24 +0.007/+0.002
+images/syn_002962.png	M2.160 +0.01/-0.02
+images/syn_004077.png	C0.5
+images/syn_000071.png	C0.5
+images/syn_001175.png	M60 -0.005/-0.01
+images/syn_004091.png	50 +0.005/0
+images/syn_002936.png	30°11'2"
+images/syn_004448.png	76.850 -0.005/-0.008
+images/syn_001685.png	5°56'
+images/syn_003708.png	12°16'
+images/syn_002314.png	50.00
+images/syn_004032.png	76.503 +0.05/0
+images/syn_003942.png	2.75 +0.03/0
+images/syn_000248.png	78.435 +0.005/+0.002
+images/syn_002658.png	12.50 0/-0.008
+images/syn_001868.png	Ø0.673 -0.005/-0.01
+images/syn_002072.png	C0.05
+images/syn_004776.png	Ø57.926 -0.003/-0.006
+images/syn_002482.png	Ø4.04 +0.015/-0.002
+images/syn_003332.png	59.623 0/-0.05
+images/syn_000279.png	31.066 0/-0.01
+images/syn_004574.png	94.710 +0.02/-0.03
+images/syn_002508.png	R1.0 MAX
+images/syn_001690.png	12.50 -0.002/-0.005
+images/syn_004866.png	3.302 -0.005/-0.007
+images/syn_000199.png	50.00 +0.015/-0.01
+images/syn_000305.png	15°±5'
+images/syn_000139.png	Ø31.106 +0.002/0
+images/syn_004589.png	Ø24.5
+images/syn_000241.png	Ø6
+images/syn_002268.png	45°1'
+images/syn_002001.png	Ø11.89 0/-0.005
+images/syn_002576.png	50 0/-0.02
+images/syn_000694.png	73.65 +0.01/-0.02
+images/syn_004355.png	0.785°
+images/syn_000690.png	0.25 +0.002/0
+images/syn_001888.png	Ø73.65 0/-0.002
+images/syn_002010.png	R0.05
+images/syn_004684.png	Ø20 -0.003/-0.005
+images/syn_001055.png	2.75 0/-0.03
+images/syn_003157.png	Ø25.718 0/-0.03
+images/syn_002046.png	57.63 0/-0.008
+images/syn_001007.png	4.04 0/-0.015
+images/syn_002542.png	90°±1°
+images/syn_003428.png	1°38'17"
+images/syn_001352.png	10.50±0.005
+images/syn_000804.png	2.160±0.025
+images/syn_000625.png	11.89 +0.015/-0.03
+images/syn_003933.png	20 +0.05/0
+images/syn_003406.png	0.2927±0.002
+images/syn_002441.png	60 0/-0.003
+images/syn_003030.png	C0.05
+images/syn_000598.png	Ø25.4
+images/syn_004500.png	25 +0.005/0
+images/syn_000188.png	R1.5 MAX
+images/syn_001696.png	25.4
+images/syn_001282.png	R0.2 MIN
+images/syn_001519.png	77.864 +0.03/0
+images/syn_002252.png	27.727±0.01
+images/syn_001312.png	R0.008 +0.007/+0.002
+images/syn_004055.png	90°53'
+images/syn_004362.png	1.571°
+images/syn_004513.png	4.04 0/-0.015
+images/syn_004775.png	2.75 -0.01/-0.015
+images/syn_002101.png	1.519
+images/syn_001474.png	53.305 +0.05/0
+images/syn_004736.png	M2.160±0.01
+images/syn_004804.png	11.89
+images/syn_001472.png	60°±15'
+images/syn_002791.png	R0.25MAX
+images/syn_001910.png	31.739 0/-0.005
+images/syn_004898.png	57.63±0.015
+images/syn_001160.png	Ø0.4501 +0.05/-0.002
+images/syn_004173.png	15.80 -0.001/-0.003
+images/syn_004717.png	Ø57.63 0/-0.002
+images/syn_004378.png	16.350 +0.004/+0.002
+images/syn_003447.png	5°47'
+images/syn_002939.png	0.941 0/-0.015
+images/syn_004488.png	0.25 +0.05/0
+images/syn_002420.png	73.65 +0.003/+0.001
+images/syn_003904.png	73.65 +0.02/0
+images/syn_000868.png	10.50±0.025
+images/syn_004064.png	Ø19.834±0.015
+images/syn_001242.png	12.160 0/-0.02
+images/syn_001364.png	16.350 +0.005/+0.002
+images/syn_000856.png	1.571°
+images/syn_001964.png	20 +0.02/-0.03
+images/syn_004580.png	75±0.05
+images/syn_000771.png	35.539 -0.003/-0.006
+images/syn_004472.png	57.63 0/-0.02
+images/syn_003888.png	35.726 0/-0.03
+images/syn_001545.png	C52.176 +0.005/-0.002
+images/syn_001100.png	Ø33.613 +0.015/0
+images/syn_004193.png	4.026 0/-0.015
+images/syn_000781.png	14.941 +0.015/0
+images/syn_004914.png	0.3168 0/-0.01
+images/syn_004518.png	11.89±0.015
+images/syn_003408.png	30°23'
+images/syn_002908.png	75° 35' 32"
+images/syn_002535.png	M8
+images/syn_002511.png	35.726 -0.002/-0.004
+images/syn_000833.png	0.1283 0/-0.002
+images/syn_003594.png	C1.0
+images/syn_004144.png	36.889 +0.002/0
+images/syn_004288.png	R1.5 MIN
+images/syn_004374.png	R0.05
+images/syn_002171.png	60.292 -0.002/-0.007
+images/syn_003819.png	15 -0.001/-0.003
+images/syn_001691.png	45°57'
+images/syn_002372.png	1°4'32"
+images/syn_002329.png	5°34'
+images/syn_000592.png	12.155 +0.03/0
+images/syn_001232.png	R0.25MAX
+images/syn_003011.png	10 +0.05/0
+images/syn_004445.png	60°20'31"
+images/syn_002990.png	89° 49' 12"
+images/syn_002204.png	0.262°
+images/syn_000754.png	Ø5.04 +0.01/0
+images/syn_001542.png	91.857±0.01
+images/syn_003237.png	12°58'43"
+images/syn_000612.png	16 +0.015/+0.01
+images/syn_003796.png	0.941 +0.005/-0.005
+images/syn_001706.png	61.008 +0.05/0
+images/syn_003108.png	Ø2.75 +0.015/+0.01
+images/syn_002149.png	15°57'
+images/syn_004908.png	2.160 +0.002/0
+images/syn_001411.png	R0.941±0.002
+images/syn_000193.png	R0.25
+images/syn_004818.png	56.003 0/-0.015
+images/syn_004969.png	62.534 0/-0.015
+images/syn_001750.png	M5.04±0.1
+images/syn_002491.png	R5 MAX
+images/syn_003528.png	C38.379 0/-0.03
+images/syn_003654.png	30°±30'
+images/syn_001128.png	R72.580 +0.005/0
+images/syn_001231.png	0°8'50"
+images/syn_001694.png	11.89 0/-0.05
+images/syn_000906.png	R57.63 +0.004/+0.002
+images/syn_004109.png	Ø12.160 -0.001/-0.004
+images/syn_003511.png	12.50 -0.005/-0.007
+images/syn_002435.png	0.4355 +0.004/+0.002
+images/syn_004252.png	Ø3.878 0/-0.03
+images/syn_001314.png	15.8
+images/syn_001307.png	M14.941 +0.02/0
+images/syn_002675.png	R0.4285 -0.01/-0.015
+images/syn_004123.png	C0.0834 -0.001/-0.006
+images/syn_003667.png	Ø60 +0.05/0
+images/syn_004562.png	Ø10 +0.005/-0.03
+images/syn_000232.png	Ø12.155 +0.015/0
+images/syn_004906.png	40 +0.005/0
+images/syn_003196.png	12.150 0/-0.05
+images/syn_000960.png	C0.25
+images/syn_004440.png	12.160 0/-0.01
+images/syn_004826.png	Ø0.25 +0.002/0
+images/syn_003017.png	0.008±0.015
+images/syn_001003.png	R0.05 MIN
+images/syn_002696.png	Ø7.648±0.01
+images/syn_004996.png	Ø49.341 +0.004/+0.001
+images/syn_000138.png	10.50 +0.005/0
+images/syn_000414.png	0.25
+images/syn_002919.png	C0.25
+images/syn_000845.png	4.04±0.1
+images/syn_003918.png	15°
+images/syn_003686.png	57.63 +0.02/-0.005
+images/syn_001718.png	R35.726 +0.01/-0.005
+images/syn_000132.png	16.350 0/-0.002
+images/syn_000463.png	0.1689 -0.005/-0.01
+images/syn_004788.png	10.50±0.002
+images/syn_001130.png	24.50 +0.007/+0.005
+images/syn_000636.png	C0.5
+images/syn_004024.png	5.04±0.02
+images/syn_001887.png	25°56'6"
+images/syn_004870.png	24.407 -0.002/-0.007
+images/syn_004217.png	Ø24.5
+images/syn_001554.png	16.851 0/-0.01
+images/syn_002179.png	26.197 -0.003/-0.005
+images/syn_003951.png	0.008±0.02
+images/syn_003750.png	0.3793 +0.005/0
+images/syn_004226.png	Ø17.019±0.025
+images/syn_002481.png	0.25 +0.05/-0.002
+images/syn_000094.png	45° 46'
+images/syn_000015.png	Ø16 +0.005/+0.002
+images/syn_005000.png	0.008±0.002
+images/syn_000522.png	Ø12.160 -0.001/-0.004
+images/syn_004671.png	R35.726±0.05
+images/syn_003761.png	2.75 +0.015/0
+images/syn_002201.png	8 +0.002/0
+images/syn_000732.png	26.230
+images/syn_000486.png	Ø67.214 +0.002/0
+images/syn_001425.png	90°36'49"
+images/syn_000545.png	C2.0
+images/syn_002209.png	0.2923±0.05
+images/syn_004200.png	1.25°
+images/syn_001539.png	3.032 +0.05/-0.03
+images/syn_001547.png	C0.3
+images/syn_003094.png	34.352±0.002
+images/syn_003983.png	2.835 0/-0.008
+images/syn_003593.png	0.25±0.002
+images/syn_004539.png	2.75±0.05
+images/syn_000555.png	16.350 +0.01/-0.03
+images/syn_003989.png	Ø75 -0.001/-0.006
+images/syn_003267.png	68.669 +0.005/-0.02
+images/syn_003100.png	90°44'
+images/syn_002595.png	60°35'18"
+images/syn_001934.png	Ø7.525 -0.002/-0.007
+images/syn_000283.png	12.160 REF
+images/syn_000247.png	5.04 -0.005/-0.008
+images/syn_004030.png	Ø15.191 +0.003/0
+images/syn_000262.png	84.309
+images/syn_002822.png	R75 +0.02/-0.01
+images/syn_004975.png	73.65 +0.015/0
+images/syn_003218.png	R57.234±0.05
+images/syn_000300.png	24.5
+images/syn_000893.png	C0.3
+images/syn_000013.png	C0.1
+images/syn_004550.png	73.65±0.01
+images/syn_003385.png	16 0/-0.02
+images/syn_003932.png	16.350 +0.01/0
+images/syn_001263.png	Ø10.50 +0.02/-0.03
+images/syn_001894.png	M2.75 +0.03/0
+images/syn_003426.png	Ø3.032 +0.02/-0.01
+images/syn_004143.png	15°59'
+images/syn_003344.png	8.308 -0.001/-0.004
+images/syn_003310.png	C1.5
+images/syn_003874.png	Ø4.04 -0.001/-0.004
+images/syn_004881.png	73.65 -0.002/-0.005
+images/syn_000541.png	C2.0
+images/syn_002753.png	0.4062 +0.015/-0.03
+images/syn_000228.png	0.4808±0.1
+images/syn_001825.png	15°46'55"
+images/syn_004496.png	4.04 +0.004/+0.002
+images/syn_004279.png	Ø32 -0.002/-0.007
+images/syn_003072.png	0.1073±0.005
+images/syn_000842.png	R3MAX
+images/syn_000477.png	50.324 0/-0.003
+images/syn_003958.png	C12.50 +0.01/-0.005
+images/syn_004854.png	R5MAX
+images/syn_002451.png	90°±1°
+images/syn_003861.png	90.635 -0.001/-0.004
+images/syn_000614.png	Ø73.65 +0.002/0
+images/syn_003238.png	Ø50
+images/syn_003802.png	Ø78.651 +0.002/0
+images/syn_000829.png	Ø50.00±0.1
+images/syn_004172.png	89.260±0.01
+images/syn_002244.png	16 0/-0.008
+images/syn_000253.png	0.262°
+images/syn_000460.png	Ø0.2569 -0.003/-0.008
+images/syn_002311.png	Ø3.032 +0.01/0
+images/syn_000320.png	12°42'
+images/syn_001482.png	42.319 0/-0.005
+images/syn_002164.png	78.479 +0.03/0
+images/syn_003261.png	24.50 0/-0.003
+images/syn_003348.png	2.670 0/-0.008
+images/syn_000336.png	0.2733±0.05
+images/syn_001014.png	73.65 +0.02/0
+images/syn_000895.png	C1.0
+images/syn_004158.png	Ø19.786 -0.001/-0.006
+images/syn_001929.png	0.0782 +0.006/+0.001
+images/syn_004478.png	0.3020 0/-0.01
+images/syn_003601.png	Ø57.63 -0.005/-0.008
+images/syn_001531.png	Ø25.4
+images/syn_004286.png	1°59'31"
+images/syn_000628.png	Ø12.50 +0.005/0
+images/syn_001959.png	7.525±0.02
+images/syn_000548.png	M5.04±0.01
+images/syn_004728.png	0.2546 0/-0.008
+images/syn_000905.png	11.89 0/-0.05
+images/syn_003925.png	12.50 -0.001/-0.004
+images/syn_004700.png	12.160
+images/syn_004749.png	90.429 -0.01/-0.012
+images/syn_004715.png	C60 -0.01/-0.015
+images/syn_003896.png	C2.307 0/-0.03
+images/syn_002454.png	85.936 +0.015/0
+images/syn_002717.png	Ø30 +0.015/-0.02
+images/syn_001257.png	180°
+images/syn_001907.png	12.022 +0.004/+0.001
+images/syn_000485.png	R12±0.002
+images/syn_004400.png	Ø26.197 +0.002/0
+images/syn_004085.png	90°±10'
+images/syn_001473.png	Ø0.941 +0.008/+0.005
+images/syn_004650.png	0.0496±0.05
+images/syn_000047.png	4.026 -0.001/-0.004
+images/syn_002347.png	7.525±0.02
+images/syn_004228.png	Ø94.998 +0.005/0
+images/syn_001237.png	35.726 +0.02/0
+images/syn_003256.png	C12.160 +0.007/+0.005
+images/syn_001094.png	90°±1°
+images/syn_001830.png	12.155 +0.05/-0.03
+images/syn_000965.png	C56.003 +0.02/0
+images/syn_004549.png	33.613 +0.002/0
+images/syn_001069.png	24.50 0/-0.02
+images/syn_000028.png	R1.5 MIN
+images/syn_002718.png	0.008 +0.002/0
+images/syn_001326.png	Ø89.313±0.05
+images/syn_004501.png	14.941 -0.01/-0.015
+images/syn_000576.png	4.04±0.02
+images/syn_004656.png	R0.1 MAX
+images/syn_000391.png	Ø4.04 +0.05/0
+images/syn_003508.png	Ø0.3207 0/-0.005
+images/syn_004957.png	1.25°
+images/syn_003227.png	41.806 +0.05/-0.005
+images/syn_003063.png	60°±10'
+images/syn_004751.png	0°30'
+images/syn_001661.png	R3.032±0.002
+images/syn_000719.png	3.032 0/-0.008
+images/syn_000792.png	16.350 0/-0.015
+images/syn_002326.png	30.106 -0.002/-0.007
+images/syn_004186.png	45°
+images/syn_001381.png	20 0/-0.005
+images/syn_003832.png	57.63 +0.015/0
+images/syn_002892.png	30°
+images/syn_001054.png	Ø7.221 +0.03/0
+images/syn_001880.png	Ø5.04 0/-0.03
+images/syn_003013.png	15°40'
+images/syn_001355.png	0.052°
+images/syn_000462.png	51.119 -0.002/-0.004
+images/syn_000790.png	14.941 0/-0.002
+images/syn_003129.png	0.0434 0/-0.005
+images/syn_001918.png	0.652 +0.01/+0.005
+images/syn_004815.png	90°±15'
+images/syn_000550.png	75.480 +0.002/0
+images/syn_002850.png	R30.276±0.05
+images/syn_002601.png	7.525±0.015
+images/syn_004473.png	25 0/-0.05
+images/syn_001862.png	0.290 +0.015/-0.02
+images/syn_004213.png	R3MAX
+images/syn_001373.png	57.63
+images/syn_004258.png	R0.12
+images/syn_002949.png	30°16'18"
+images/syn_002327.png	Ø15.80 -0.005/-0.008
+images/syn_002557.png	R60 0/-0.02
+images/syn_000038.png	12°55'
+images/syn_000154.png	20 0/-0.002
+images/syn_003405.png	45.5°
+images/syn_004137.png	30°±0.5°
+images/syn_002030.png	Ø23.742 +0.007/+0.005
+images/syn_003420.png	M1.998 0/-0.003
+images/syn_000149.png	13.259 +0.03/0
+images/syn_000721.png	82.504 0/-0.015
+images/syn_001712.png	R0.3229±0.02
+images/syn_003020.png	2X Ø5
+images/syn_003792.png	81.813 +0.01/0
+images/syn_002192.png	Ø12.50 +0.005/0
+images/syn_003975.png	45°8'31"
+images/syn_004196.png	4.04 +0.005/0
+images/syn_000367.png	R5 MIN
+images/syn_000243.png	2.75 +0.05/0
+images/syn_002880.png	60 -0.005/-0.008
+images/syn_004285.png	Ø25±0.1
+images/syn_001177.png	Ø12.150 0/-0.05
+images/syn_000817.png	20 0/-0.015
+images/syn_004704.png	90°44'5"
+images/syn_003292.png	Ø0.3191±0.002
+images/syn_001667.png	50 TYP
+images/syn_000647.png	C0.3
+images/syn_002255.png	Ø86.568 -0.01/-0.015
+images/syn_003092.png	R57.63 0/-0.005
+images/syn_002902.png	26.197 0/-0.003
+images/syn_004011.png	2.75 +0.05/0
+images/syn_001935.png	R2.160 +0.01/0
+images/syn_004432.png	15.80 +0.007/+0.002
+images/syn_001693.png	45°7'
+images/syn_004729.png	50.324±0.025
+images/syn_003485.png	60°±10'
+images/syn_000954.png	Ø4.04 +0.03/0
+images/syn_003845.png	4.026±0.01
+images/syn_003994.png	15.80 0/-0.02
+images/syn_003525.png	84.718 +0.05/-0.03
+images/syn_000994.png	4.04 +0.007/+0.002
+images/syn_000981.png	86.026 +0.007/+0.002
+images/syn_002404.png	4.04 +0.05/-0.002
+images/syn_003765.png	3.032 -0.002/-0.007
+images/syn_000448.png	0.523°
+images/syn_003443.png	C4.026 +0.005/-0.02
+images/syn_001113.png	Ø15.80 +0.01/0
+images/syn_002303.png	M20 0/-0.05
+images/syn_001111.png	0.941 +0.005/0
+images/syn_002207.png	Ø0.4631 -0.003/-0.006
+images/syn_004940.png	M0.2192 +0.01/0
+images/syn_004669.png	Ø0.25 +0.007/+0.005
+images/syn_001963.png	0.0927 +0.005/-0.02
+images/syn_001051.png	8.308±0.02
+images/syn_003328.png	8 +0.003/0
+images/syn_001419.png	Ø12.155
+images/syn_002801.png	90.5°
+images/syn_004984.png	M10 0/-0.02
+images/syn_004814.png	34.337 +0.015/+0.01
+images/syn_002862.png	0.2882 0/-0.002
+images/syn_003360.png	12.150 +0.003/0
+images/syn_003464.png	25 0/-0.015
+images/syn_003833.png	Ø15.80±0.005
+images/syn_004737.png	50.00 0/-0.003
+images/syn_002991.png	5.04 +0.002/0
+images/syn_004251.png	75°19'21"
+images/syn_003077.png	8.308 0/-0.005
+images/syn_003561.png	Ø2.75 +0.01/-0.02
+images/syn_001121.png	57.63 +0.007/+0.005
+images/syn_002296.png	70.717 +0.02/-0.005
+images/syn_001429.png	1.998±0.005
+images/syn_001966.png	R73.65 +0.006/+0.001
+images/syn_002829.png	C0.15
+images/syn_002003.png	C73.65±0.1
+images/syn_004492.png	50
+images/syn_001184.png	1.5
+images/syn_001220.png	R64.533 -0.005/-0.01
+images/syn_000922.png	0.4167 0/-0.02
+images/syn_004256.png	0.1588 0/-0.002
+images/syn_003254.png	33.613 0/-0.008
+images/syn_001143.png	R24.50 -0.003/-0.008
+images/syn_001010.png	Ø24.5
+images/syn_000788.png	50.00 -0.01/-0.015
+images/syn_003217.png	C8.308 0/-0.008
+images/syn_004342.png	R5 MAX
+images/syn_001083.png	Ø16.350 +0.02/-0.02
+images/syn_001452.png	Ø11.89 +0.005/-0.02
+images/syn_002238.png	R56.569 0/-0.005
+images/syn_001403.png	56.442 +0.003/0
+images/syn_002184.png	R37.994±0.025
+images/syn_004366.png	60 +0.015/+0.01
+images/syn_004346.png	R3.032 0/-0.002
+images/syn_001286.png	Ø8
+images/syn_004435.png	C0.15
+images/syn_004899.png	28.592±0.002
+images/syn_004479.png	Ø36.169 0/-0.003
+images/syn_004763.png	C100 +0.007/+0.002
+images/syn_003535.png	C0.05
+images/syn_000850.png	C0.2
+images/syn_002125.png	Ø0.25 +0.02/0
+images/syn_000566.png	26.197 -0.005/-0.01
+images/syn_000256.png	Ø74.986 0/-0.03
+images/syn_003814.png	R1.0 MAX
+images/syn_002505.png	Ø7.525 +0.01/-0.03
+images/syn_003865.png	Ø33.613 +0.03/0
+images/syn_001681.png	R50.324 -0.01/-0.012
+images/syn_003878.png	0.25 +0.002/0
+images/syn_001692.png	61.731 0/-0.002
+images/syn_000621.png	M10.50 +0.01/0
+images/syn_001716.png	60 -0.005/-0.008
+images/syn_001285.png	Ø16
+images/syn_004733.png	R70.462 0/-0.05
+images/syn_004481.png	C0.25
+images/syn_000782.png	R26.197 +0.01/0
+images/syn_003698.png	50.324 -0.005/-0.008
+images/syn_002346.png	C0.05
+images/syn_000130.png	0.0558 -0.002/-0.004
+images/syn_000993.png	Ø0.008 0/-0.01
+images/syn_000606.png	Ø10.50±0.02
+images/syn_003431.png	Ø92.263 -0.003/-0.005
+images/syn_004839.png	10.50 0/-0.01
+images/syn_004164.png	24.50±0.1
+images/syn_002148.png	14.941±0.02
+images/syn_000699.png	R0.05MAX
+images/syn_001968.png	C0.15
+images/syn_002615.png	11.89 +0.03/0
+images/syn_004869.png	R0.12 MAX
+images/syn_000933.png	Ø0.008 0/-0.01
+images/syn_002366.png	11.89 +0.015/-0.03
+images/syn_002370.png	2.75 -0.002/-0.007
+images/syn_001088.png	Ø4.04 0/-0.002
+images/syn_001944.png	R50.00 +0.02/0
+images/syn_003349.png	57.389 +0.015/0
+images/syn_003120.png	R85.206 0/-0.008
+images/syn_004910.png	73.65 +0.006/+0.001
+images/syn_001261.png	Ø4.026±0.002
+images/syn_004130.png	Ø6
+images/syn_002767.png	11.89 0/-0.008
+images/syn_000449.png	24.50 +0.03/0
+images/syn_001357.png	10.50 0/-0.002
+images/syn_001509.png	Ø12
+images/syn_000069.png	M9.727 0/-0.002
+images/syn_001946.png	M0.1580 +0.02/-0.03
+images/syn_001228.png	16.350 +0.02/-0.005
+images/syn_002306.png	26.531 +0.008/+0.005
+images/syn_004997.png	M15.80±0.015
+images/syn_002181.png	65.307 +0.02/0
+images/syn_002088.png	26.197 +0.002/0
+images/syn_002078.png	Ø30±0.025
+images/syn_001378.png	60°±10'
+images/syn_003670.png	24.50 +0.006/+0.001
+images/syn_003954.png	100
+images/syn_004710.png	Ø83.784±0.015
+images/syn_001610.png	2.75 -0.003/-0.006
+images/syn_004238.png	0.0981 -0.01/-0.012
+images/syn_004610.png	73.65 +0.05/-0.02
+images/syn_004302.png	0.4271±0.005
+images/syn_003912.png	91.212 0/-0.01
+images/syn_003794.png	Ø35.726 0/-0.008
+images/syn_002993.png	84.984 +0.05/0
+images/syn_003919.png	R10.50 0/-0.03
+images/syn_000611.png	24.50 0/-0.015
+images/syn_003948.png	C0.5
+images/syn_002128.png	Ø50
+images/syn_001941.png	Ø67.139 0/-0.05
+images/syn_003380.png	1°35'59"
+images/syn_004720.png	45°39'
+images/syn_004849.png	Ø21.977±0.025
+images/syn_002679.png	Ø10.50 -0.005/-0.008
+images/syn_000165.png	18.653 -0.005/-0.008
+images/syn_002049.png	4.026 +0.02/0
+images/syn_001645.png	35.726 +0.002/0
+images/syn_002086.png	45°±1°
+images/syn_002961.png	Ø0.4117±0.05
+images/syn_003945.png	50.00 +0.002/0
+images/syn_004062.png	72.320 -0.003/-0.006
+images/syn_001498.png	1.047°
+images/syn_004853.png	24.50 +0.01/-0.02
+images/syn_002973.png	35.726 +0.05/0
+images/syn_001529.png	Ø75 +0.015/0
+images/syn_001614.png	R1.0
+images/syn_004106.png	30 0/-0.005
+images/syn_000528.png	60°±0.5°
+images/syn_000487.png	10.50±0.002
+images/syn_002503.png	Ø0.941 +0.01/0
+images/syn_004338.png	16.545 +0.01/+0.005
+images/syn_003763.png	63.169 -0.002/-0.005
+images/syn_002864.png	66.607±0.1
+images/syn_001845.png	10.50 +0.05/-0.002
+images/syn_002066.png	R1.5 MAX
+images/syn_004597.png	R1.998±0.05
+images/syn_003644.png	10.50 +0.008/+0.005
+images/syn_001183.png	Ø11.89 +0.015/-0.005
+images/syn_004654.png	C26.197±0.05
+images/syn_001485.png	11.89 +0.003/0
+images/syn_000798.png	Ø73.65±0.1
+images/syn_002302.png	4.04 -0.003/-0.005
+images/syn_002336.png	15°30'
+images/syn_000210.png	R0.2
+images/syn_003388.png	12°53'21"
+images/syn_003793.png	0.087°
+images/syn_003617.png	15°8'
+images/syn_001652.png	120°2'
+images/syn_003836.png	M12
+images/syn_003831.png	73.65 +0.02/-0.01
+images/syn_000549.png	2.160 +0.015/-0.01
+images/syn_001766.png	C0.15
+images/syn_000441.png	Ø25 +0.01/0
+images/syn_003927.png	Ø0.1714±0.005
+images/syn_004349.png	Ø54.427±0.05
+images/syn_004905.png	80.598 +0.005/+0.002
+images/syn_001928.png	Ø35.726 +0.005/0
+images/syn_002680.png	84.318 +0.05/-0.03
+images/syn_002448.png	4.026 +0.005/-0.005
+images/syn_002028.png	R0.652 0/-0.03
+images/syn_001153.png	90°±0.5°
+images/syn_002723.png	30°±1°
+images/syn_000200.png	Ø35.726±0.025
+images/syn_003054.png	C45.334±0.1
+images/syn_002390.png	0.008 +0.002/0
+images/syn_003499.png	Ø11.89 0/-0.015
+images/syn_003980.png	0.2202 +0.007/+0.005
+images/syn_003071.png	25° 46' 12"
+images/syn_003625.png	R45.780 -0.005/-0.007
+images/syn_001611.png	Ø0.652 0/-0.003
+images/syn_000369.png	28°44'
+images/syn_004876.png	M10.50 +0.015/-0.02
+images/syn_002969.png	40 0/-0.03
+images/syn_004443.png	3.032 -0.002/-0.007
+images/syn_002043.png	Ø33.613 +0.015/+0.01
+images/syn_004221.png	R63.757 +0.003/+0.001
+images/syn_002109.png	2.75
+images/syn_002041.png	Ø0.4561 0/-0.005
+images/syn_000653.png	5.04±0.025
+images/syn_003743.png	M0.0961±0.015
+images/syn_002741.png	0.3750 -0.002/-0.004
+images/syn_002367.png	39.084±0.02
+images/syn_004385.png	M3.032 0/-0.008
+images/syn_000655.png	4.04 +0.005/-0.03
+images/syn_001017.png	0.0168 +0.05/-0.01
+images/syn_001713.png	C0.15
+images/syn_004829.png	10.50 0/-0.008
+images/syn_001574.png	50.00 0/-0.002
+images/syn_001189.png	1.047°
+images/syn_004104.png	12.155 +0.015/0
+images/syn_000397.png	4.04±0.025
+images/syn_000578.png	0.3312 0/-0.002
+images/syn_001016.png	R16.350 +0.05/-0.002
+images/syn_004216.png	4.04 +0.015/0
+images/syn_004813.png	12.150 0/-0.01
+images/syn_000502.png	53.623 +0.005/+0.002
+images/syn_001911.png	56.003 -0.002/-0.005
+images/syn_003061.png	Ø20.179 +0.05/0
+images/syn_002740.png	80.800 +0.01/+0.005
+images/syn_000435.png	25.071 0/-0.002
+images/syn_002888.png	24 +0.003/0
+images/syn_002110.png	C0.008 +0.05/-0.03
+images/syn_003760.png	Ø2.029 +0.02/0
+images/syn_004262.png	C1.5
+images/syn_003602.png	0.2517 0/-0.008
+images/syn_001415.png	12°39'12"
+images/syn_004972.png	Ø0.25 0/-0.05
+images/syn_003615.png	Ø55.018±0.01
+images/syn_004020.png	3.032 -0.005/-0.007
+images/syn_002485.png	0.652 +0.005/0
+images/syn_001394.png	Ø79.626 +0.007/+0.002
+images/syn_000836.png	50.00±0.02
+images/syn_001903.png	0.3701±0.1
+images/syn_001984.png	0.0590 +0.01/0
+images/syn_004241.png	R0.03 MAX
+images/syn_001801.png	30°18'7"
+images/syn_003960.png	71.710 +0.01/-0.005
+images/syn_003576.png	39.788 +0.003/+0.001
+images/syn_000299.png	R12.50 0/-0.02
+images/syn_003603.png	50.00 0/-0.002
+images/syn_001219.png	0.2923 0/-0.02
+images/syn_002931.png	12°46'58"
+images/syn_001004.png	C0.25
+images/syn_001979.png	20 -0.005/-0.007
+images/syn_003798.png	8 +0.013/+0.01
+images/syn_002630.png	30°48'15"
+images/syn_001187.png	2.75 +0.02/-0.01
+images/syn_002959.png	0.290±0.01
+images/syn_002569.png	90°12'
+images/syn_002040.png	28.65°
+images/syn_000125.png	Ø8.490 +0.02/-0.02
+images/syn_003073.png	C0.15
+images/syn_003189.png	1.571°
+images/syn_004270.png	26.313±0.1
+images/syn_002344.png	C25±0.05
+images/syn_000864.png	15°±1°
+images/syn_002668.png	15.8
+images/syn_001085.png	30°51'
+images/syn_002363.png	42.151 +0.02/-0.01
+images/syn_002628.png	50.324±0.005
+images/syn_003453.png	R4.04 0/-0.005
+images/syn_000333.png	73.65 +0.002/0
+images/syn_000117.png	Ø88.042 0/-0.02
+images/syn_004778.png	0.4208 +0.005/0
+images/syn_004665.png	27.970
+images/syn_001383.png	55.917 +0.015/-0.002
+images/syn_004933.png	5.800 +0.013/+0.01
+images/syn_003636.png	Ø16.350 +0.05/0
+images/syn_003660.png	90°±15'
+images/syn_004325.png	0° 3'
+images/syn_003185.png	Ø12.50 +0.002/0
+images/syn_002379.png	30±0.015
+images/syn_002425.png	11.057±0.015
+images/syn_000691.png	0.941±0.002
+images/syn_002626.png	Ø0.290±0.005
+images/syn_002059.png	0.3579±0.02
+images/syn_003219.png	0.087°
+images/syn_004040.png	12°34'49"
+images/syn_002517.png	Ø100 -0.005/-0.01
+images/syn_003579.png	Ø20
+images/syn_002561.png	M17.071 -0.005/-0.007
+images/syn_000513.png	93.076 +0.02/0
+images/syn_002937.png	5.04 0/-0.005
+images/syn_002257.png	R1.998 +0.05/0
+images/syn_002602.png	94.024
+images/syn_000805.png	86.193 0/-0.03
+images/syn_003891.png	5°38'4"
+images/syn_004949.png	Ø0.652 -0.005/-0.008
+images/syn_003251.png	50±0.025
+images/syn_002126.png	C2.0
+images/syn_001418.png	Ø28.141±0.002
+images/syn_000924.png	Ø10.687±0.015
+images/syn_001322.png	M8
+images/syn_003147.png	Ø4.824 0/-0.015
+images/syn_000675.png	R0.05MAX
+images/syn_001246.png	5°34'
+images/syn_004098.png	C0.15
+images/syn_002123.png	15.80 +0.02/0
+images/syn_000509.png	0.4915 -0.001/-0.004
+images/syn_004586.png	Ø20 +0.015/0
+images/syn_003614.png	15°37'45"
+images/syn_004293.png	Ø24.50±0.05
+images/syn_003234.png	12.160
+images/syn_000746.png	12°5'
+images/syn_002408.png	C1.5
+images/syn_002621.png	M67.539 +0.05/0
+images/syn_003613.png	0.4394 +0.02/0
+images/syn_000526.png	40.382 -0.001/-0.003
+images/syn_001412.png	Ø4.04±0.002
+images/syn_002120.png	51.433 +0.012/+0.01
+images/syn_002786.png	C12.50±0.002
+images/syn_001909.png	64.099 +0.007/+0.005
+images/syn_001844.png	Ø45.054 +0.02/0
+images/syn_002874.png	24.50 0/-0.002
+images/syn_002632.png	15.80 0/-0.01
+images/syn_001299.png	50.324±0.005
+images/syn_000514.png	27.397±0.02
+images/syn_003959.png	Ø4.04 +0.012/+0.01
+images/syn_003936.png	Ø57.63 0/-0.008
+images/syn_001678.png	12.150 0/-0.03
+images/syn_003175.png	24.5
+images/syn_002154.png	83.247 0/-0.02
+images/syn_003008.png	4.04 +0.003/+0.001
+images/syn_003278.png	Ø60.785 0/-0.005
+images/syn_004621.png	R0.290 0/-0.005
+images/syn_003257.png	3.142°
+images/syn_000354.png	R3 MAX
+images/syn_002881.png	73.65 -0.01/-0.012
+images/syn_000532.png	Ø57.63 +0.01/0
+images/syn_002260.png	Ø73.65 -0.01/-0.013
+images/syn_001915.png	0.1229 +0.05/-0.01
+images/syn_001512.png	90°±5'
+images/syn_002345.png	45°±30'
+images/syn_003681.png	Ø0.2727 +0.03/0
+images/syn_001479.png	2°45'57"
+images/syn_003527.png	Ø10.500 +0.01/-0.002
+images/syn_004231.png	57.63 +0.004/+0.001
+images/syn_000970.png	0° 5' 9"
+images/syn_003097.png	Ø82.210±0.015
+images/syn_004289.png	24.50 +0.05/0
+images/syn_000498.png	89° 17' 29"
+images/syn_003550.png	15.80 0/-0.02
+images/syn_002084.png	12.160
+images/syn_001481.png	12.160 0/-0.03
+images/syn_003685.png	R0.12MAX
+images/syn_004058.png	Ø56.003 +0.005/+0.002
+images/syn_004841.png	90°±1°
+images/syn_001229.png	R0.03 MAX
+images/syn_001190.png	23.473 +0.05/-0.03
+images/syn_002221.png	Ø0.4182±0.005
+images/syn_002253.png	Ø0.652 0/-0.003
+images/syn_000266.png	15.80 +0.02/-0.02
+images/syn_004235.png	7.525 +0.015/-0.02
+images/syn_002736.png	2X Ø5
+images/syn_001310.png	0.290 -0.01/-0.013
+images/syn_002794.png	50 +0.013/+0.01
+images/syn_000360.png	48.528
+images/syn_001824.png	C0.1
+images/syn_000708.png	Ø0.652 +0.02/0
+images/syn_003316.png	R5 MAX
+images/syn_003319.png	0.008 0/-0.05
+images/syn_003784.png	Ø12.50 0/-0.01
+images/syn_000503.png	12.160 0/-0.03
+images/syn_004693.png	0.4931 +0.05/0
+images/syn_004347.png	C1.5
+images/syn_004017.png	24 -0.003/-0.008
+images/syn_001170.png	Ø30
+images/syn_002507.png	62.516 0/-0.003
+images/syn_000879.png	Ø0.290 +0.002/0
+images/syn_001828.png	1° 54' 10"
+images/syn_004013.png	C0.5
+images/syn_001067.png	Ø10 +0.05/-0.01
+images/syn_004701.png	Ø57.631±0.01
+images/syn_004808.png	48.969 0/-0.003
+images/syn_004569.png	25°51'27"
+images/syn_001586.png	Ø0.25 +0.005/+0.002
+images/syn_002121.png	0.4523±0.025
+images/syn_004626.png	9.320±0.01
+images/syn_004316.png	M10.50±0.02
+images/syn_000107.png	86.078 -0.01/-0.012
+images/syn_000465.png	24.50 +0.007/+0.005
+images/syn_004954.png	0.0631 +0.02/-0.005
+images/syn_003541.png	R4.04±0.005
+images/syn_002661.png	84.303 -0.001/-0.004
+images/syn_001288.png	Ø0.1378 +0.002/0
+images/syn_003745.png	5.04±0.1
+images/syn_004768.png	Ø3.032 +0.05/-0.005
+images/syn_002169.png	Ø11.89 0/-0.008
+images/syn_003102.png	45°46'22"
+images/syn_004540.png	75°24'30"
+images/syn_003311.png	Ø0.2413 +0.02/-0.01
+images/syn_004711.png	0.052°
+images/syn_001524.png	Ø16.350 0/-0.03
+images/syn_004134.png	33.613 +0.006/+0.001
+images/syn_004203.png	C2.0
+images/syn_002782.png	120°32'
+images/syn_000629.png	C0.2
+images/syn_003293.png	57.897 -0.005/-0.008
+images/syn_000133.png	0.1524±0.015
+images/syn_002324.png	4.026 +0.003/+0.001
+images/syn_001569.png	Ø23.963 +0.05/0
+images/syn_001484.png	R26.197 0/-0.015
+images/syn_001501.png	0.25±0.02
+images/syn_002643.png	0.008 +0.015/+0.01
+images/syn_000967.png	12.50 0/-0.008
+images/syn_000276.png	32.099±0.005
+images/syn_004078.png	Ø12.50±0.05
+images/syn_000143.png	M12
+images/syn_001795.png	0.652 0/-0.005
+images/syn_003460.png	15.80±0.02
+images/syn_002489.png	Ø35.726 +0.02/-0.03
+images/syn_004802.png	4.04 +0.01/0
+images/syn_003655.png	92.469 -0.001/-0.006
+images/syn_000656.png	C15.80 +0.002/0
+images/syn_002783.png	11.89 +0.05/0
+images/syn_002102.png	C14.941 0/-0.015
+images/syn_004421.png	60°
+images/syn_001664.png	Ø57.903 -0.003/-0.005
+images/syn_002612.png	5.04 +0.003/0
+images/syn_002750.png	25.4
+images/syn_000308.png	0.523°
+images/syn_000235.png	Ø84.895 +0.004/+0.001
+images/syn_003734.png	R12.150 +0.003/0
+images/syn_003928.png	90°
+images/syn_001782.png	Ø4.04 +0.007/+0.005
+images/syn_003383.png	45.5°
+images/syn_001445.png	M4.026 -0.002/-0.004
+images/syn_003418.png	R74.886 +0.003/0
+images/syn_001832.png	R1.0 MAX
+images/syn_001440.png	5°12'33"
+images/syn_001819.png	1.151±0.005
+images/syn_002826.png	R0.05 MAX
+images/syn_000683.png	12.160 -0.002/-0.007
+images/syn_001746.png	C73.65 0/-0.02
+images/syn_002940.png	R8.308 0/-0.01
+images/syn_003990.png	2.75
+images/syn_004901.png	44.770 -0.005/-0.008
+images/syn_001256.png	C0.5
+images/syn_001211.png	M6
+images/syn_003697.png	C0.15
+images/syn_003439.png	12.738 0/-0.03
+images/syn_000328.png	0.941 +0.005/-0.005
+images/syn_003137.png	45.822±0.1
+images/syn_001316.png	Ø43.601 0/-0.02
+images/syn_001204.png	0.0851 -0.001/-0.006
+images/syn_002235.png	C0.05
+images/syn_000740.png	Ø59.351 0/-0.03
+images/syn_003356.png	12.150±0.05
+images/syn_003895.png	45° 31' 43"
+images/syn_003986.png	R17.688±0.002
+images/syn_001739.png	45°±30'
+images/syn_000339.png	M12.150 +0.004/+0.001
+images/syn_004495.png	74.945 +0.003/0
+images/syn_002127.png	15°
+images/syn_003751.png	C12.160 0/-0.015
+images/syn_003436.png	R5±0.015
+images/syn_002835.png	35.726 0/-0.008
+images/syn_004612.png	15.80 +0.01/0
+images/syn_004525.png	Ø0.1186 0/-0.02
+images/syn_003605.png	0.008±0.002
+images/syn_003252.png	1.649 +0.002/0
+images/syn_003716.png	C1.5
+images/syn_001639.png	60 +0.015/0
+images/syn_001790.png	R0.25MAX
+images/syn_001508.png	92.884 0/-0.002
+images/syn_000510.png	4.04 0/-0.03
+images/syn_003519.png	25.008±0.1
+images/syn_004074.png	Ø73.65 0/-0.05
+images/syn_002686.png	57.63 +0.02/0
+images/syn_003076.png	42.685 0/-0.02
+images/syn_003029.png	M73.65±0.1
+images/syn_001172.png	4X Ø6.5
+images/syn_000783.png	93.341 0/-0.05
+images/syn_002650.png	Ø16.394 -0.002/-0.007
+images/syn_000150.png	2.284 +0.005/0
+images/syn_001038.png	75 +0.03/0
+images/syn_004620.png	R1.998 +0.007/+0.005
+images/syn_002225.png	Ø12.155 +0.005/0
+images/syn_004521.png	Ø3.390 +0.05/-0.03
+images/syn_002112.png	84.180±0.1
+images/syn_003834.png	Ø4.04 0/-0.02
+images/syn_004681.png	R21.766 0/-0.01
+images/syn_000172.png	14.941 +0.015/0
+images/syn_004511.png	R0.05MAX
+images/syn_000180.png	15°43'28"
+images/syn_000826.png	60°27'42"
+images/syn_004441.png	45°±0.5°
+images/syn_004079.png	28.110 +0.01/-0.005
+images/syn_001875.png	84.837 +0.004/+0.002
+images/syn_002933.png	120°52'
+images/syn_003804.png	72.838 0/-0.01
+images/syn_004806.png	M26.197 +0.05/-0.002
+images/syn_000747.png	C57.63±0.005
+images/syn_002588.png	Ø57.63 +0.008/+0.005
+images/syn_004142.png	12 +0.05/0
+images/syn_002849.png	5°32'
+images/syn_001904.png	C0.05
+images/syn_002805.png	4.454±0.015
+images/syn_004739.png	M26.380±0.025
+images/syn_003529.png	46.136 +0.01/0
+images/syn_004051.png	76.441
+images/syn_002237.png	26.197 -0.002/-0.004
+images/syn_003907.png	120°16'
+images/syn_000182.png	R0.03MAX
+images/syn_000547.png	45.055 0/-0.003
+images/syn_001362.png	8.305 +0.002/0
+images/syn_003012.png	0.052°
+images/syn_002384.png	9.723 +0.002/0
+images/syn_003557.png	73.65 0/-0.003
+images/syn_004516.png	5.04 +0.02/-0.005
+images/syn_002692.png	R35.726 +0.015/+0.01
+images/syn_003003.png	Ø30±0.025
+images/syn_000988.png	4X M6
+images/syn_001413.png	4.026 +0.01/+0.005
+images/syn_000277.png	R14.941 +0.05/-0.01
+images/syn_004583.png	24 -0.005/-0.007
+images/syn_000067.png	0.523°
+images/syn_001039.png	53.384±0.02
+images/syn_001530.png	R24.552 -0.003/-0.005
+images/syn_001585.png	60 -0.005/-0.008
+images/syn_002604.png	62.166±0.015
+images/syn_003176.png	C0.3
+images/syn_001926.png	26.197 0/-0.015
+images/syn_001600.png	0.017°
+images/syn_004328.png	Ø25 0/-0.015
+images/syn_002270.png	Ø16
+images/syn_003198.png	0.652 0/-0.003
+images/syn_003320.png	90°±30'
+images/syn_002229.png	90°9'
+images/syn_003679.png	15°±30'
+images/syn_000278.png	10 0/-0.03
+images/syn_001478.png	Ø15 -0.005/-0.01
+images/syn_002145.png	75 -0.005/-0.01
+images/syn_000351.png	C0.5
+images/syn_002738.png	C10 0/-0.03
+images/syn_004614.png	0.4420 0/-0.05
+images/syn_004987.png	Ø77.321 0/-0.02
+images/syn_001707.png	Ø50
+images/syn_002338.png	0.052°
+images/syn_000986.png	4.026 -0.003/-0.005
+images/syn_001446.png	M88.375 -0.003/-0.008
+images/syn_002519.png	75° 45' 47"
+images/syn_000007.png	Ø50.324±0.015
+images/syn_003411.png	C0.15
+images/syn_001194.png	Ø0.2034 0/-0.015
+images/syn_000589.png	57.63±0.02
+images/syn_004035.png	2.75
+images/syn_000991.png	2.75 +0.01/0
+images/syn_002356.png	R0.25 0/-0.003
+images/syn_002111.png	5.04±0.01
+images/syn_002589.png	Ø14.529 +0.01/-0.002
+images/syn_000068.png	2°47'51"
+images/syn_002196.png	R4.026 0/-0.01
+images/syn_004860.png	R0.5
+images/syn_002048.png	60 +0.002/0
+images/syn_003536.png	10.50±0.1
+images/syn_004805.png	Ø15±0.1
+images/syn_001873.png	R0.1243 +0.013/+0.01
+images/syn_002552.png	R0.2MAX
+images/syn_004127.png	Ø16 +0.015/0
+images/syn_003497.png	R34.048 -0.003/-0.005
+images/syn_000977.png	11.89 0/-0.002
+images/syn_000196.png	89.353 0/-0.02
+images/syn_004732.png	C16 0/-0.01
+images/syn_001234.png	R0.25MIN
+images/syn_000974.png	R0.5
+images/syn_001181.png	4.04 +0.008/+0.005
+images/syn_000456.png	45°26'
+images/syn_004900.png	14.859 +0.015/+0.01
+images/syn_002162.png	Ø0.008 +0.02/-0.02
+images/syn_002494.png	29.598 +0.007/+0.005
+images/syn_003663.png	83.092
+images/syn_004280.png	15.80 0/-0.02
+images/syn_000613.png	Ø59.061 0/-0.005
+images/syn_000884.png	Ø35.497±0.015
+images/syn_003359.png	M12
+images/syn_000078.png	R0.5MIN
+images/syn_000325.png	30°39'
+images/syn_004114.png	Ø10.599 +0.003/0
+images/syn_002521.png	Ø57.63±0.005
+images/syn_001838.png	Ø65.612 +0.05/-0.02
+images/syn_003160.png	Ø10
+images/syn_002890.png	5.04 +0.003/+0.001
+images/syn_004593.png	0.941 0/-0.02
+images/syn_002852.png	Ø3.032 0/-0.01
+images/syn_001936.png	Ø56.582±0.005
+images/syn_004160.png	15°43'12"
+images/syn_000157.png	Ø0.3126±0.01
+images/syn_003203.png	R31.294 0/-0.005
+images/syn_000599.png	R11.89 0/-0.01
+images/syn_001374.png	Ø15.80±0.015
+images/syn_004337.png	0.523°
+images/syn_002928.png	Ø2.160 +0.05/-0.002
+images/syn_003768.png	76.005 0/-0.005
+images/syn_001306.png	R44.848 0/-0.005
+images/syn_004282.png	0.0063±0.005
+images/syn_000920.png	75.583 0/-0.015
+images/syn_003998.png	33.613 +0.015/-0.005
+images/syn_003478.png	R15.80 0/-0.05
+images/syn_004089.png	C0.3443 0/-0.03
+images/syn_000966.png	(25.4)
+images/syn_001532.png	C23.973 0/-0.008
+images/syn_002057.png	Ø24.50 -0.001/-0.004
+images/syn_001624.png	0.2605±0.02
+images/syn_000219.png	0°23'
+images/syn_003770.png	0.1658 +0.007/+0.002
+images/syn_000110.png	R35.726±0.005
+images/syn_003820.png	57.63±0.1
+images/syn_001848.png	45°45'18"
+images/syn_000910.png	4.110 +0.003/0
+images/syn_003502.png	120°30'
+images/syn_004986.png	R68.112 0/-0.05
+images/syn_000604.png	0.1193 0/-0.01
+images/syn_003671.png	Ø24.5
+images/syn_004490.png	12.155
+images/syn_001118.png	4X Ø6.5
+images/syn_004722.png	20.920 +0.01/-0.03
+images/syn_003126.png	12.155
+images/syn_000344.png	Ø11.89 +0.005/-0.002
+images/syn_003168.png	0.2291 +0.003/0
+images/syn_004455.png	R0.941 0/-0.005
+images/syn_002114.png	75.881 +0.004/+0.001
+images/syn_002914.png	R5 MIN
+images/syn_004266.png	Ø77.364 0/-0.05
+images/syn_004482.png	Ø15.444 +0.05/-0.01
+images/syn_001521.png	56.003 0/-0.01
+images/syn_004321.png	2.094°
+images/syn_002627.png	Ø26.844 0/-0.03
+images/syn_000214.png	2°35'27"
+images/syn_003949.png	12.160±0.005
+images/syn_004991.png	56.003±0.005
+images/syn_004709.png	Ø10.50 +0.002/0
+images/syn_000818.png	2.75 0/-0.02
+images/syn_000664.png	Ø5.04 0/-0.002
+images/syn_001715.png	24.50 +0.02/-0.002
+images/syn_002161.png	C0.3
+images/syn_004301.png	26.635
+images/syn_001565.png	71.790
+images/syn_001155.png	0.4502 0/-0.05
+images/syn_003152.png	M16 +0.015/-0.02
+images/syn_003317.png	0.652 -0.001/-0.004
+images/syn_004811.png	C0.5
+images/syn_004742.png	28.65°
+images/syn_003253.png	4.026 -0.001/-0.004
+images/syn_001507.png	61.927 +0.03/0
+images/syn_003371.png	68.634 0/-0.03
+images/syn_001922.png	51.880±0.002
+images/syn_001268.png	0.652 +0.015/-0.01
+images/syn_004296.png	0.008 +0.01/+0.005
+images/syn_004149.png	0.0568 +0.002/0
+images/syn_000959.png	0.1208 0/-0.01
+images/syn_003341.png	Ø36.207±0.025
+images/syn_003067.png	R12 0/-0.003
+images/syn_003082.png	Ø8.308 +0.004/+0.002
+images/syn_001168.png	Ø4.026 +0.006/+0.001
+images/syn_004601.png	24.50 -0.01/-0.015
+images/syn_001820.png	51.193 +0.05/0
+images/syn_000973.png	12.160 +0.01/+0.005
+images/syn_002948.png	0.2668 0/-0.015
+images/syn_003843.png	Ø27.882 +0.003/0
+images/syn_001493.png	74.827 +0.03/0
+images/syn_004350.png	Ø0.290 0/-0.02
+images/syn_000179.png	15°16'
+images/syn_004503.png	86.379 0/-0.05
+images/syn_004937.png	Ø33.613±0.005
+images/syn_000679.png	M10
+images/syn_003336.png	1.25°
+images/syn_003159.png	5.04±0.005
+images/syn_004088.png	30°±5'
+images/syn_000741.png	Ø12.155
+images/syn_000665.png	Ø73.65 +0.03/0
+images/syn_000632.png	R0.25MAX
+images/syn_001544.png	40
+images/syn_003629.png	M5.04 0/-0.02
+images/syn_000537.png	Ø92.523 +0.006/+0.001
+images/syn_003844.png	R5
+images/syn_003207.png	R0.12 MAX
+images/syn_001380.png	23.860 0/-0.002
+images/syn_003475.png	Ø24.50 0/-0.003
+images/syn_003315.png	Ø14.941 0/-0.01
+images/syn_003220.png	2X Ø5
+images/syn_003026.png	Ø50.324 0/-0.003
+images/syn_002211.png	11.540 -0.001/-0.006
+images/syn_003158.png	35.726 +0.003/0
+images/syn_002080.png	0°26'6"
+images/syn_004760.png	Ø3.032±0.005
+images/syn_003935.png	Ø10.884 +0.015/0
+images/syn_000317.png	25.4
+images/syn_004476.png	2.094°
+images/syn_004685.png	R0.5 MAX
+images/syn_000928.png	5 +0.02/0
+images/syn_000787.png	60° 58'
+images/syn_001992.png	M50.324 +0.007/+0.002
+images/syn_003139.png	Ø13.385 +0.002/0
+images/syn_001400.png	30°±10'
+images/syn_000878.png	56.003 +0.003/0
+images/syn_004041.png	Ø65.718 +0.01/-0.01
+images/syn_003516.png	Ø0.1459 0/-0.01
+images/syn_003754.png	C2.0
+images/syn_000075.png	C0.3893±0.01
+images/syn_003395.png	M10 +0.015/-0.02
+images/syn_002083.png	R5MIN
+images/syn_001735.png	73.65 0/-0.008
+images/syn_003780.png	C0.2
+images/syn_003282.png	0.3440±0.005
+images/syn_000383.png	C0.3313 +0.01/0
+images/syn_002157.png	0.290±0.02
+images/syn_002808.png	Ø12.155 +0.05/0
+images/syn_003300.png	73.65
+images/syn_003518.png	180°
+images/syn_004182.png	90°±1°
+images/syn_000524.png	Ø2.75 0/-0.05
+images/syn_003713.png	R0.2 MAX
+images/syn_003656.png	0.4700 -0.005/-0.007
+images/syn_001543.png	75° 32' 52"
+images/syn_002290.png	Ø0.25±0.002
+images/syn_004738.png	16.350 0/-0.008
+images/syn_004307.png	R40±0.02
+images/syn_002904.png	28°45'
+images/syn_002438.png	Ø60 0/-0.02
+images/syn_000529.png	25.346 0/-0.002
+images/syn_001606.png	Ø1.796 +0.002/0
+images/syn_004623.png	45°16'2"
+images/syn_002861.png	11.89±0.005
+images/syn_002688.png	1.521 0/-0.015
+images/syn_003384.png	C0.3
+images/syn_001433.png	84.865 +0.003/0
+images/syn_000580.png	1.571°
+images/syn_004087.png	50.00 -0.001/-0.006
+images/syn_002387.png	Ø5.04 +0.007/+0.002
+images/syn_000334.png	Ø14.941 +0.005/0
+images/syn_001366.png	41.065 -0.002/-0.004
+images/syn_000616.png	Ø66.991 0/-0.008
+images/syn_002469.png	50.324 -0.001/-0.006
+images/syn_003661.png	86.865±0.02
+images/syn_002965.png	89°27'55"
+images/syn_001033.png	Ø0.25 0/-0.05
+images/syn_001164.png	73.65 +0.01/+0.005
+images/syn_001584.png	4.04 +0.015/0
+images/syn_002779.png	14.941 +0.015/+0.01
+images/syn_002286.png	56.003 0/-0.05
+images/syn_000388.png	(25.4)
+images/syn_003572.png	Ø0.3361 -0.01/-0.015
+images/syn_003639.png	R38.974 0/-0.002
+images/syn_001371.png	R2.160 -0.002/-0.005
+images/syn_002652.png	Ø0.1621 -0.002/-0.007
+images/syn_004297.png	90°22'
+images/syn_003233.png	5°30'
+images/syn_003683.png	16.350 0/-0.05
+images/syn_002449.png	Ø50.206 0/-0.005
+images/syn_002781.png	0.052°
+images/syn_001386.png	90°±5'
+images/syn_003173.png	89.613 0/-0.003
+images/syn_001675.png	45°46'26"
+images/syn_001587.png	16.350 +0.007/+0.005
+images/syn_001159.png	0.523°
+images/syn_001528.png	30°40'
+images/syn_001491.png	90°16'27"
+images/syn_000651.png	12.155 -0.01/-0.015
+images/syn_002498.png	0.4903 -0.002/-0.007
+images/syn_002142.png	0.0431 +0.005/0
+images/syn_003387.png	22.849 -0.002/-0.005
+images/syn_004921.png	0.1865 0/-0.03
+images/syn_001794.png	56.003 -0.002/-0.005
+images/syn_002899.png	Ø8 0/-0.002
+images/syn_001015.png	C0.652 0/-0.002
+images/syn_004679.png	28.65°
+images/syn_000707.png	1.5
+images/syn_002647.png	Ø0.2359±0.015
+images/syn_004409.png	0.008 0/-0.015
+images/syn_000346.png	Ø5±0.025
+images/syn_002926.png	5.04 -0.005/-0.008
+images/syn_001407.png	Ø77.603 +0.002/0
+images/syn_000424.png	Ø4.649 +0.02/-0.02
+images/syn_001846.png	23.684
+images/syn_000254.png	12.150 0/-0.01
+images/syn_004764.png	12° 25'
+images/syn_002054.png	0.3791 0/-0.03
+images/syn_001949.png	30° 30' 41"
+images/syn_004795.png	20
+images/syn_001317.png	12.50 +0.004/+0.001
+images/syn_000772.png	Ø24 +0.05/-0.01
+images/syn_002670.png	Ø7.525 +0.004/+0.002
+images/syn_002342.png	15.323 0/-0.002
+images/syn_001843.png	C4.026 +0.008/+0.005
+images/syn_000169.png	90.228 +0.015/+0.01
+images/syn_004071.png	68.298 0/-0.002
+images/syn_003244.png	45°7'
+images/syn_004636.png	37.457 +0.004/+0.002
+images/syn_002378.png	C0.2
+images/syn_001896.png	Ø21.898 0/-0.002
+images/syn_001575.png	5.04 0/-0.03
+images/syn_002077.png	0.3089 +0.012/+0.01
+images/syn_002434.png	4x M6
+images/syn_003665.png	12°22'
+images/syn_004880.png	25±0.01
+images/syn_004195.png	0.652±0.015
+images/syn_000315.png	R15.80 +0.015/-0.002
+images/syn_001176.png	0.2636 0/-0.05
+images/syn_004267.png	R12.50±0.02
+images/syn_000234.png	16.350 +0.02/-0.03
+images/syn_000155.png	60°±5'
+images/syn_003668.png	4.04 0/-0.005
+images/syn_001892.png	24.50 0/-0.01
+images/syn_001272.png	0.1679 +0.02/-0.005
+images/syn_000304.png	73.65 0/-0.03
+images/syn_003555.png	0.785°
+images/syn_001442.png	0.0744 0/-0.002
+images/syn_000231.png	0°48'13"
+images/syn_004552.png	12.50 +0.03/0
+images/syn_001126.png	Ø73.65±0.015
+images/syn_004002.png	2.160 -0.001/-0.003
+images/syn_001241.png	0.3684 -0.002/-0.005
+images/syn_002587.png	R1.0 MIN
+images/syn_001812.png	Ø0.4672 +0.01/0
+images/syn_004474.png	12.150 -0.003/-0.008
+images/syn_000280.png	Ø18.263 +0.002/0
+images/syn_001802.png	12.160 +0.003/+0.001
+images/syn_000619.png	0.941 +0.01/0
+images/syn_001295.png	0.2227 -0.01/-0.015
+images/syn_004577.png	R1.5 MAX
+images/syn_004842.png	0.0425±0.002
+images/syn_002559.png	11.89
+images/syn_003803.png	0.3012 0/-0.05
+images/syn_002634.png	11.89±0.01
+images/syn_003800.png	Ø73.65 0/-0.01
+images/syn_002790.png	0.25 -0.005/-0.01
+images/syn_001839.png	Ø26.902±0.1
+images/syn_003883.png	98.822
+images/syn_004963.png	55.202 0/-0.005
+images/syn_002310.png	85.462 0/-0.015
+images/syn_003482.png	C12.155 +0.015/+0.01
+images/syn_001901.png	24.50 +0.02/0
+images/syn_002024.png	11.89±0.02
+images/syn_002573.png	15°
+images/syn_003166.png	10.595±0.005
+images/syn_000726.png	56.003±0.015
+images/syn_003848.png	C16.350 +0.005/-0.02
+images/syn_002685.png	14.431 +0.01/-0.005
+images/syn_003110.png	15.80±0.05
+images/syn_004939.png	2.75±0.005
+images/syn_000627.png	3.032±0.025
+images/syn_002468.png	30±0.005
+images/syn_000711.png	0.4923 +0.01/0
+images/syn_000809.png	R14.941 -0.003/-0.006
+images/syn_001049.png	R24.50 +0.01/0
+images/syn_000600.png	50.00 0/-0.01
+images/syn_000422.png	0.785°
+images/syn_003756.png	Ø5±0.025
+images/syn_003711.png	50.00±0.02
+images/syn_003339.png	0° 23' 52"
+images/syn_002644.png	80.836±0.05
+images/syn_003355.png	R1.5MAX
+images/syn_002980.png	57.63 +0.003/0
+images/syn_001439.png	3.142°
+images/syn_001432.png	Ø0.652 -0.003/-0.005
+images/syn_003180.png	Ø56.003 +0.02/0
+images/syn_004787.png	24.516 +0.01/0
+images/syn_002089.png	Ø7.440±0.002
+images/syn_003628.png	11.89 +0.015/+0.01
+images/syn_000468.png	R0.4839±0.05
+images/syn_004695.png	M39.800 0/-0.003
+images/syn_002091.png	M73.65 +0.02/-0.01
+images/syn_000313.png	51.325±0.002
+images/syn_000689.png	15 +0.015/+0.01
+images/syn_003192.png	C27.999±0.1
+images/syn_001365.png	Ø29.591±0.05
+images/syn_003666.png	Ø0.1726 +0.05/-0.02
+images/syn_004530.png	9.297 +0.05/0
+images/syn_003677.png	R12.50 0/-0.05
+images/syn_001271.png	1.047°
+images/syn_003929.png	Ø24.5
+images/syn_000323.png	50 TYP
+images/syn_002147.png	0.052°
+images/syn_001641.png	M10
+images/syn_002413.png	90.797 +0.015/0
+images/syn_001785.png	76.753 +0.005/0
+images/syn_000997.png	Ø4.04 -0.005/-0.007
+images/syn_000434.png	R0.05 MAX
+images/syn_001789.png	120°43'
+images/syn_000361.png	7.525 -0.01/-0.015
+images/syn_004318.png	Ø83.994 +0.005/0
+images/syn_002825.png	Ø74.529 +0.01/-0.005
+images/syn_001885.png	Ø0.25±0.015
+images/syn_002532.png	0.017°
+images/syn_004261.png	0.5
+images/syn_000704.png	1.047°
+images/syn_001331.png	Ø11.89 +0.002/0
+images/syn_000086.png	16.350 +0.007/+0.002
+images/syn_001660.png	Ø94.980 +0.015/-0.01
+images/syn_004229.png	12.50 +0.01/-0.01
+images/syn_003440.png	C11.773±0.02
+images/syn_001711.png	90.5°
+images/syn_002623.png	0.941 0/-0.008
+images/syn_004333.png	R3.032 0/-0.015
+images/syn_001657.png	R4.04±0.05
+images/syn_002349.png	R3.032±0.025
+images/syn_001759.png	33.613 0/-0.008
+images/syn_002359.png	Ø0.941 +0.03/0
+images/syn_004327.png	C1.0
+images/syn_000319.png	15°±30'
+images/syn_001884.png	Ø3.032±0.05
+images/syn_004696.png	R3 MIN
+images/syn_001787.png	45°8'13"
+images/syn_000174.png	C0.25 +0.002/0
+images/syn_003040.png	C24.50 0/-0.002
+images/syn_001627.png	R52.072 +0.015/-0.02
+images/syn_004638.png	Ø75 +0.004/+0.001
+images/syn_004618.png	1.047°
+images/syn_003303.png	Ø35.726 0/-0.008
+images/syn_002737.png	Ø0.008 +0.007/+0.005
+images/syn_003414.png	9.919 0/-0.005
+images/syn_002289.png	15°±0.5°
+images/syn_002050.png	5.04 +0.02/0
+images/syn_003910.png	50.00 -0.005/-0.008
+images/syn_004305.png	Ø54.406 +0.05/-0.005
+images/syn_002182.png	0.008 -0.001/-0.003
+images/syn_004572.png	Ø5.04 0/-0.015
+images/syn_000530.png	C0.0167 +0.008/+0.005
+images/syn_004793.png	0.5°
+images/syn_004967.png	R0.05 MAX
+images/syn_004823.png	16.350 +0.05/-0.002
+images/syn_002038.png	11.89 +0.05/-0.02
+images/syn_003448.png	R50.00 0/-0.008
+images/syn_000492.png	12.50±0.01
+images/syn_004726.png	Ø4.04±0.05
+images/syn_001186.png	Ø30
+images/syn_001047.png	15.80 -0.002/-0.004
+images/syn_003131.png	R0.12 MAX
+images/syn_004402.png	24 +0.015/0
+images/syn_004922.png	10.106±0.005
+images/syn_000866.png	0.0273 +0.012/+0.01
+images/syn_001235.png	30° 36' 29"
+images/syn_004965.png	Ø24.50 +0.003/+0.001
+images/syn_000032.png	50
+images/syn_000225.png	12.160 +0.004/+0.002
+images/syn_002455.png	30°27'
+images/syn_001619.png	Ø73.65 +0.02/-0.01
+images/syn_000904.png	50.00 0/-0.03
+images/syn_000187.png	56.003 -0.002/-0.005
+images/syn_001264.png	12°42'
+images/syn_004651.png	Ø4.026±0.015
+images/syn_002159.png	Ø10.50 -0.001/-0.006
+images/syn_004312.png	13.769
+images/syn_002430.png	C2.0
+images/syn_004777.png	M12
+images/syn_002778.png	70.850
+images/syn_001161.png	M68.437 +0.05/0
+images/syn_000455.png	0.3376 0/-0.015
+images/syn_001761.png	Ø2.75 -0.003/-0.008
+images/syn_001414.png	Ø7.525 +0.005/+0.002
+images/syn_000467.png	Ø73.65±0.01
+images/syn_002099.png	17.224 +0.005/0
+images/syn_003093.png	26.197 +0.01/-0.002
+images/syn_000883.png	56.003 0/-0.003
+images/syn_004727.png	12.150 +0.01/0
+images/syn_001697.png	24.50 0/-0.003
+images/syn_001811.png	75 +0.03/0
+images/syn_004038.png	12.155 +0.004/+0.002
+images/syn_004759.png	5±0.02
+images/syn_001737.png	Ø12.905±0.05
+images/syn_002712.png	45°±5'
+images/syn_001815.png	24.50 -0.003/-0.008
+images/syn_001115.png	Ø26.197 +0.005/0
+images/syn_000335.png	57.63 0/-0.003
+images/syn_002761.png	R64.017 -0.001/-0.006
+images/syn_004616.png	60°19'52"
+images/syn_002531.png	24.50±0.02
+images/syn_004105.png	0.2604 -0.003/-0.006
+images/syn_003618.png	0°35'
+images/syn_000638.png	8.308 +0.05/-0.02
+images/syn_000216.png	M80.868 +0.01/+0.005
+images/syn_000348.png	8.063 +0.007/+0.002
+images/syn_002443.png	50 +0.02/-0.002
+images/syn_004528.png	(12.155)
+images/syn_003182.png	Ø73.65±0.1
+images/syn_004322.png	7.525 -0.01/-0.012
+images/syn_002956.png	56.003 +0.006/+0.001
+images/syn_001277.png	5.04 +0.002/0
+images/syn_001516.png	1.998 +0.005/0
+images/syn_000645.png	35.726±0.05
+images/syn_001397.png	89°47'14"
+images/syn_004491.png	5° 46' 30"
+images/syn_001720.png	Ø0.652 0/-0.002
+images/syn_001541.png	0.052°
+images/syn_000882.png	50 REF
+images/syn_004688.png	3.968 -0.002/-0.005
+images/syn_003057.png	R1.5
+images/syn_003738.png	84.362 0/-0.015
+images/syn_000126.png	5.04±0.002
+images/syn_003786.png	Ø50.324 -0.005/-0.008
+images/syn_004368.png	89° 11' 31"
+images/syn_004809.png	12.5°
+images/syn_000286.png	Ø10.50 -0.005/-0.007
+images/syn_001642.png	Ø26.197±0.015
+images/syn_002693.png	2.160±0.05
+images/syn_002320.png	87.380 -0.001/-0.006
+images/syn_003976.png	Ø64.530 -0.002/-0.004
+images/syn_000744.png	R0.1 MAX
+images/syn_000026.png	1.998 0/-0.03
+images/syn_001438.png	Ø25±0.05
+images/syn_001392.png	R12.388±0.005
+images/syn_003887.png	51.310
+images/syn_003123.png	12.50 +0.002/0
+images/syn_002879.png	0.0368 +0.013/+0.01
+images/syn_001120.png	5°28'
+images/syn_000739.png	5.04±0.025
+images/syn_004005.png	24.50 +0.05/-0.01
+images/syn_001096.png	Ø91.807±0.02
+images/syn_002841.png	Ø15.80 +0.002/0
+images/syn_003398.png	28°22'
+images/syn_002695.png	10.50 +0.01/0
+images/syn_002495.png	Ø30
+images/syn_000108.png	5.04 0/-0.03
+images/syn_002281.png	R1.5 MIN
+images/syn_002633.png	73.845 -0.003/-0.005
+images/syn_003816.png	12.150 +0.015/-0.02
+images/syn_002514.png	R1.0
+images/syn_002547.png	11.89 +0.015/-0.002
+images/syn_003353.png	Ø11.89 +0.006/+0.001
+images/syn_003898.png	45°52'
+images/syn_002298.png	C4.713 +0.03/0
+images/syn_004070.png	14.941 -0.01/-0.015
+images/syn_001758.png	28° 41'
+images/syn_003307.png	R29.712 -0.005/-0.007
+images/syn_000927.png	M15.030 -0.003/-0.005
+images/syn_002352.png	C41.556 +0.003/+0.001
+images/syn_001142.png	35.726±0.002
+images/syn_003124.png	R72.938 -0.005/-0.01
+images/syn_000471.png	Ø15.80±0.02
+images/syn_001506.png	24 +0.006/+0.001
+images/syn_003577.png	38.756±0.1
+images/syn_003947.png	5°53'
+images/syn_001435.png	2.546 +0.02/0
+images/syn_004457.png	R43.349±0.015
+images/syn_003652.png	Ø54.872±0.1
+images/syn_000919.png	28.65°
+images/syn_001976.png	14.542 +0.015/-0.03
+images/syn_004644.png	Ø5 0/-0.02
+images/syn_000634.png	50.717 +0.02/-0.002
+images/syn_004861.png	0.1977 +0.015/0
+images/syn_002079.png	Ø0.0960 +0.005/-0.02
+images/syn_002368.png	69.640 0/-0.003
+images/syn_000425.png	0.0222±0.002
+images/syn_004502.png	7.525 0/-0.01
+images/syn_001280.png	0.0400 +0.05/0
+images/syn_002460.png	8.308 0/-0.01
+images/syn_003963.png	Ø10.50 0/-0.02
+images/syn_004382.png	R5 MAX
+images/syn_002954.png	50.00±0.002
+images/syn_003556.png	Ø56.003 +0.005/-0.03
+images/syn_001733.png	20.923 +0.05/-0.03
+images/syn_003074.png	11.89 +0.05/0
+images/syn_002726.png	120°
+images/syn_001449.png	57.341 +0.004/+0.001
+images/syn_001683.png	15° 26' 9"
+images/syn_003864.png	86.998 +0.015/0
+images/syn_002745.png	0.1118 +0.01/0
+images/syn_001351.png	0.0121 +0.05/0
+images/syn_004031.png	57.63 +0.05/0
+images/syn_002301.png	24 0/-0.002
+images/syn_002403.png	R5 MIN
+images/syn_000246.png	4.026 -0.002/-0.004
+images/syn_004184.png	73.65 +0.01/-0.005
+images/syn_003703.png	C0.1
+images/syn_003326.png	60° 46'
+images/syn_001527.png	90.5°
+images/syn_003027.png	60°±1°
+images/syn_003050.png	0.1444 0/-0.005
+images/syn_000396.png	50.00 +0.01/+0.005
+images/syn_001769.png	50 0/-0.002
+images/syn_000382.png	32.057 +0.01/+0.005
+images/syn_000350.png	24.50±0.025
+images/syn_004456.png	15.80 +0.05/-0.03
+images/syn_000374.png	40 +0.007/+0.005
+images/syn_000275.png	60°±1°
+images/syn_001943.png	45°25'
+images/syn_002814.png	16 +0.015/0
+images/syn_000626.png	Ø4.026 0/-0.01
+images/syn_001534.png	80.263 +0.007/+0.005
+images/syn_004633.png	15.80±0.02
+images/syn_002725.png	Ø12.155 +0.003/+0.001
+images/syn_004207.png	12° 37'
+images/syn_001749.png	8.308 +0.015/-0.002
+images/syn_001281.png	Ø6
+images/syn_000390.png	10.50±0.05
+images/syn_004936.png	35.726 +0.01/-0.03
+images/syn_001704.png	0.1319 -0.005/-0.008
+images/syn_004398.png	28°37'
+images/syn_001858.png	12.150 +0.002/0
+images/syn_003390.png	Ø36.752±0.025
+images/syn_001389.png	21.760±0.005
+images/syn_004454.png	12.155 0/-0.02
+images/syn_000936.png	0°25'
+images/syn_001850.png	90.5°
+images/syn_001762.png	C0.3
+images/syn_000881.png	C57.63 +0.01/0
+images/syn_003546.png	0.052°
+images/syn_003899.png	Ø7.525 +0.01/0
+images/syn_002259.png	17.046 +0.002/0
+images/syn_003150.png	90.848±0.005
+images/syn_003596.png	4x M6
+images/syn_002667.png	M12.714±0.05
+images/syn_004170.png	(73.65)
+images/syn_003494.png	2.75±0.05
+images/syn_004948.png	29.810±0.005
+images/syn_002875.png	Ø45.097 -0.01/-0.015
+images/syn_003249.png	51.811±0.02
+images/syn_003753.png	0.25 REF
+images/syn_001763.png	M22.613 0/-0.03
+images/syn_002480.png	R0.008 0/-0.003
+images/syn_002071.png	75°5'43"
+images/syn_003782.png	R10.50 -0.005/-0.007
+images/syn_004646.png	C26.402±0.002
+images/syn_002174.png	C0.2
+images/syn_004458.png	1.998 +0.02/-0.005
+images/syn_003821.png	32 +0.05/0
+images/syn_004619.png	33.613 0/-0.05
+images/syn_002917.png	0.1393 0/-0.05
+images/syn_002247.png	73.65 -0.002/-0.007
+images/syn_002398.png	R0.5MIN
+images/syn_002594.png	0.25 0/-0.03
+images/syn_002558.png	82.861 0/-0.01
+images/syn_001127.png	Ø15.80 -0.001/-0.006
+images/syn_000517.png	R0.008 -0.005/-0.007
+images/syn_000270.png	25°59'43"
+images/syn_000608.png	10.884±0.05
+images/syn_004204.png	60 +0.03/0
+images/syn_001320.png	57.63 0/-0.002
+images/syn_000331.png	92.984
+images/syn_000302.png	0.0024 0/-0.01
+images/syn_003758.png	Ø24.50±0.01
+images/syn_002918.png	0.25±0.015
+images/syn_002009.png	30.825 0/-0.03
+images/syn_000443.png	87.902±0.005
+images/syn_002811.png	Ø40.708±0.005
+images/syn_004690.png	11.89 +0.02/0
+images/syn_001646.png	M6
+images/syn_003471.png	28°57'
+images/syn_004845.png	0.0675 +0.01/-0.002
+images/syn_000250.png	5°7'11"
+images/syn_000128.png	2X Ø5
+images/syn_002636.png	38.119±0.025
+images/syn_004918.png	5.04
+images/syn_004467.png	Ø15±0.02
+images/syn_002136.png	0.008±0.002
+images/syn_002699.png	R0.2372 +0.015/-0.03
+images/syn_004360.png	0.262°
+images/syn_003209.png	0.523°
+images/syn_002979.png	4.868 0/-0.005
+images/syn_000178.png	M73.65 +0.015/-0.02
+images/syn_004209.png	24.50 0/-0.005
+images/syn_000908.png	0.5°
+images/syn_002064.png	0.25 0/-0.002
+images/syn_001852.png	C0.2
+images/syn_004278.png	0.25 +0.003/0
+images/syn_002432.png	Ø15.80 +0.02/-0.01
+images/syn_002103.png	57.63 -0.01/-0.013
+images/syn_001483.png	90°29'30"
+images/syn_003187.png	120°15'
+images/syn_004403.png	25° 39' 43"
+images/syn_001951.png	R0.25 MAX
+images/syn_004989.png	15.80 +0.05/0
+images/syn_003055.png	R0.2MIN
+images/syn_004724.png	Ø3.032 0/-0.003
+images/syn_004067.png	Ø51.001 +0.05/-0.005
+images/syn_001725.png	0°55'36"
+images/syn_003039.png	18.297 0/-0.008
+images/syn_000520.png	Ø60±0.01
+images/syn_000215.png	Ø0.652 0/-0.003
+images/syn_001087.png	R0.2MAX
+images/syn_000714.png	Ø0.008 0/-0.03
+images/syn_004676.png	1.240±0.005
+images/syn_001327.png	Ø14.941 +0.015/-0.002
+images/syn_002412.png	50.00 +0.015/0
+images/syn_000975.png	67.284 +0.003/+0.001
+images/syn_003230.png	R10.50 +0.02/0
+images/syn_003236.png	R0.12MIN
+images/syn_001468.png	50
+images/syn_000061.png	73.65
+images/syn_000540.png	1.25°
+images/syn_000106.png	35.916 0/-0.002
+images/syn_003549.png	Ø0.1348 +0.05/0
+images/syn_002708.png	M40 0/-0.015
+images/syn_000451.png	44.451 0/-0.02
+images/syn_000715.png	73.65 TYP
+images/syn_003271.png	Ø10.50 0/-0.008
+images/syn_003902.png	24 +0.05/-0.03
+images/syn_003777.png	C35.726 -0.005/-0.01
+images/syn_000533.png	C2.0
+images/syn_000593.png	50.00 +0.012/+0.01
+images/syn_003517.png	24.5
+images/syn_001136.png	0.008±0.01
+images/syn_000012.png	Ø79.348 -0.003/-0.008
+images/syn_002442.png	0.0460 +0.02/0
+images/syn_003689.png	Ø88.563±0.1
+images/syn_003886.png	12 +0.05/0
+images/syn_000605.png	R5.04±0.05
+images/syn_003172.png	3.032 +0.01/0
+images/syn_004044.png	90° 55' 22"
+images/syn_000955.png	12° 57'
+images/syn_004073.png	2X Ø5
+images/syn_003331.png	24.50 -0.001/-0.004
+images/syn_000885.png	4.026 -0.005/-0.007
+images/syn_004950.png	0.4479 0/-0.005
+images/syn_004673.png	0.2034 +0.05/-0.03
+images/syn_002271.png	0.0248 0/-0.015
+images/syn_003135.png	Ø2.75 +0.05/0
+images/syn_004461.png	C2.160±0.05
+images/syn_000282.png	Ø3.032 0/-0.005
+images/syn_004274.png	Ø77.318 0/-0.002
+images/syn_002313.png	30 0/-0.05
+images/syn_003224.png	51.557 0/-0.05
+images/syn_000516.png	0.3837 -0.005/-0.007
+images/syn_000998.png	Ø8.308 +0.003/+0.001
+images/syn_001367.png	66.689 0/-0.015
+images/syn_003223.png	90°33'
+images/syn_000208.png	9.588 0/-0.03
+images/syn_000088.png	90°
+images/syn_004112.png	12.50 0/-0.005
+images/syn_004471.png	0.2613±0.01
+images/syn_002629.png	C0.05
+images/syn_000869.png	M12
+images/syn_002715.png	0.2287±0.01
+images/syn_004945.png	Ø93.055 0/-0.015
+images/syn_003828.png	Ø0.0132±0.005
+images/syn_003376.png	11.89 +0.005/0
+images/syn_003474.png	C0.05
+images/syn_000501.png	2.094°
+images/syn_000778.png	5 +0.01/-0.01
+images/syn_001131.png	R15 +0.05/-0.01
+images/syn_001631.png	50.324 +0.015/0
+images/syn_000249.png	12.160 0/-0.002
+images/syn_004284.png	2.797±0.01
+images/syn_002642.png	M6
+images/syn_003694.png	12.160 -0.001/-0.003
+images/syn_004202.png	12.155±0.015
+images/syn_001505.png	M38.085 0/-0.008
+images/syn_004663.png	R2.75 0/-0.003
+images/syn_000407.png	0°5'59"
+images/syn_001486.png	5°58'
+images/syn_004645.png	Ø10.50 0/-0.05
+images/syn_000968.png	C0.25
+images/syn_001822.png	R2 MIN
+images/syn_001817.png	C0.25
+images/syn_000890.png	73.65
+images/syn_001518.png	92.297 +0.002/0
+images/syn_003950.png	39.295 +0.02/-0.002
+images/syn_000135.png	R8.308 0/-0.015
+images/syn_001146.png	M0.290 0/-0.02
+images/syn_001672.png	0°55'
+images/syn_002522.png	C2.0
+images/syn_002005.png	30°±5'
+images/syn_003415.png	120°56'
+images/syn_000406.png	14.941±0.002
+images/syn_002683.png	Ø0.652 0/-0.005
+images/syn_001700.png	10.50±0.015
+images/syn_004247.png	12.155 +0.02/-0.03
+images/syn_004057.png	81.633 +0.02/0
+images/syn_002977.png	Ø59.461 +0.005/+0.002
+images/syn_003041.png	15.968±0.015
+images/syn_002406.png	Ø11.89 +0.01/-0.002
+images/syn_004983.png	2.160 +0.004/+0.002
+images/syn_004353.png	82.499 +0.005/0
+images/syn_002853.png	C2.0
+images/syn_003044.png	4.04
+images/syn_002747.png	Ø62.993 +0.01/0
+images/syn_001520.png	0.523°
+images/syn_001859.png	15°±1°
+images/syn_001592.png	Ø5.04 +0.005/0
+images/syn_000556.png	15°±15'
+images/syn_002202.png	0.1655 +0.015/0
+images/syn_004034.png	57.63 -0.005/-0.01
+images/syn_004026.png	Ø25.4
+images/syn_000399.png	Ø12.160 0/-0.03
+images/syn_000476.png	18.699 0/-0.02
+images/syn_002018.png	93.402 -0.001/-0.004
+images/syn_001247.png	R24.50 +0.01/0
+images/syn_000153.png	15°56'
+images/syn_000186.png	R12.160 +0.003/0
+images/syn_000573.png	24 +0.005/+0.002
+images/syn_000478.png	0.941 0/-0.005
+images/syn_001673.png	45°37'35"
+images/syn_002660.png	R5 +0.05/0
+images/syn_003946.png	8.561 -0.003/-0.008
+images/syn_002872.png	Ø8 +0.01/0
+images/syn_004415.png	0.2620 -0.003/-0.005
+images/syn_001902.png	53.065 -0.001/-0.004
+images/syn_003375.png	50.00 +0.002/0
+images/syn_002603.png	1.998 0/-0.003
+images/syn_000259.png	15.80 0/-0.015
+images/syn_002653.png	4.04 0/-0.02
+images/syn_000907.png	24.50 0/-0.002
+images/syn_002499.png	60°
+images/syn_003749.png	Ø0.290 0/-0.005
+images/syn_001344.png	2.160 +0.01/0
+images/syn_002300.png	82.335 +0.03/0
+images/syn_004152.png	8.308 -0.001/-0.003
+images/syn_002538.png	Ø2.160±0.015
+images/syn_000103.png	Ø8 +0.004/+0.002
+images/syn_001932.png	0.25±0.02
+images/syn_000958.png	2.160 +0.015/-0.02
+images/syn_004413.png	0.262°
+images/syn_004896.png	90°49'
+images/syn_001522.png	C0.05
+images/syn_002616.png	4.04 +0.006/+0.001
+images/syn_003369.png	3.032 0/-0.002
+images/syn_001561.png	0.3185 +0.03/0
+images/syn_002395.png	C0.15
+images/syn_004148.png	Ø5 +0.005/0
+images/syn_004434.png	Ø42.248 +0.006/+0.001
+images/syn_003068.png	3.032±0.02
+images/syn_004340.png	Ø50.00 +0.012/+0.01
+images/syn_001510.png	15°
+images/syn_001863.png	26.018 -0.01/-0.015
+images/syn_000507.png	M6
+images/syn_002198.png	Ø0.4039 0/-0.003
+images/syn_004796.png	R56.003±0.015
+images/syn_000058.png	90° 55'
+images/syn_001617.png	Ø2.160 0/-0.005
+images/syn_003239.png	30 +0.05/-0.01
+images/syn_003879.png	Ø8 +0.005/-0.005
+images/syn_003867.png	C0.05
+images/syn_004594.png	50.00 0/-0.02
+images/syn_003966.png	Ø0.3862 0/-0.003
+images/syn_003465.png	C0.15
+images/syn_001628.png	0.4334 +0.003/+0.001
+images/syn_004042.png	Ø0.1942 0/-0.015
+images/syn_002967.png	12.155 0/-0.015
+images/syn_002771.png	R5MAX
+images/syn_003524.png	Ø2.160 0/-0.03
+images/syn_000925.png	12.150 +0.012/+0.01
+images/syn_003090.png	15.80 +0.003/0
+images/syn_000577.png	C0.5
+images/syn_000309.png	11.89 +0.02/-0.02
+images/syn_001919.png	C19.160 +0.015/-0.002
+images/syn_000472.png	R20.766 0/-0.01
+images/syn_003295.png	30°12'2"
+images/syn_001388.png	Ø40 0/-0.008
+images/syn_003566.png	25.587 -0.005/-0.01
+images/syn_003058.png	R57.63 0/-0.008
+images/syn_004309.png	45°±0.5°
+images/syn_003304.png	0.052°
+images/syn_004843.png	60°17'
+images/syn_004617.png	45°9'
+images/syn_003744.png	24.50 +0.01/+0.005
+images/syn_001053.png	C81.029 +0.05/0
+images/syn_000674.png	0.3700 -0.01/-0.015
+images/syn_003402.png	Ø12.155 +0.015/0
+images/syn_001117.png	57.63±0.02
+images/syn_004092.png	R0.05 MIN
+images/syn_002056.png	56.003 +0.02/-0.03
+images/syn_004582.png	56.003 0/-0.005
+images/syn_001499.png	C0.15
+images/syn_004146.png	Ø59.396 0/-0.015
+images/syn_002210.png	24.50 +0.02/-0.03
+images/syn_003222.png	73.65 +0.003/0
+images/syn_000542.png	Ø90.129 +0.02/-0.03
+images/syn_000823.png	Ø0.1666±0.01
+images/syn_000720.png	11.89±0.05
+images/syn_001702.png	0.523°
+images/syn_003062.png	72.227 0/-0.03
+images/syn_004926.png	56.003±0.02
+images/syn_004507.png	R30.788 +0.003/0
+images/syn_004166.png	R4.04 0/-0.05
+images/syn_000370.png	(0.25)
+images/syn_000539.png	11.89 +0.005/-0.02
+images/syn_003000.png	Ø50.00 +0.002/0
+images/syn_001495.png	Ø25.4
+images/syn_002374.png	0.25 +0.05/0
+images/syn_000137.png	56.003 +0.003/0
+images/syn_004977.png	Ø10.50±0.015
+images/syn_003231.png	2.160 +0.01/0
+images/syn_001266.png	1.047°
+images/syn_000162.png	5.04 0/-0.01
+images/syn_002648.png	120°12'
+images/syn_002571.png	5°39'4"
+images/syn_004006.png	Ø0.3182 -0.002/-0.007
+images/syn_000398.png	87.281 +0.005/-0.005
+images/syn_004705.png	0.652 -0.001/-0.006
+images/syn_000561.png	30°52'51"
+images/syn_003434.png	Ø1.998 -0.002/-0.007
+images/syn_004331.png	C60.639±0.015
+images/syn_002701.png	Ø44.914 +0.015/-0.02
+images/syn_003144.png	20.278±0.015
+images/syn_002953.png	60
+images/syn_003095.png	R79.806 0/-0.02
+images/syn_002777.png	0.3515±0.015
+images/syn_001027.png	5° 53'
+images/syn_002544.png	8.308±0.02
+images/syn_000779.png	135°
+images/syn_002608.png	Ø50.324 0/-0.002
+images/syn_000898.png	0.0338±0.005
+images/syn_001444.png	2.75 +0.012/+0.01
+images/syn_003285.png	Ø11.89±0.1
+images/syn_002487.png	C0.2
+images/syn_000943.png	90.5°
+images/syn_003273.png	5 +0.01/0
+images/syn_003178.png	Ø3.032 -0.01/-0.013
+images/syn_001173.png	80.018 0/-0.05
+images/syn_004820.png	C4.429 +0.02/-0.01
+images/syn_003704.png	47.102 0/-0.008
+images/syn_003412.png	C2.0
+images/syn_002035.png	Ø50.00 +0.002/0
+images/syn_003053.png	50.00 -0.002/-0.004
+images/syn_002484.png	15°2'
+images/syn_004066.png	5.04 0/-0.03
+images/syn_004519.png	C0.3
+images/syn_004095.png	Ø12.50 -0.005/-0.008
+images/syn_003188.png	30 0/-0.01
+images/syn_002810.png	Ø21.356 +0.002/0
+images/syn_003544.png	15°36'26"
+images/syn_003992.png	C0.05
+images/syn_000034.png	Ø56.003 +0.003/0
+images/syn_001125.png	Ø12 +0.02/0
+images/syn_001622.png	Ø20
+images/syn_002697.png	0.052°
+images/syn_004117.png	0.2904 -0.003/-0.008
+images/syn_000090.png	R74.462 +0.03/0
+images/syn_001210.png	67.267 +0.01/-0.005
+images/syn_004602.png	43.909±0.015
+images/syn_001212.png	2.75 +0.02/-0.01
+images/syn_002355.png	R14.941 +0.01/+0.005
+images/syn_001471.png	0.2207 -0.002/-0.004
+images/syn_002343.png	56.003 0/-0.05
+images/syn_001563.png	7.525 +0.015/0
+images/syn_000972.png	12°30'
+images/syn_000437.png	R0.25MIN
+images/syn_001980.png	75 0/-0.005
+images/syn_004543.png	M87.075±0.025
+images/syn_004947.png	11.89±0.01
+images/syn_000816.png	46.076±0.002
+images/syn_001238.png	Ø24.5
+images/syn_004971.png	5°51'47"
+images/syn_004065.png	Ø60 +0.01/-0.02
+images/syn_001025.png	20 +0.01/-0.02
+images/syn_004107.png	Ø77.158 +0.02/-0.03
+images/syn_004677.png	36.773 +0.002/0
+images/syn_003941.png	28°37'
+images/syn_002618.png	1.25°
+images/syn_001226.png	Ø0.2710±0.05
+images/syn_002407.png	24 +0.002/0
+images/syn_001416.png	20.348 0/-0.015
+images/syn_003872.png	75±0.02
+images/syn_001810.png	Ø40.358±0.025
+images/syn_000303.png	16 +0.05/-0.002
+images/syn_000648.png	Ø24.50 -0.003/-0.005
+images/syn_002239.png	43.874 -0.003/-0.006
+images/syn_002776.png	12.150 -0.005/-0.007
+images/syn_001179.png	120°33'
+images/syn_003692.png	0.25 +0.01/0
+images/syn_004985.png	75.241 -0.003/-0.006
+images/syn_003296.png	C0.05
+images/syn_003682.png	Ø6
+images/syn_000039.png	Ø11.511 -0.001/-0.004
+images/syn_002732.png	C35.359 +0.05/-0.002
+images/syn_004430.png	25.462 0/-0.05
+images/syn_001883.png	12° 48'
+images/syn_001041.png	1.25°
+images/syn_002613.png	12.50 +0.002/0
+images/syn_004300.png	0.008 +0.005/0
+images/syn_000952.png	Ø2.160 0/-0.05
+images/syn_000587.png	2.160 0/-0.05
+images/syn_002389.png	48.723 0/-0.003
+images/syn_003739.png	Ø57.63 -0.002/-0.004
+images/syn_002039.png	90°±15'
+images/syn_000987.png	2°45'24"
+images/syn_002799.png	1.998±0.01
+images/syn_002539.png	15°12'
+images/syn_001567.png	Ø1.998 0/-0.003
+images/syn_003567.png	Ø12.155 +0.01/0
+images/syn_002497.png	Ø20 +0.01/+0.005
+images/syn_000324.png	56.003±0.015
+images/syn_000718.png	Ø25.914 +0.05/-0.005
+images/syn_000697.png	15°±10'
+images/syn_000738.png	C33.613±0.025
+images/syn_003247.png	100 +0.003/0
+images/syn_002793.png	60°46'
+images/syn_004290.png	4.04 +0.01/0
+images/syn_001688.png	56.003 -0.002/-0.004
+images/syn_004703.png	Ø35.726 +0.005/0
+images/syn_001001.png	0.941 +0.015/-0.01
+images/syn_004515.png	C25 +0.005/-0.005
+images/syn_001765.png	60°54'43"
+images/syn_001536.png	10 -0.003/-0.006
+images/syn_001469.png	60°±10'
+images/syn_001202.png	14.268 +0.015/0
+images/syn_000230.png	50.324 +0.013/+0.01
+images/syn_003262.png	8 0/-0.005
+images/syn_001329.png	C12.160 +0.01/-0.005
+images/syn_000189.png	M29.732 +0.02/0
+images/syn_000119.png	17.257 0/-0.02
+images/syn_003701.png	R75 +0.005/0
+images/syn_001227.png	68.075 0/-0.03
+images/syn_002843.png	Ø12
+images/syn_000682.png	0.3417 -0.001/-0.004
+images/syn_001818.png	58.530
+images/syn_004072.png	Ø12.150±0.005
+images/syn_004576.png	8.308 +0.01/0
+images/syn_002884.png	20 0/-0.003
+images/syn_002596.png	Ø24.5
+images/syn_003115.png	10 0/-0.02
+images/syn_000404.png	19.790 -0.01/-0.012
+images/syn_004008.png	0.3657 0/-0.002
+images/syn_001778.png	C4.04 0/-0.03
+images/syn_000371.png	56.003±0.05
+images/syn_003059.png	Ø26.197 -0.001/-0.003
+images/syn_000932.png	0.1296 +0.007/+0.005
+images/syn_001178.png	Ø12.150 -0.01/-0.015
+images/syn_003773.png	R8.297 +0.02/0
+images/syn_002804.png	36.220 0/-0.008
+images/syn_002586.png	R12.50 +0.002/0
+images/syn_000962.png	50.00 +0.03/0
+images/syn_000281.png	5.04 0/-0.005
+images/syn_002530.png	26.197 +0.05/-0.02
+images/syn_000148.png	M55.356 0/-0.05
+images/syn_002217.png	28.65°
+images/syn_003574.png	25°21'32"
+images/syn_004508.png	45°±0.5°
+images/syn_003111.png	C1.0
+images/syn_003635.png	10.50 0/-0.015
+images/syn_002944.png	C1.5
+images/syn_002568.png	4.026 +0.002/0
+images/syn_004660.png	C1.870 +0.003/0
+images/syn_003909.png	100
+images/syn_001557.png	Ø26.174 -0.002/-0.007
+images/syn_004611.png	Ø8
+images/syn_003520.png	Ø2.75 +0.01/0
+images/syn_002763.png	93.570±0.01
+images/syn_003492.png	5.805 0/-0.02
+images/syn_001346.png	90°±10'
+images/syn_003489.png	1°59'2"
+images/syn_000329.png	(0.25)
+images/syn_002662.png	Ø12.50 0/-0.002
+images/syn_004980.png	36.245 +0.02/0
+images/syn_002838.png	R0.5MAX
+images/syn_002553.png	0.3028 +0.015/-0.02
+images/syn_001387.png	89° 1' 15"
+images/syn_004687.png	M6
+images/syn_004480.png	2.75±0.01
+images/syn_003202.png	C26.197 +0.02/0
+images/syn_001924.png	R0.1931 -0.002/-0.007
+images/syn_000307.png	Ø12.150 +0.003/0
+images/syn_000633.png	12.150 +0.02/-0.03
+images/syn_003973.png	0.652 0/-0.015
+images/syn_004417.png	89°36'27"
+images/syn_004356.png	Ø2.75 0/-0.015
+images/syn_001680.png	R5 MIN
+images/syn_000591.png	0.290±0.05
+images/syn_002960.png	Ø15 0/-0.05
+images/syn_000063.png	57.63 0/-0.008
+images/syn_001872.png	0.652 0/-0.008
+images/syn_003730.png	60°56'50"
+images/syn_002155.png	5°8'41"
+images/syn_000409.png	30°±15'
+images/syn_001804.png	0°58'11"
+images/syn_003462.png	15.80±0.015
+images/syn_003581.png	40 +0.01/-0.03
+images/syn_004420.png	2.75 -0.001/-0.003
+images/syn_003563.png	5°21'
+images/syn_004210.png	Ø0.2953 0/-0.008
+images/syn_002418.png	11.89 +0.003/+0.001
+images/syn_003955.png	75 0/-0.005
+images/syn_004658.png	R2
+images/syn_000518.png	32 +0.05/0
+images/syn_000152.png	0.896±0.05
+images/syn_003952.png	20.197 +0.03/0
+images/syn_002029.png	Ø12.50 +0.01/+0.005
+images/syn_000624.png	73.65 REF
+images/syn_004018.png	1.047°
+images/syn_002671.png	Ø0.008±0.025
+images/syn_003362.png	60 -0.001/-0.006
+images/syn_003246.png	16.350±0.02
+images/syn_002719.png	0.941 +0.015/-0.005
+images/syn_004049.png	Ø12.150 0/-0.005
+images/syn_001582.png	135°
+images/syn_004121.png	12.155 +0.003/0
+images/syn_003324.png	40 +0.02/0
+images/syn_004124.png	C14.941 -0.002/-0.004
+images/syn_002889.png	C0.3
+images/syn_001938.png	0.25 +0.03/0
+images/syn_003051.png	C0.2
+images/syn_002607.png	26.197±0.005
+images/syn_000358.png	Ø12.393±0.1
+images/syn_003366.png	59.929 +0.03/0
+images/syn_001914.png	89°18'2"
+images/syn_004979.png	0.4171±0.005
+images/syn_001957.png	0°27'4"
+images/syn_001546.png	180°
+images/syn_002637.png	4.04 +0.002/0
+images/syn_004514.png	60°±10'
+images/syn_003091.png	0.2235 +0.015/-0.01
+images/syn_002724.png	35.726 -0.001/-0.003
+images/syn_002828.png	0.25 +0.015/0
+images/syn_003968.png	0.0576 +0.015/-0.005
+images/syn_003659.png	45.5°
+images/syn_001218.png	Ø7.525±0.01
+images/syn_004012.png	M8
+images/syn_002446.png	0.2985 0/-0.03
+images/syn_002318.png	Ø59.550 0/-0.05
+images/syn_004232.png	86.177 0/-0.01
+images/syn_002189.png	Ø17.277±0.1
+images/syn_002785.png	R26.456 +0.004/+0.002
+images/syn_003400.png	52.586 +0.03/0
+images/syn_004329.png	Ø56.003 0/-0.05
+images/syn_000572.png	12.150 0/-0.03
+images/syn_001119.png	12.150 +0.005/-0.02
+images/syn_001562.png	Ø5.04±0.025
+images/syn_003143.png	1.047°
+images/syn_001185.png	1.998 -0.002/-0.004
+images/syn_003742.png	Ø49.032 +0.003/0
+images/syn_001997.png	M0.1762 0/-0.003
+images/syn_003869.png	12°13'
+images/syn_003953.png	0.1098 -0.002/-0.004
+images/syn_003404.png	Ø7.525 +0.02/-0.03
+images/syn_002240.png	0.652 -0.01/-0.015
+images/syn_002391.png	R0.008 -0.01/-0.013
+images/syn_004083.png	60.011 +0.005/+0.002
+images/syn_001262.png	57.63 -0.005/-0.008
+images/syn_000963.png	85.554 -0.003/-0.005
+images/syn_003781.png	Ø58.842 0/-0.015
+images/syn_000930.png	R73.65 +0.002/0
+images/syn_004522.png	60°±30'
+images/syn_000764.png	R0.5MIN
+images/syn_003343.png	Ø14.941 +0.02/0
+images/syn_000113.png	R5 MAX
+images/syn_002546.png	0.008±0.025
+images/syn_001298.png	C70.207 +0.004/+0.001
+images/syn_001961.png	7.671
+images/syn_000237.png	0.052°
+images/syn_004497.png	120°31'
+images/syn_003971.png	25 +0.02/0
+images/syn_004680.png	Ø3.032 +0.003/0
+images/syn_002360.png	0.652 +0.02/0
+images/syn_001074.png	2.75 0/-0.015
+images/syn_004931.png	3.032 +0.003/0
+images/syn_004662.png	41.381 +0.02/0
+images/syn_000423.png	R12.160 0/-0.015
+images/syn_003622.png	1.25°
+images/syn_004084.png	4.04±0.01
+images/syn_002964.png	Ø29.404 +0.015/+0.01
+images/syn_001537.png	49.087
+images/syn_000445.png	44.708±0.1
+images/syn_003386.png	Ø10.50 -0.01/-0.012
+images/syn_003785.png	90°59'58"
+images/syn_000010.png	50.324±0.02
+images/syn_003312.png	50.00 -0.003/-0.008
+images/syn_000950.png	4x M6
+images/syn_002649.png	15.80 +0.002/0
+images/syn_002068.png	50.00 0/-0.02
+images/syn_002577.png	2.75 +0.02/0
+images/syn_000722.png	5.04±0.01
+images/syn_003726.png	30°±30'
+images/syn_000301.png	0°46'8"
+images/syn_003281.png	C0.25
+images/syn_002362.png	37.677
+images/syn_004059.png	R12.50 +0.007/+0.002
+images/syn_004694.png	12.805 +0.01/0
+images/syn_002702.png	Ø0.3969±0.01
+images/syn_001318.png	60 -0.003/-0.008
+images/syn_000857.png	Ø26.197±0.1
+images/syn_002631.png	Ø12
+images/syn_002731.png	Ø33.613 +0.003/0
+images/syn_004555.png	R2
+images/syn_002851.png	0.5°
+images/syn_003851.png	10.50±0.015
+images/syn_000748.png	Ø0.008 +0.03/0
+images/syn_004567.png	Ø35.634 0/-0.02
+images/syn_004438.png	1° 44' 56"
+images/syn_001487.png	79.530
+images/syn_004974.png	90°34'
+images/syn_004534.png	92.866 -0.001/-0.004
+images/syn_003855.png	90°±10'
+images/syn_001436.png	Ø85.013 +0.05/0
+images/syn_004401.png	Ø50
+images/syn_002208.png	56.003 +0.02/0
+images/syn_000170.png	30°15'13"
+images/syn_004807.png	0.4730±0.005
+images/syn_000749.png	90.5°
+images/syn_000212.png	81.430 +0.002/0
+images/syn_002052.png	40
+images/syn_004348.png	25°57'45"
+images/syn_003540.png	64.226 -0.002/-0.007
+images/syn_004629.png	R0.1
+images/syn_000659.png	Ø0.4837 0/-0.015
+images/syn_003587.png	0.017°
+images/syn_004046.png	15.314 0/-0.015
+images/syn_004100.png	31.507 0/-0.02
+images/syn_002231.png	33.613 +0.01/-0.002
+images/syn_003298.png	(12.160)
+images/syn_002492.png	M30 -0.001/-0.006
+images/syn_003840.png	0.1751 +0.013/+0.01
+images/syn_001019.png	M90.144 0/-0.008
+images/syn_003598.png	Ø30
+images/syn_002365.png	0.008 +0.005/0
+images/syn_004846.png	11.89 0/-0.005
+images/syn_001360.png	43.689±0.015
+images/syn_000489.png	0.4108 -0.005/-0.007
+images/syn_004930.png	60±0.01
+images/syn_001166.png	Ø12.155 0/-0.003
+images/syn_002177.png	Ø26.197 +0.015/0
+images/syn_001221.png	C0.1700 +0.005/0
+images/syn_001842.png	0.523°
+images/syn_000941.png	16.083 +0.01/-0.03
+images/syn_004833.png	Ø73.65±0.01
+images/syn_001621.png	R26.197 +0.015/+0.01
+images/syn_004239.png	36.458 +0.005/0
+images/syn_001913.png	Ø10.50±0.015
+images/syn_000584.png	49.696 -0.001/-0.004
+images/syn_003720.png	60.776 +0.005/+0.002
+images/syn_002317.png	24.50±0.015
+images/syn_002361.png	54.539 +0.004/+0.001
+images/syn_001897.png	12°25'
+images/syn_000268.png	M2.75 0/-0.002
+images/syn_002386.png	0.523°
+images/syn_003850.png	89°18'43"
+images/syn_004248.png	28.65°
+images/syn_003347.png	73.65 TYP
+images/syn_000022.png	Ø63.077 0/-0.05
+images/syn_001283.png	R3.032 0/-0.005
+images/syn_000615.png	0.523°
+images/syn_001424.png	15°22'26"
+images/syn_001965.png	16.350 +0.01/0
+images/syn_001287.png	24.746 -0.001/-0.006
+images/syn_000666.png	(73.65)
+images/syn_002168.png	C0.5
+images/syn_004912.png	5°53'
+images/syn_001703.png	Ø0.290 +0.004/+0.001
+images/syn_000813.png	R12 +0.005/-0.005
+images/syn_000494.png	26.197 +0.003/0
+images/syn_002502.png	Ø57.63 -0.01/-0.012
+images/syn_003513.png	C2.160±0.025
+images/syn_002436.png	C0.2
+images/syn_003627.png	1.571°
+images/syn_003691.png	5°30'
+images/syn_004450.png	0.052°
+images/syn_001849.png	4.04 0/-0.003
+images/syn_003410.png	Ø12.155 0/-0.003
+images/syn_000971.png	0.3561 -0.005/-0.01
+images/syn_002034.png	26.197 -0.005/-0.008
+images/syn_000698.png	2°54'52"
+images/syn_004541.png	Ø16.350±0.015
+images/syn_001223.png	Ø24.50±0.01
+images/syn_001243.png	5°20'
+images/syn_000440.png	5.04 0/-0.003
+images/syn_000607.png	R50.00 +0.007/+0.005
+images/syn_004029.png	C11.709 +0.015/-0.01
+images/syn_003283.png	67.256 +0.05/0
+images/syn_000536.png	12.160
+images/syn_000935.png	4x M6
+images/syn_003914.png	71.622 0/-0.05
+images/syn_002069.png	50.324±0.025
+images/syn_000421.png	89°18'50"
+images/syn_001511.png	4X Ø6.5
+images/syn_002792.png	Ø26.197 +0.015/-0.02
+images/syn_003609.png	C24 0/-0.005
+images/syn_003922.png	(50)
+images/syn_003846.png	59.849 +0.02/-0.002
+images/syn_002330.png	45°38'29"
+images/syn_000101.png	57.63 +0.006/+0.001
+images/syn_000841.png	0.314±0.002
+images/syn_004022.png	Ø10.50 0/-0.01
+images/syn_004772.png	R1.5
+images/syn_002394.png	15 0/-0.002
+images/syn_000447.png	60°±15'
+images/syn_000373.png	12.50 0/-0.003
+images/syn_002248.png	69.403±0.005
+images/syn_001037.png	R7.525 -0.002/-0.007
+images/syn_000116.png	4.04 -0.005/-0.007
+images/syn_002477.png	Ø5.04 +0.01/-0.02
+images/syn_004615.png	0°29'51"
+images/syn_002957.png	30°29'
+images/syn_001864.png	50.289 -0.002/-0.007
+images/syn_002427.png	4.04 +0.01/-0.005
+images/syn_001591.png	0.2333 +0.015/0
+images/syn_000824.png	15°26'
+images/syn_002319.png	Ø0.652 -0.005/-0.008
+images/syn_002266.png	0.652 +0.015/0
+images/syn_003967.png	12.160 +0.005/+0.002
+images/syn_001773.png	Ø62.116 +0.015/0
+images/syn_004774.png	R4.618 0/-0.01
+images/syn_001517.png	30°14'55"
+images/syn_000980.png	20±0.02
+images/syn_004916.png	Ø22.031 -0.002/-0.005
+images/syn_001578.png	68.807±0.02
+images/syn_000989.png	R0.1
+images/syn_001889.png	Ø18.292±0.01
+images/syn_004878.png	R0.1MIN
+images/syn_002512.png	Ø8.308±0.015
+images/syn_002220.png	0.941 +0.005/0
+images/syn_003718.png	R0.03 MAX
+images/syn_002883.png	120°6'
+images/syn_002710.png	73.65 -0.003/-0.006
+images/syn_003486.png	Ø53.747 +0.02/0
+images/syn_002817.png	0.017°
+images/syn_004531.png	12 +0.015/0
+images/syn_003024.png	Ø8.308 +0.002/0
+images/syn_002509.png	Ø0.941 +0.01/0
+images/syn_001994.png	R1.0 MIN
+images/syn_004433.png	0.0553 +0.05/0
+images/syn_001816.png	C21.371±0.1
+images/syn_002411.png	0.290 0/-0.015
+images/syn_000763.png	Ø20
+images/syn_000142.png	14.615 -0.005/-0.008
+images/syn_003672.png	1.571°
+images/syn_004021.png	30.728 +0.01/-0.02
+images/syn_003901.png	88.324±0.1
+images/syn_001969.png	73.65 0/-0.005
+images/syn_004659.png	R3 MIN
+images/syn_004622.png	C15 -0.003/-0.008
+images/syn_001978.png	12.160 +0.005/0
+images/syn_004840.png	0°51'36"
+images/syn_001566.png	60°±15'
+images/syn_004233.png	12.5°
+images/syn_000084.png	R4.04±0.05
+images/syn_002264.png	15.80 +0.003/0
+images/syn_002291.png	28°32'
+images/syn_002789.png	45.5°
+images/syn_002117.png	M50.324 0/-0.002
+images/syn_002907.png	75 0/-0.01
+images/syn_001738.png	Ø49.662±0.005
+images/syn_003995.png	10±0.01
+images/syn_001490.png	46.920 -0.001/-0.003
+images/syn_002663.png	5 0/-0.03
+images/syn_004510.png	38.720 +0.003/0
+images/syn_000236.png	Ø89.402 0/-0.02
+images/syn_002756.png	0.25 -0.001/-0.006
+images/syn_004747.png	50.145 0/-0.008
+images/syn_004494.png	Ø32.802 -0.001/-0.003
+images/syn_001998.png	15.80 0/-0.002
+images/syn_003693.png	45°16'
+images/syn_002285.png	C2.0
+images/syn_000710.png	1.998 0/-0.03
+images/syn_002012.png	R0.2951 +0.01/-0.03
+images/syn_002641.png	90°50'20"
+images/syn_002199.png	1.998 +0.02/0
+images/syn_003569.png	Ø57.63±0.025
+images/syn_003809.png	35.726±0.025
+images/syn_003961.png	Ø4.026±0.005
+images/syn_002213.png	Ø0.2704±0.05
+images/syn_004275.png	120°50'
+images/syn_001443.png	0.0816±0.05
+images/syn_003568.png	0.25
+images/syn_001254.png	C0.2
+images/syn_003767.png	Ø33.613 +0.005/+0.002
+images/syn_002968.png	50.324 +0.005/-0.01
+images/syn_003552.png	15.80 +0.015/-0.005
+images/syn_000865.png	62.271 +0.004/+0.001
+images/syn_004016.png	Ø10
+images/syn_004453.png	46.297 +0.007/+0.002
+images/syn_000104.png	Ø26.197 -0.005/-0.008
+images/syn_002796.png	2.160 0/-0.005
+images/syn_004689.png	0.1970 +0.015/0
+images/syn_000565.png	2.75 0/-0.003
+images/syn_003036.png	Ø87.484 +0.05/0
+images/syn_004897.png	38.959 -0.002/-0.004
+images/syn_004365.png	Ø45.258±0.1
+images/syn_002845.png	75 0/-0.002
+images/syn_000337.png	0.262°
+images/syn_004819.png	C20 +0.02/0
+images/syn_002471.png	Ø0.4600 0/-0.005
+images/syn_000835.png	Ø20
+images/syn_001990.png	16 +0.02/0
+images/syn_000623.png	40±0.025
+images/syn_001625.png	M0.290 +0.003/0
+images/syn_003250.png	45°±10'
+images/syn_003075.png	4.04 +0.015/0
+images/syn_002556.png	R0.05
+images/syn_000211.png	R0.2MAX
+images/syn_004609.png	Ø8
+images/syn_002549.png	R0.1 MAX
+images/syn_001342.png	12.50 0/-0.002
+images/syn_004875.png	Ø26.197 0/-0.03
+images/syn_001375.png	90°4'28"
+images/syn_003022.png	1°8'42"
+images/syn_002100.png	C1.5
+images/syn_004536.png	0.5°
+images/syn_001786.png	56.003 -0.002/-0.007
+images/syn_000938.png	4.04
+images/syn_003880.png	56.003±0.015
+images/syn_001035.png	2.094°
+images/syn_001955.png	50.324±0.015
+images/syn_001249.png	50.324 0/-0.003
+images/syn_000167.png	60°27'
+images/syn_001634.png	49.443 0/-0.015
+images/syn_004483.png	5°50'
+images/syn_000255.png	0.25 0/-0.015
+images/syn_000330.png	2.160 +0.01/-0.03
+images/syn_000563.png	Ø7.525 0/-0.03
+images/syn_001837.png	0.0565 +0.002/0
+images/syn_002867.png	45°±10'
+images/syn_000427.png	4X Ø6.5
+images/syn_000159.png	10.535 +0.006/+0.001
+images/syn_003853.png	14.941±0.01
+images/syn_000671.png	Ø0.4343±0.05
+images/syn_002067.png	8.308 0/-0.01
+images/syn_003454.png	R1.5MIN
+images/syn_002280.png	0.652 -0.002/-0.004
+images/syn_004797.png	46.384 +0.015/-0.02
+images/syn_002765.png	75
+images/syn_002678.png	C1.0
+images/syn_003725.png	56.305 -0.002/-0.005
+images/syn_001734.png	26.366 +0.01/-0.002
+images/syn_002682.png	26.197 +0.02/0
+images/syn_004547.png	0.25 0/-0.05
+images/syn_002132.png	10.50 +0.013/+0.01
+images/syn_004499.png	89°38'11"
+images/syn_001489.png	M56.003 +0.003/0
+images/syn_003783.png	12.160
+images/syn_001112.png	C1.0
+images/syn_003512.png	38.498 -0.003/-0.008
+images/syn_000688.png	C0.15
+images/syn_000223.png	70.299±0.025
+images/syn_003228.png	89°5'36"
+images/syn_000221.png	Ø5.04±0.002
+images/syn_004928.png	2X Ø5
+images/syn_001046.png	4.04 +0.015/+0.01
+images/syn_003829.png	0.3873±0.005
+images/syn_004832.png	C1.5
+images/syn_003313.png	R15.80 +0.05/0
+images/syn_002754.png	C1.5
+images/syn_003186.png	0.1523 0/-0.005
+images/syn_000238.png	15° 10'
+images/syn_004753.png	2.75
+images/syn_003571.png	2.75
+images/syn_002236.png	75.109 0/-0.03
+images/syn_001798.png	16.829 -0.005/-0.01
+images/syn_004000.png	Ø0.290 -0.005/-0.008
+images/syn_001807.png	2x M4
+images/syn_004410.png	Ø77.135 +0.02/0
+images/syn_003433.png	2.160 -0.01/-0.012
+images/syn_003195.png	R0.1 MAX
+images/syn_002447.png	Ø73.65 0/-0.002
+images/syn_002882.png	C1.5
+images/syn_000049.png	Ø67.686 +0.015/0
+images/syn_003908.png	28°37'
+images/syn_003117.png	2.160 0/-0.02
+images/syn_000161.png	Ø50.00 +0.02/0
+images/syn_003191.png	7.647 0/-0.005
+images/syn_003442.png	C2.0
+images/syn_001695.png	Ø0.25 +0.03/0
+images/syn_000511.png	M8
+images/syn_003407.png	84.939 0/-0.003
+images/syn_003817.png	3.032 +0.015/0
+images/syn_004446.png	90.5°
+images/syn_002711.png	Ø56.003 +0.008/+0.005
+images/syn_003340.png	R33.613±0.015
+images/syn_003399.png	10.50±0.015
+images/syn_000527.png	0.25 +0.015/0
+images/syn_001753.png	Ø33.613 -0.003/-0.005
+images/syn_001252.png	87.834±0.01
+images/syn_003138.png	0.3294 +0.003/0
+images/syn_001895.png	R1.0MAX
+images/syn_001236.png	C24.50 +0.012/+0.01
+images/syn_004892.png	15°±10'
+images/syn_000661.png	57.63 +0.013/+0.01
+images/syn_004425.png	M79.000 -0.01/-0.015
+images/syn_002620.png	90°58'25"
+images/syn_002752.png	Ø75 +0.02/0
+images/syn_002226.png	12.50 +0.007/+0.005
+images/syn_001921.png	Ø0.941 0/-0.005
+images/syn_002341.png	Ø15.80 +0.015/-0.01
+images/syn_000635.png	C0.5
+images/syn_003604.png	Ø12.155
+images/syn_002250.png	52.870 0/-0.05
+images/syn_001960.png	73.65
+images/syn_003970.png	Ø84.368 0/-0.008
+images/syn_004271.png	R1.5MAX
+images/syn_002272.png	50.324 -0.005/-0.007
+images/syn_002026.png	0.941 +0.01/0
+images/syn_002124.png	49.978 -0.002/-0.004
+images/syn_003687.png	R0.05 MAX
+images/syn_003889.png	C52.703 +0.002/0
+images/syn_001304.png	0.941 -0.003/-0.008
+images/syn_003653.png	28.650 -0.001/-0.006
+images/syn_003496.png	Ø20.854 +0.003/+0.001
+images/syn_004136.png	14.941 +0.005/-0.005
+images/syn_003626.png	Ø50.324 0/-0.02
+images/syn_002600.png	90°14'46"
+images/syn_004352.png	R2
+images/syn_003807.png	Ø48.423 +0.015/0
+images/syn_001093.png	27.796 +0.005/0
+images/syn_003740.png	4.704 +0.05/-0.005
+images/syn_000995.png	12 +0.003/0
+images/syn_002042.png	R0.25 0/-0.03
+images/syn_000412.png	Ø78.551±0.025
+images/syn_003806.png	M15.299±0.05
+images/syn_004244.png	R0.3674±0.05
+images/syn_001441.png	12.5°
+images/syn_001793.png	75 +0.004/+0.001
+images/syn_003483.png	73.65±0.025
+images/syn_000874.png	Ø80.027 +0.005/0
+images/syn_000046.png	0.0816±0.025
+images/syn_001209.png	R28.390 +0.013/+0.01
+images/syn_001999.png	Ø3.032 +0.013/+0.01
+images/syn_003274.png	5°3'40"
+images/syn_004050.png	57.63
+images/syn_003146.png	Ø25 0/-0.05
+images/syn_001593.png	C7.525 +0.005/-0.002
+images/syn_003396.png	0.3916 0/-0.03
+images/syn_003731.png	11.89 +0.015/-0.01
+images/syn_000597.png	100±0.005
+images/syn_003893.png	50.00 +0.01/-0.005
+images/syn_004927.png	R43.467±0.1
+images/syn_000379.png	C17.997 +0.01/-0.03
+images/syn_000201.png	5.04 +0.007/+0.002
+images/syn_001208.png	R0.2 MIN
+images/syn_001632.png	5°42'14"
+images/syn_004817.png	0.3039±0.005
+images/syn_002543.png	40 +0.005/0
+images/syn_001925.png	30°16'50"
+images/syn_000766.png	R25.662 +0.002/0
+images/syn_002746.png	50.00 0/-0.005
+images/syn_004223.png	75.202 -0.01/-0.012
+images/syn_002325.png	4.04 +0.02/0
+images/syn_000695.png	M12.150 0/-0.02
+images/syn_001391.png	16.392±0.005
+images/syn_003877.png	Ø56.003 0/-0.008
+images/syn_004188.png	R0.1MIN
+images/syn_001751.png	30°±15'
+images/syn_003623.png	92.285 +0.01/0
+images/syn_004911.png	12.50 +0.03/0
+images/syn_003810.png	R0.5 MIN
+images/syn_002640.png	15°6'
+images/syn_003522.png	R0.25MAX
+images/syn_001722.png	5°3'35"
+images/syn_002351.png	8.308 0/-0.05
+images/syn_002490.png	Ø16.057±0.05
+images/syn_000004.png	26.232 +0.015/-0.002
+images/syn_004489.png	120°27'
+images/syn_003327.png	Ø3.032 0/-0.008
+images/syn_002466.png	0.785°
+images/syn_001426.png	45.5°
+images/syn_003106.png	R12.50 0/-0.01
+images/syn_003445.png	12.50 0/-0.015
+images/syn_001572.png	M9.008 0/-0.03
+images/syn_001043.png	28.65°
+images/syn_004542.png	45°56'37"
+images/syn_002423.png	Ø10±0.02
+images/syn_003297.png	11.89 +0.008/+0.005
+images/syn_002673.png	1°8'16"
+images/syn_003346.png	Ø20
+images/syn_002534.png	24.50 +0.01/+0.005
+images/syn_004155.png	Ø2.75 -0.002/-0.004
+images/syn_002461.png	0.3743 +0.05/-0.02
+images/syn_001021.png	R25 -0.01/-0.013
+images/syn_002572.png	0.523°
+images/syn_002705.png	R64.487±0.01
+images/syn_000574.png	Ø16.350 +0.05/-0.005
+images/syn_003534.png	R0.03MAX
+images/syn_002984.png	77.761 -0.005/-0.007
+images/syn_001615.png	2.75 +0.005/-0.01
+images/syn_004411.png	Ø12.116 +0.01/0
+images/syn_004260.png	79.212±0.01
+images/syn_000014.png	73.65±0.025
+images/syn_003573.png	90°22'59"
+images/syn_000364.png	C1.5
+images/syn_002087.png	C16±0.015
+images/syn_001558.png	24.50 +0.02/0
+images/syn_003156.png	R24 0/-0.015
+images/syn_000948.png	2.160 -0.005/-0.01
+images/syn_004190.png	59.531 0/-0.01
+images/syn_003575.png	0.3901 +0.05/-0.02
+images/syn_004731.png	100 0/-0.002
+images/syn_002832.png	40
+images/syn_003560.png	10.50±0.02
+images/syn_000889.png	R0.03
+images/syn_000314.png	25° 13' 43"
+images/syn_002175.png	100 -0.01/-0.013
+images/syn_001463.png	0.2555 0/-0.02
+images/syn_002140.png	0.652±0.02
+images/syn_000945.png	0° 23' 41"
+images/syn_000227.png	12.150 +0.004/+0.002
+images/syn_002713.png	28°6'
+images/syn_004955.png	4.04 +0.004/+0.001
+images/syn_003275.png	Ø12.160 0/-0.003
+images/syn_004174.png	4X Ø6.5
+images/syn_002877.png	C0.3
+images/syn_002287.png	12° 33' 18"
+images/syn_000569.png	M8
+images/syn_002283.png	Ø26.197 +0.015/+0.01
+images/syn_002690.png	M56.003 0/-0.01
+images/syn_003265.png	Ø50.00±0.1
+images/syn_001583.png	32 +0.05/0
+images/syn_000194.png	Ø16
+images/syn_001827.png	Ø5.833±0.1
+images/syn_001865.png	30°±1°
+images/syn_002501.png	12.378 0/-0.01
+images/syn_002865.png	32.663±0.02
+images/syn_003771.png	R24.004 -0.002/-0.004
+images/syn_001635.png	40 0/-0.002
+images/syn_001823.png	Ø12.50 +0.05/0
+images/syn_003856.png	Ø57.63±0.02
+images/syn_000318.png	60°±15'
+images/syn_003134.png	R52.118 +0.002/0
+images/syn_000886.png	30°4'
+images/syn_001305.png	15° 59' 18"
+images/syn_004873.png	0.290±0.1
+images/syn_002033.png	R71.168 +0.02/0
+images/syn_003373.png	0.941 +0.05/0
+images/syn_002722.png	120°32'
+images/syn_001470.png	10.50 0/-0.03
+images/syn_000204.png	120°
+images/syn_003378.png	0.087°
+images/syn_001451.png	Ø25.4
+images/syn_001332.png	68.425 0/-0.008
+images/syn_001940.png	R5MIN
+images/syn_001267.png	C50.00 +0.03/0
+images/syn_004754.png	60±0.1
+images/syn_004587.png	10.50 0/-0.003
+images/syn_002898.png	90°±30'
+images/syn_000843.png	90°2'
+images/syn_002045.png	Ø29.471 0/-0.008
+images/syn_001721.png	R0.652 0/-0.003
+images/syn_002932.png	R0.12MIN
+images/syn_000327.png	12.50 +0.01/-0.02
+images/syn_002988.png	Ø24.50 -0.01/-0.012
+images/syn_002526.png	0°10'53"
+images/syn_000343.png	C73.65 +0.01/+0.005
+images/syn_001045.png	M50.324 -0.005/-0.008
+images/syn_003521.png	Ø2.75 0/-0.002
+images/syn_001214.png	0°43'
+images/syn_004527.png	R1.5MIN
+images/syn_003025.png	C57.63 +0.007/+0.002
+images/syn_000296.png	57.63 +0.05/0
+images/syn_004470.png	R12.160 0/-0.05
+images/syn_001222.png	Ø5.04±0.015
+images/syn_000617.png	89°36'33"
+images/syn_004848.png	0°24'58"
+images/syn_000080.png	6.513 -0.003/-0.008
+images/syn_004595.png	15 0/-0.005
+images/syn_003504.png	C0.2
+images/syn_004520.png	90° 3'
+images/syn_003620.png	45.104 +0.002/0
+images/syn_004855.png	R13.071 0/-0.002
+images/syn_002146.png	15°35'
+images/syn_001072.png	56.866 0/-0.03
+images/syn_002733.png	C5 +0.004/+0.002
+images/syn_000030.png	Ø43.337 +0.007/+0.005
+images/syn_000362.png	5.04 0/-0.008
+images/syn_002267.png	M100 +0.005/+0.002
+images/syn_004784.png	11.713 -0.003/-0.005
+images/syn_000757.png	1.047°
+images/syn_000417.png	0.652±0.01
+images/syn_002058.png	1.5
+images/syn_004850.png	0.1624 0/-0.002
+images/syn_004141.png	R0.5
+images/syn_002163.png	0.4266±0.025
+images/syn_001668.png	12°58'
+images/syn_002809.png	12.150 0/-0.02
+images/syn_001726.png	2.75 +0.01/+0.005
+images/syn_002309.png	C1.0
+images/syn_002232.png	49.750±0.002
+images/syn_004968.png	29.490 -0.001/-0.006
+images/syn_004877.png	2.094°
+images/syn_000877.png	75
+images/syn_000946.png	Ø13.218 +0.02/-0.03
+images/syn_004958.png	R0.03 MIN
+images/syn_001101.png	R10.50±0.025
+images/syn_000849.png	4.026 +0.015/0
+images/syn_002453.png	(73.65)
+images/syn_004544.png	Ø0.25±0.01
+images/syn_000065.png	45°34'
+images/syn_004334.png	5.04 +0.02/-0.02
+images/syn_002479.png	4.04 0/-0.01
+images/syn_004451.png	12.50 +0.02/0
+images/syn_003590.png	C0.15
+images/syn_001293.png	0.25±0.005
+images/syn_002335.png	53.982±0.015
+images/syn_003028.png	0.652 +0.05/-0.01
+images/syn_002002.png	12.155 0/-0.008
+images/syn_000564.png	4.026 -0.01/-0.015
+images/syn_002860.png	Ø5.04 0/-0.003
+images/syn_001086.png	C0.3
+images/syn_004744.png	M0.652±0.025
+images/syn_004145.png	C0.25
+images/syn_001747.png	0.0845 +0.005/-0.02
+images/syn_004405.png	0.25 +0.05/-0.002
+images/syn_000601.png	50 TYP
+images/syn_000820.png	M11.89±0.002
+images/syn_004613.png	0.017°
+images/syn_003755.png	0.2945 +0.015/-0.005
+images/syn_000077.png	10.50 0/-0.003
+images/syn_000595.png	C57.63 +0.03/0
+images/syn_002591.png	0.25 +0.015/-0.03
+images/syn_003746.png	90°±5'
+images/syn_002458.png	Ø16.350 0/-0.008
+images/syn_001073.png	0.3656 0/-0.02
+images/syn_003243.png	0.941 -0.01/-0.013
+images/syn_002176.png	80.554 0/-0.002
+images/syn_001956.png	12°13'
+images/syn_002574.png	Ø92.745 0/-0.002
+images/syn_001674.png	62.347 -0.002/-0.007
+images/syn_002137.png	Ø2.75 -0.003/-0.008
+images/syn_002592.png	12.50 +0.003/0
+images/syn_004283.png	Ø15.80 -0.01/-0.013
+images/syn_004631.png	41.488 -0.002/-0.004
+images/syn_003435.png	90°27'34"
+images/syn_000672.png	0.290 +0.003/0
+images/syn_000326.png	0.1873 -0.01/-0.015
+images/syn_002017.png	4.04 +0.01/0
+images/syn_004667.png	5°18'
+images/syn_000983.png	73.65±0.025
+images/syn_003308.png	C0.5
+images/syn_001927.png	33.613 -0.01/-0.015
+images/syn_000557.png	R1.5MAX
+images/syn_000562.png	Ø0.4163 -0.001/-0.006
+images/syn_001523.png	0.4220 +0.05/-0.002
+images/syn_000657.png	C0.05
+images/syn_004161.png	30°
+images/syn_000466.png	73.65 +0.002/0
+images/syn_001290.png	Ø15.80 -0.001/-0.004
+images/syn_004351.png	33.613 0/-0.002
+images/syn_004120.png	C0.652 +0.015/0
+images/syn_003906.png	Ø5 0/-0.003
+images/syn_000411.png	C0.05
+images/syn_000469.png	0.290 0/-0.05
+images/syn_002570.png	Ø15.80 +0.007/+0.002
+images/syn_000500.png	12°54'
+images/syn_004442.png	1.998 +0.006/+0.001
+images/syn_000480.png	100 +0.015/-0.005
+images/syn_001784.png	55.325 +0.015/-0.005
+images/syn_002431.png	90.5°
+images/syn_001556.png	12°10'
+images/syn_001269.png	2°47'13"
+images/syn_003987.png	12°29'19"
+images/syn_004553.png	26.197 -0.005/-0.007
+images/syn_003466.png	15°±1°
+images/syn_002337.png	5.159±0.05
+images/syn_003728.png	83.291 +0.003/+0.001
+images/syn_002173.png	Ø50 0/-0.002
+images/syn_003199.png	R15.80 -0.005/-0.008
+images/syn_000018.png	12.160 +0.05/-0.02
+images/syn_003105.png	Ø2.75 -0.002/-0.004
+images/syn_001349.png	70.320 +0.03/0
+images/syn_000481.png	Ø24.596 0/-0.005
+images/syn_003286.png	Ø0.290 +0.01/-0.01
+images/syn_001752.png	8 0/-0.015
+images/syn_003944.png	30°±1°
+images/syn_003979.png	R1.5
+images/syn_003330.png	42.056 -0.003/-0.008
+images/syn_001363.png	0° 37'
+images/syn_001937.png	46.262 -0.005/-0.008
+images/syn_000765.png	15.80 0/-0.008
+images/syn_000121.png	R0.05
+images/syn_004429.png	73.65
+images/syn_000415.png	12.411 +0.003/+0.001
+images/syn_000803.png	30°13'
+images/syn_004509.png	R73.65 +0.01/-0.03
+images/syn_003631.png	84.360±0.01
+images/syn_000618.png	4.026 +0.005/+0.002
+images/syn_002047.png	Ø24.5
+images/syn_003790.png	R1.0 MAX
+images/syn_004800.png	0.262°
+images/syn_001504.png	Ø31.846 0/-0.03
+images/syn_004990.png	R20±0.002
+images/syn_001149.png	C0.15
+images/syn_003676.png	15°59'38"
+images/syn_004394.png	12.5°
+images/syn_001559.png	11.89±0.005
+images/syn_001570.png	89.547 0/-0.03
+images/syn_002037.png	10.50 0/-0.005
+images/syn_000896.png	Ø45.586 -0.003/-0.006
+images/syn_002780.png	Ø73.65±0.015
+images/syn_003299.png	R0.2
+images/syn_000497.png	16 +0.01/0
+images/syn_000807.png	5.04 -0.003/-0.005
+images/syn_000444.png	75°51'33"
+images/syn_003826.png	R12.150 +0.007/+0.005
+images/syn_003368.png	2.75 0/-0.002
+images/syn_003470.png	Ø50.324 +0.003/0
+images/syn_002903.png	M3.032 +0.005/0
+images/syn_003532.png	Ø4.04 0/-0.003
+images/syn_000795.png	R1.0 MIN
+images/syn_000773.png	Ø50.00 +0.003/+0.001
+images/syn_001560.png	0.0502 0/-0.03
+images/syn_003335.png	Ø24.50 0/-0.002
+images/syn_003875.png	24.50 +0.01/-0.03
+images/syn_001991.png	R3 MIN
+images/syn_003873.png	2.75 -0.003/-0.006
+images/syn_004721.png	0.4924 0/-0.005
+images/syn_004678.png	44.166 -0.005/-0.008
+images/syn_001084.png	C1.0
+images/syn_004827.png	8.308 +0.015/0
+images/syn_001756.png	2.160 +0.015/0
+images/syn_003977.png	0.4650 +0.015/-0.03
+images/syn_002282.png	73.464 +0.01/0
+images/syn_001950.png	Ø20 0/-0.02
+images/syn_004212.png	C3.032 +0.005/-0.002
+images/syn_000581.png	R0.12
+images/syn_002707.png	75.673 -0.002/-0.004
+images/syn_000258.png	4.04±0.005
+images/syn_000553.png	12.155
+images/syn_001876.png	0.652 0/-0.003
+images/syn_000483.png	C0.15
+images/syn_000582.png	50.324 0/-0.015
+images/syn_000059.png	60 +0.004/+0.002
+images/syn_001805.png	R85.853 +0.006/+0.001
+images/syn_001886.png	Ø2.75±0.002
+images/syn_004538.png	0.1301 0/-0.015
+images/syn_000173.png	2°10'20"
+images/syn_002770.png	0.008 +0.015/0
+images/syn_000525.png	C0.25
+images/syn_001841.png	15.80 +0.013/+0.01
+images/syn_002031.png	C0.2
+images/syn_000992.png	R1.5MIN
+images/syn_003699.png	R14.941 -0.005/-0.01
+images/syn_004240.png	2.351 0/-0.008
+images/syn_003589.png	0.3769 +0.01/-0.03
+images/syn_003060.png	30°±15'
+images/syn_003269.png	57.63 +0.05/0
+images/syn_002554.png	0.1187±0.005
+images/syn_001648.png	32 +0.01/0
+images/syn_004418.png	29.779 -0.003/-0.008
+images/syn_001736.png	Ø12.155±0.025
+images/syn_003467.png	C0.15
+images/syn_004323.png	75°18'15"
+images/syn_002172.png	77.572 +0.02/-0.03
+images/syn_001353.png	30°±15'
+images/syn_004504.png	Ø25 +0.02/0
+images/syn_003894.png	5° 30' 43"
+images/syn_001052.png	90°49'57"
+images/syn_001031.png	Ø8.308 -0.001/-0.006
+images/syn_004364.png	71.399 -0.003/-0.006
+images/syn_000567.png	0.941 -0.005/-0.01
+images/syn_003982.png	12.160
+images/syn_000702.png	0.4938 +0.01/0
+images/syn_004952.png	Ø2.75±0.05
+images/syn_004648.png	73.65 0/-0.003
+images/syn_001974.png	0.008 +0.01/-0.002
+images/syn_000475.png	R56.306 0/-0.03
+images/syn_001962.png	0.652±0.05
+images/syn_002520.png	89°16'15"
+images/syn_002974.png	Ø6.053 +0.01/-0.02
+images/syn_000917.png	56.866 0/-0.02
+images/syn_000160.png	25°58'15"
+images/syn_004003.png	12.50 +0.02/0
+images/syn_002656.png	28.65°
+images/syn_000005.png	R33.613 +0.004/+0.002
+images/syn_004345.png	32 0/-0.01
+images/syn_004419.png	90° 35'
+images/syn_001324.png	Ø25.4
+images/syn_003064.png	5.04
+images/syn_004886.png	1.25°
+images/syn_001630.png	1.5
+images/syn_004862.png	50.00
+images/syn_002445.png	11.89 +0.008/+0.005
+images/syn_000872.png	15.80 +0.008/+0.005
+images/syn_004159.png	25 +0.03/0
+images/syn_001464.png	R0.12MAX
+images/syn_004101.png	8.308 +0.015/+0.01
+images/syn_002158.png	C0.1
+images/syn_000027.png	25 +0.004/+0.001
+images/syn_003717.png	10±0.02
+images/syn_001296.png	15°50'22"
+images/syn_003562.png	15°
+images/syn_002405.png	12.160 +0.004/+0.002
+images/syn_000914.png	0.290 +0.03/0
+images/syn_002787.png	0.1121 +0.02/-0.01
+images/syn_002186.png	2°36'4"
+images/syn_004399.png	Ø16.350±0.01
+images/syn_000939.png	73.65
+images/syn_000095.png	Ø55.086 +0.03/0
+images/syn_004533.png	26.197 +0.02/-0.01
+images/syn_002060.png	15°
+images/syn_004335.png	32.313 +0.01/-0.02
+images/syn_003835.png	M0.0972 -0.005/-0.007
+images/syn_003127.png	Ø0.2975±0.025
+images/syn_003153.png	0.052°
+images/syn_000521.png	Ø0.0597 0/-0.002
+images/syn_003459.png	Ø12
+images/syn_001311.png	2X Ø5
+images/syn_001253.png	4.026 -0.005/-0.01
+images/syn_000899.png	30° 17' 14"
+images/syn_000386.png	R0.25 +0.01/0
+images/syn_000745.png	90°4'50"
+images/syn_004043.png	C0.3
+images/syn_004175.png	C0.2
+images/syn_001134.png	67.466 0/-0.015
+images/syn_001797.png	4.026±0.05
+images/syn_002966.png	C0.3
+images/syn_003272.png	90.5°
+images/syn_004781.png	4.04±0.01
+images/syn_003510.png	Ø22.337±0.015
+images/syn_004789.png	Ø50.324±0.002
+images/syn_002153.png	15 -0.01/-0.012
+images/syn_004416.png	R14.941 +0.013/+0.01
+images/syn_004599.png	Ø33.613 +0.002/0
+images/syn_002021.png	M8
+images/syn_004995.png	24.5
+images/syn_002170.png	12°26'26"
+images/syn_001171.png	12.160
+images/syn_003759.png	Ø4.026 +0.02/-0.03
+images/syn_003242.png	R71.875±0.05
+images/syn_004090.png	15.80±0.02
+images/syn_001742.png	Ø21.372 +0.005/-0.02
+images/syn_002578.png	25.4 TYP
+images/syn_004647.png	24±0.025
+images/syn_001729.png	Ø0.4588 +0.01/+0.005
+images/syn_000543.png	16.350 0/-0.015
+images/syn_002194.png	12.155
+images/syn_003287.png	24.5
+images/syn_002585.png	C0.05
+images/syn_000263.png	R60 0/-0.03
+images/syn_001877.png	12°24'21"
+images/syn_000459.png	50
+images/syn_002657.png	71.852 +0.005/-0.01
+images/syn_001800.png	5.04 0/-0.003
+images/syn_004563.png	R0.4128 0/-0.003
+images/syn_002212.png	2.75 +0.005/-0.01
+images/syn_003109.png	0.3286 +0.004/+0.001
+images/syn_003787.png	Ø24.50±0.1
+images/syn_001339.png	Ø4.04 0/-0.015
+images/syn_002006.png	10.50±0.02
+images/syn_004376.png	Ø37.532±0.1
+images/syn_001402.png	0.941±0.015
+images/syn_000585.png	67.470 0/-0.005
+images/syn_002188.png	45° 35' 58"
+images/syn_001717.png	30°±30'
+images/syn_002911.png	Ø3.838 +0.007/+0.002
+images/syn_003033.png	16.350±0.002
+images/syn_001333.png	Ø2.647 +0.003/0
+images/syn_002989.png	R12.371 0/-0.05
+images/syn_003715.png	M35.726±0.1
+images/syn_002278.png	0°42'1"
+images/syn_003114.png	14.804
+images/syn_000828.png	Ø10.127±0.02
+images/syn_001908.png	R2 MAX
+images/syn_000654.png	75° 17' 50"
+images/syn_002371.png	0.652 +0.005/-0.002
+images/syn_001867.png	60°±10'
+images/syn_000376.png	R50.00 -0.003/-0.005
+images/syn_000570.png	24.752 +0.004/+0.002
+images/syn_001576.png	R14.054±0.002
+images/syn_004730.png	14.941 0/-0.005
+images/syn_002963.png	M26.197 +0.01/0
+images/syn_002402.png	Ø0.941 +0.01/0
+images/syn_004523.png	33.613 -0.002/-0.005
+images/syn_000646.png	Ø50.324 -0.002/-0.005
+images/syn_003101.png	Ø0.0658 0/-0.01
+images/syn_001023.png	22.350 -0.001/-0.004
+images/syn_004393.png	0.25 +0.01/+0.005
+images/syn_003764.png	32.892 0/-0.002
+images/syn_000356.png	Ø68.124 0/-0.005
+images/syn_002167.png	12.155
+images/syn_004946.png	R60 +0.005/0
+images/syn_002818.png	60°57'19"
+images/syn_002941.png	Ø0.652±0.015
+images/syn_000793.png	Ø50.00±0.002
+images/syn_003113.png	73.838 -0.01/-0.013
+images/syn_000760.png	60° 42' 54"
+images/syn_000838.png	10.50 0/-0.02
+images/syn_002758.png	R4.04 0/-0.005
+images/syn_001764.png	86.194 0/-0.003
+images/syn_001274.png	2.75 +0.03/0
+images/syn_002277.png	Ø60 +0.015/-0.03
+images/syn_002788.png	100 +0.007/+0.005
+images/syn_003463.png	11.235 0/-0.03
+images/syn_001308.png	51.517 -0.005/-0.008
+images/syn_000054.png	Ø50.00±0.015
+images/syn_002279.png	89.275 +0.01/0
+images/syn_004828.png	8.308 0/-0.005
+images/syn_003680.png	83.383 -0.003/-0.006
+images/syn_001806.png	10.020 +0.007/+0.005
+images/syn_003437.png	0.25
+images/syn_004465.png	89°19'29"
+images/syn_001629.png	94.478 0/-0.008
+images/syn_004598.png	10.50 +0.013/+0.01
+images/syn_000218.png	15.80 0/-0.015
+images/syn_004932.png	C1.0
+images/syn_004140.png	4.04 +0.005/0
+images/syn_001906.png	Ø0.008 0/-0.02
+images/syn_001792.png	Ø2.160 +0.005/-0.002
+images/syn_000768.png	10.50 +0.002/0
+images/syn_000245.png	45°35'45"
+images/syn_000261.png	50.00 0/-0.015
+images/syn_003457.png	39.887 +0.004/+0.002
+images/syn_004838.png	37.246
+images/syn_000713.png	50.00 +0.05/-0.03
+images/syn_004468.png	Ø0.2916 +0.01/-0.002
+images/syn_000840.png	R0.2932 +0.05/0
+images/syn_001144.png	C2.0
+images/syn_001829.png	Ø15.80 0/-0.01
+images/syn_002007.png	0.087°
+images/syn_002254.png	Ø4.026 +0.01/-0.01
+images/syn_000205.png	44.564 -0.003/-0.005
+images/syn_000913.png	5°16'4"
