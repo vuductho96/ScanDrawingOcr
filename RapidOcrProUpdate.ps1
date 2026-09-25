@@ -6040,9 +6040,14 @@ function Set-InspectionRowFormula($sheet,$row,$nominal,$tolMinus,$tolPlus,$sampl
         }
         else{
             $nomCol  = [string](ColLetter 2)  # B
-            $minCol  = [string](ColLetter 3)  # C
-            $plusCol = [string](ColLetter 4)  # D
-            $formula = '=IF(COUNT(' + $sampleRange + ')=0,"",IF(OR(MIN(' + $sampleRange + ')<(' + $nomCol + [string]$row + '+' + $minCol + [string]$row + '),MAX(' + $sampleRange + ')>(' + $nomCol + [string]$row + '+' + $plusCol + [string]$row + ')),"NG","OK"))'
+            $minCol  = [string](ColLetter 3)  # C  (TolMinus)
+            $plusCol = [string](ColLetter 4)  # D  (TolPlus)
+            # Use MIN(C,D) for lower bound and MAX(C,D) for upper bound so formula is correct
+            # even when OCR places a one-sided tolerance in the wrong column (e.g. 0.36+0.005 → C=+0.005, D=0)
+            $formula = '=IF(COUNT(' + $sampleRange + ')=0,"",IF(OR(' +
+                       'MIN(' + $sampleRange + ')<(' + $nomCol + [string]$row + '+MIN(' + $minCol + [string]$row + ',' + $plusCol + [string]$row + ')),' +
+                       'MAX(' + $sampleRange + ')>(' + $nomCol + [string]$row + '+MAX(' + $minCol + [string]$row + ',' + $plusCol + [string]$row + '))' +
+                       '),"NG","OK"))'
             $cell.Formula = $formula
         }
     }
