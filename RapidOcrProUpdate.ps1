@@ -21604,13 +21604,19 @@ $btnExcel.Add_Click({
             $exportStage = "Open template"
             Update-ExportProgress ("Opening Excel template... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 15
             $wb = $excel.Workbooks.Open([string]$script:ExcelTemplate)
+
+            # Remember how many sheets the template has so we can delete them all at the end
+            $templateSheetCount = [int]$wb.Worksheets.Count
             $templateSheet = $wb.Worksheets.Item([int]1)
 
             $exportStage = "Prepare sheet"
             Update-ExportProgress ("Preparing sheet... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 18
-            # Copy template to a fresh working sheet
-            $templateSheet.Copy($wb.Worksheets.Item([int]1))
-            $ws = $wb.Worksheets.Item([int]1)
+
+            # Create first data sheet by copying template AFTER itself (After = 2nd positional arg)
+            # Using [System.Type]::Missing for the Before arg so Excel uses After
+            $templateSheet.Copy([System.Type]::Missing, $wb.Worksheets.Item([int]$wb.Worksheets.Count))
+            $ws = $wb.Worksheets.Item([int]$wb.Worksheets.Count)
+
             Clear-InspectionSheet $ws $rowStart $maxPerPage
             Set-InspectionHeader $ws $model $mold $qty $material $hrc $user $measureDate
             Set-InspectionSampleHeaders $ws $batchStart $batchEnd
@@ -21627,8 +21633,8 @@ $btnExcel.Add_Click({
                     $page++
 
                     $exportStage = "Copy sheet"
-                    # Copy a fresh template sheet for the next page (not the current data sheet)
-                    $templateSheet.Copy($wb.Worksheets.Item([int]$wb.Worksheets.Count))
+                    # Copy a FRESH template sheet (After current last sheet) for the next page
+                    $templateSheet.Copy([System.Type]::Missing, $wb.Worksheets.Item([int]$wb.Worksheets.Count))
                     if($ws){
                         [System.Runtime.Interopservices.Marshal]::ReleaseComObject($ws) | Out-Null
                         $ws = $null
@@ -21667,12 +21673,17 @@ $btnExcel.Add_Click({
                 $count++
             }
 
-            # Delete the original template sheet (it's now unused, working sheets were copied from it)
+            # Delete all original template sheets (they are at positions 1..$templateSheetCount)
+            # Must delete in reverse order so indices don't shift
             $excel.DisplayAlerts = $false
-            try{
-                $templateSheet.Delete()
+            for($ti = $templateSheetCount; $ti -ge 1; $ti--){
+                try{
+                    $sheetToDelete = $wb.Worksheets.Item([int]$ti)
+                    $sheetToDelete.Delete()
+                    [System.Runtime.Interopservices.Marshal]::ReleaseComObject($sheetToDelete) | Out-Null
+                }
+                catch{}
             }
-            catch{}
             $excel.DisplayAlerts = $false
             if($templateSheet){
                 [System.Runtime.Interopservices.Marshal]::ReleaseComObject($templateSheet) | Out-Null
