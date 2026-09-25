@@ -768,9 +768,9 @@ function Apply-TableSearchFilter{
 function Set-DrawSidePanelControlsVisible($visible){
     $visibleFlag = [bool]$visible
     foreach($control in @(
-        $btnLoad,$btnAutoYolo,$btnExcel,$btnAdvance,$grpOcrDebug,$lblTableSearch,$txtTableSearch,
+        $btnLoad,$btnExcel,$btnAdvance,$btnAutoScan,$grpOcrDebug,$lblTableSearch,$txtTableSearch,
         $btnResultsView,$table,$lblPreviewTitle,$preview,$grpDefaultTol,$grpPreset,
-        $grpTolMode,$grpAiVision
+        $grpTolMode
     )){
         try{
             if($control -and $control -ne $btnToggleSidePanel){
@@ -857,8 +857,10 @@ function Update-UiLayout{
             $btnNextPage.Size = New-Object Drawing.Size($pageNavButtonWidth,$pageNavHeight)
         }
 
-        $pageList.Location = New-Object Drawing.Point(-2000,-2000)
-        $pageList.Size = New-Object Drawing.Size(1,1)
+        if($pageList){
+            $pageList.Location = New-Object Drawing.Point(-2000,-2000)
+            $pageList.Size = New-Object Drawing.Size(1,1)
+        }
         $viewer.Location = New-Object Drawing.Point($margin,$viewerTop)
         $viewer.Size = New-Object Drawing.Size($drawViewerWidth,$viewerHeight)
         $tabDraw.AutoScrollMinSize = New-Object Drawing.Size(0,($viewer.Bottom + $margin))
@@ -886,8 +888,10 @@ function Update-UiLayout{
     $pageNavTotalWidth = ($pageNavButtonWidth * 2) + $pageNavLabelWidth + ($pageNavGapX * 2)
     $pageNavLeft = $margin + [Math]::Max(0,[int](($drawViewerWidth - $pageNavTotalWidth) / 2))
 
-    $pageList.Location = New-Object Drawing.Point(-2000,-2000)
-    $pageList.Size = New-Object Drawing.Size(1,1)
+    if($pageList){
+        $pageList.Location = New-Object Drawing.Point(-2000,-2000)
+        $pageList.Size = New-Object Drawing.Size(1,1)
+    }
 
     $btnPrevPage.Visible = $pageNavVisible
     $lblPageInfo.Visible = $pageNavVisible
@@ -905,26 +909,15 @@ function Update-UiLayout{
     $viewer.Location = New-Object Drawing.Point($margin,$viewerTop)
     $viewer.Size = New-Object Drawing.Size($drawViewerWidth,$viewerHeight)
 
-    $toolGap = 6
+    $toolGap = 8
     $togglePanelWidth = 28
-    $topButtonAreaWidth = [Math]::Max(240,($drawSidebarWidth - $togglePanelWidth - ($toolGap * 4)))
-    $topButtonWidth = [Math]::Max(50,[int]($topButtonAreaWidth / 4))
-    $topLastButtonWidth = [Math]::Max(52,($topButtonAreaWidth - ($topButtonWidth * 3) - ($toolGap * 3)))
+    $topButtonAreaWidth = [Math]::Max(240,($drawSidebarWidth - $togglePanelWidth - ($toolGap * 3)))
+    $topButtonWidth = [Math]::Max(66,[int]($topButtonAreaWidth / 3))
+    $topLastButtonWidth = [Math]::Max(72,($topButtonAreaWidth - ($topButtonWidth * 2) - ($toolGap * 2)))
 
     $btnLoad.Location = New-Object Drawing.Point($drawSidebarX,$drawContentTop)
     $btnLoad.Size = New-Object Drawing.Size($topButtonWidth,$buttonHeight)
-    $nextLeft = $btnLoad.Right + $toolGap
-    if($btnAutoYolo){
-        $btnAutoYolo.Location = New-Object Drawing.Point($nextLeft,$drawContentTop)
-        $btnAutoYolo.Size = New-Object Drawing.Size($topButtonWidth,$buttonHeight)
-        $nextLeft = $btnAutoYolo.Right + $toolGap
-    }
-
-
-
-
-
-    $btnExcel.Location = New-Object Drawing.Point($nextLeft,$drawContentTop)
+    $btnExcel.Location = New-Object Drawing.Point(($btnLoad.Right + $toolGap),$drawContentTop)
     $btnExcel.Size = New-Object Drawing.Size($topButtonWidth,$buttonHeight)
     $btnAdvance.Location = New-Object Drawing.Point(($btnExcel.Right + $toolGap),$drawContentTop)
     $btnAdvance.Size = New-Object Drawing.Size($topLastButtonWidth,$buttonHeight)
@@ -932,43 +925,44 @@ function Update-UiLayout{
     $btnToggleSidePanel.Size = New-Object Drawing.Size($togglePanelWidth,28)
     $btnToggleSidePanel.BringToFront()
 
-    $btnYellowPen.Visible = $false
-    $btnEraser.Visible = $false
-    $btnYellowPen.Location = New-Object Drawing.Point(-2000,-2000)
-    $btnEraser.Location = New-Object Drawing.Point(-2000,-2000)
-    $btnYellowPen.Size = New-Object Drawing.Size(1,1)
-    $btnEraser.Size = New-Object Drawing.Size(1,1)
-
-    $infoRowTop = $btnLoad.Bottom + 8
-    $txtCopiedUi.Location = New-Object Drawing.Point(-2000,-2000)
-    $txtCopiedUi.Size = New-Object Drawing.Size(1,1)
-    $txtCopiedUi.Visible = $false
+    if($btnAutoScan){
+        $autoScanTop = $btnLoad.Bottom + 6
+        $autoScanHeight = 34
+        $btnAutoScan.Location = New-Object Drawing.Point($drawSidebarX,$autoScanTop)
+        $btnAutoScan.Size = New-Object Drawing.Size($drawSidebarWidth,$autoScanHeight)
+        $infoRowTop = $btnAutoScan.Bottom + 6
+    }
+    else{
+        $infoRowTop = $btnLoad.Bottom + 6
+    }
 
     $sidebarAvailableHeight = [Math]::Max(420,($tabDraw.ClientSize.Height - $infoRowTop - $margin))
-    $debugTopHeight = [Math]::Max(58,[Math]::Min(74,[int]($sidebarAvailableHeight * 0.10)))
+    $debugTopHeight = 42
     $grpOcrDebug.Location = New-Object Drawing.Point($drawSidebarX,$infoRowTop)
     $grpOcrDebug.Size = New-Object Drawing.Size($drawSidebarWidth,$debugTopHeight)
-    $txtOcrDebug.Location = New-Object Drawing.Point(10,22)
-    $txtOcrDebug.Size = New-Object Drawing.Size(($grpOcrDebug.ClientSize.Width - 20),($grpOcrDebug.ClientSize.Height - 30))
+    $txtOcrDebug.Location = New-Object Drawing.Point(8,18)
+    $txtOcrDebug.Size = New-Object Drawing.Size([Math]::Max(100,($grpOcrDebug.ClientSize.Width - 16)),18)
 
     $searchRowTop = $grpOcrDebug.Bottom + 6
     $searchLabelWidth = [Math]::Max(74,($lblTableSearch.PreferredWidth + 4))
-$lblTableSearch.Location = New-Object Drawing.Point($drawSidebarX,($searchRowTop + 4))
-$txtTableSearch.Location = New-Object Drawing.Point(($lblTableSearch.Right + 6),$searchRowTop)
-$resultsButtonWidth = 96
-if($btnResultsView){
-    $btnResultsView.Location = New-Object Drawing.Point(($drawSidebarX + $drawSidebarWidth - $resultsButtonWidth),$searchRowTop)
-    $btnResultsView.Size = New-Object Drawing.Size($resultsButtonWidth,$toolRowHeight)
-}
-$searchRight = if($btnResultsView){ $btnResultsView.Left - 6 } else { $drawSidebarX + $drawSidebarWidth }
-$txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $txtTableSearch.Location.X)),$toolRowHeight)
+    $lblTableSearch.Location = New-Object Drawing.Point($drawSidebarX,($searchRowTop + 4))
+    $txtTableSearch.Location = New-Object Drawing.Point(($lblTableSearch.Right + 6),$searchRowTop)
+    $resultsButtonWidth = 96
+    if($btnResultsView){
+        $btnResultsView.Location = New-Object Drawing.Point(($drawSidebarX + $drawSidebarWidth - $resultsButtonWidth),$searchRowTop)
+        $btnResultsView.Size = New-Object Drawing.Size($resultsButtonWidth,$toolRowHeight)
+    }
+    $searchRight = if($btnResultsView){ $btnResultsView.Left - 6 } else { $drawSidebarX + $drawSidebarWidth }
+    $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $txtTableSearch.Location.X)),$toolRowHeight)
 
     $tableTop = $txtTableSearch.Bottom + 8
 
-    $previewHeight = [Math]::Max(88,[Math]::Min(98,[int]($sidebarAvailableHeight * 0.13)))
-    $tolModeHeight = [Math]::Max(88,[Math]::Min(108,[int]($sidebarAvailableHeight * 0.14)))
-    $reservedBottomHeight = $previewHeight + 12 + 148 + 12 + $tolModeHeight
-    $tableHeight = [Math]::Max(118,[Math]::Min(170,($sidebarAvailableHeight - $debugTopHeight - 6 - $toolRowHeight - 8 - $reservedBottomHeight)))
+    $previewHeight = [Math]::Max(80,[Math]::Min(92,[int]($sidebarAvailableHeight * 0.11)))
+    $tolModeHeight = [Math]::Max(88,[Math]::Min(100,[int]($sidebarAvailableHeight * 0.13)))
+    $presetHeight = [Math]::Max(165,[Math]::Min(188,[int]($sidebarAvailableHeight * 0.22)))
+    $reservedBottomHeight = $previewHeight + 10 + $presetHeight + 10 + $tolModeHeight + 6
+    $availableForTable = $sidebarAvailableHeight - $debugTopHeight - 6 - $toolRowHeight - 8 - $reservedBottomHeight
+    $tableHeight = [Math]::Max(170,$availableForTable)
     $table.Location = New-Object Drawing.Point($drawSidebarX,$tableTop)
     $table.Size = New-Object Drawing.Size($drawSidebarWidth,$tableHeight)
 
@@ -976,7 +970,7 @@ $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $t
     $previewWidth = [int](($drawSidebarWidth - $sideGap) / 2)
     $defaultTolWidth = $drawSidebarWidth - $previewWidth - $sideGap
 
-    $previewTop = $table.Bottom + 12
+    $previewTop = $table.Bottom + 10
     $lblPreviewTitle.Location = New-Object Drawing.Point($drawSidebarX,$previewTop)
     $preview.Location = New-Object Drawing.Point($drawSidebarX,$previewTop)
     $preview.Size = New-Object Drawing.Size($previewWidth,$previewHeight)
@@ -987,7 +981,7 @@ $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $t
     $tolInnerWidth = $grpDefaultTol.ClientSize.Width
     $tolLeft = 10
     $tolTop = 18
-    $tolRowGap = 18
+    $tolRowGap = 17
     $tolLabelWidth = 52
     $tolFieldGap = 6
     $tolFieldWidth = [Math]::Max(34,[Math]::Min(42,($tolInnerWidth - $tolLeft - $tolLabelWidth - 12 - $tolFieldGap)))
@@ -1007,11 +1001,12 @@ $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $t
     $txtTol3.Width = $tolFieldWidth
 
     $previewRowBottom = [Math]::Max($preview.Bottom,$grpDefaultTol.Bottom)
-    $grpAiVision.Location = New-Object Drawing.Point(-3000,-3000)
-    $grpAiVision.Size = New-Object Drawing.Size(1,1)
-    $debugRowTop = $previewRowBottom + 12
+    if($grpAiVision){
+        $grpAiVision.Location = New-Object Drawing.Point(-3000,-3000)
+        $grpAiVision.Size = New-Object Drawing.Size(1,1)
+    }
+    $debugRowTop = $previewRowBottom + 10
     $presetWidth = $drawSidebarWidth
-    $presetHeight = [Math]::Max(148,[Math]::Min(176,($tabDraw.ClientSize.Height - $debugRowTop - 12 - $tolModeHeight - $margin)))
 
     $grpPreset.Location = New-Object Drawing.Point($drawSidebarX,$debugRowTop)
     $grpPreset.Size = New-Object Drawing.Size($presetWidth,$presetHeight)
@@ -1027,7 +1022,7 @@ $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $t
         $presetGapX = 6
         $presetGapY = 6
         $presetButtonWidth = [Math]::Max(50,[int](($presetInnerWidth - (($presetCols - 1) * $presetGapX)) / $presetCols))
-        $presetButtonHeight = [Math]::Max(24,[int](($presetInnerHeight - (($presetRows - 1) * $presetGapY)) / $presetRows))
+        $presetButtonHeight = [Math]::Max(30,[int](($presetInnerHeight - (($presetRows - 1) * $presetGapY)) / $presetRows))
 
         for($presetIndex = 0; $presetIndex -lt $presetButtons.Count; $presetIndex++){
             $presetButton = $presetButtons[$presetIndex]
@@ -1035,14 +1030,20 @@ $txtTableSearch.Size = New-Object Drawing.Size([Math]::Max(90,($searchRight - $t
             $presetRow = [int][Math]::Floor($presetIndex / $presetCols)
             $presetButton.Location = New-Object Drawing.Point(
                 (10 + ($presetCol * ($presetButtonWidth + $presetGapX))),
-                (28 + ($presetRow * ($presetButtonHeight + $presetGapY)))
+                (26 + ($presetRow * ($presetButtonHeight + $presetGapY)))
             )
             $presetButton.Size = New-Object Drawing.Size($presetButtonWidth,$presetButtonHeight)
         }
     }
 
-    $grpTolMode.Location = New-Object Drawing.Point($drawSidebarX,($grpPreset.Bottom + 12))
+    $grpTolMode.Location = New-Object Drawing.Point($drawSidebarX,($grpPreset.Bottom + 10))
     $grpTolMode.Size = New-Object Drawing.Size($drawSidebarWidth,$tolModeHeight)
+
+    if($rbPM){ $rbPM.Location = New-Object Drawing.Point(16,24); $rbPM.Size = New-Object Drawing.Size(60,28) }
+    if($rbPlus){ $rbPlus.Location = New-Object Drawing.Point(16,56); $rbPlus.Size = New-Object Drawing.Size(60,28) }
+    if($rbPP){ $rbPP.Location = New-Object Drawing.Point(110,24); $rbPP.Size = New-Object Drawing.Size(70,28) }
+    if($rbMM){ $rbMM.Location = New-Object Drawing.Point(110,56); $rbMM.Size = New-Object Drawing.Size(70,28) }
+    if($rbMinus){ $rbMinus.Location = New-Object Drawing.Point(210,24); $rbMinus.Size = New-Object Drawing.Size(60,28) }
 
     $contentBottom = [Math]::Max($viewer.Bottom,$grpTolMode.Bottom) + $margin
     $tabDraw.AutoScrollMinSize = New-Object Drawing.Size(0,$contentBottom)
@@ -1166,12 +1167,6 @@ $table.Add_CellEndEdit({
             $trainingRect = $script:StepRects[$rowIndex]
         }
         if($oldValue -ne $newValue){
-            if($script:TrainModeEnabled -and ($colIndex -in @(1, 2, 3))){
-                try{
-                    Track-OcrCorrectionTrainingData $rowIndex $colIndex $oldValue $newValue $trainingRect
-                }
-                catch{}
-            }
             switch($colIndex){
                 1 { Register-TrainingSignal "nominal_edit" @{ Row = $rowIndex; Before = $oldValue; After = $newValue; Rect = $trainingRect } }
                 2 { Register-TrainingSignal "tolerance_edit" @{ Row = $rowIndex; Field = "TolMinus"; Before = $oldValue; After = $newValue; Rect = $trainingRect } }
@@ -1243,142 +1238,11 @@ function Convert-MeasurementNumber($value){
     return $null
 }
 
-function Normalize-MeasurementTypedText($value){
-    $text = ([string]$value).Trim()
-    if([string]::IsNullOrWhiteSpace($text)){ return "" }
-    $text = $text -replace ',','.'
-    $text = $text -replace '(?i)\bDEG\b',[string][char]176
-    $text = $text -replace '(?i)(?<=\d)DEG(?=\d|$)',[string][char]176
-    $text = $text -replace '(?i)\b(DO|ĐỘ)\b',[string][char]176
-    $text = $text -replace '(?i)(?<=\d)(DO|ĐỘ)(?=\d|$)',[string][char]176
-    $text = $text -replace '(?i)^\s*(PHI|DIA|DIAMETER)\s*','Ø'
-    $text = $text -replace 'φ','Φ'
-    $text = $text -replace 'ϕ','Φ'
-    $text = $text -replace 'º','°'
-    return $text
-}
-
-function Get-MeasurementValueKind($text){
-    $value = (Normalize-MeasurementTypedText $text).ToUpperInvariant()
-    if([string]::IsNullOrWhiteSpace($value)){ return "" }
-    if($value -match '[°º''"]'){ return "ANGLE" }
-    if($value -match '^(R|SR)\s*[-+]?\d'){ return "R" }
-    if($value -match '^(C|CH|CHAMFER)\s*[-+]?\d'){ return "C" }
-    if($value -match '^(Ø|Φ|PHI|DIA|DIAMETER)\s*[-+]?\d'){ return "DIA" }
-    if($value -match '^(R|SR)\b'){ return "R" }
-    if($value -match '^(C|CH|CHAMFER)\b'){ return "C" }
-    if($value -match '^(Ø|Φ|PHI|DIA|DIAMETER)\b'){ return "DIA" }
-    return "LINEAR"
-}
-
-function Test-MeasurementActualTextAllowed($actualText,$nominalKind){
-    $text = Normalize-MeasurementTypedText $actualText
-    if([string]::IsNullOrWhiteSpace($text)){ return $true }
-    $kind = [string]$nominalKind
-    $upper = $text.ToUpperInvariant()
-
-    if($kind -eq "ANGLE"){
-        if(Try-ParseAngleDmsText $text){ return $true }
-        return ($upper -match '^[-+]?\d+(?:\.\d+)?(?:[°º](?:\d{1,2}''(?:\d{1,2}(?:\.\d+)?)?"?)?)?$')
-    }
-    if($kind -eq "R"){
-        return ($upper -match '^(?:R|SR)?\s*[-+]?\d+(?:\.\d+)?$')
-    }
-    if($kind -eq "C"){
-        return ($upper -match '^(?:C|CH|CHAMFER)?\s*[-+]?\d+(?:\.\d+)?$')
-    }
-    if($kind -eq "DIA"){
-        return ($upper -match '^(?:Ø|Φ)?\s*[-+]?\d+(?:\.\d+)?$')
-    }
-    return ($upper -match '^[-+]?\d+(?:\.\d+)?$')
-}
-
-function Convert-MeasurementValueForResult($value,$kind){
-    $text = Normalize-MeasurementTypedText $value
-    if([string]::IsNullOrWhiteSpace($text)){ return $null }
-
-    $number = 0.0
-    if([string]$kind -eq "ANGLE"){
-        if(Convert-AngleDmsTextToDouble $text ([ref]$number)){
-            return [double]$number
-        }
-        $angleText = $text -replace '[°º]',''
-        $angleText = $angleText -replace ',','.'
-        if([double]::TryParse($angleText,[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$number)){
-            return [double]$number
-        }
-        return $null
-    }
-
-    if(Convert-MechanicalNumberToDouble $text ([ref]$number)){
-        return [double]$number
-    }
-
-    return (Convert-MeasurementNumber $text)
-}
-
-function Format-MeasurementActualForNominal($nominalText,$actualText){
-    $text = Normalize-MeasurementTypedText $actualText
-    if([string]::IsNullOrWhiteSpace($text)){ return "" }
-
-    $kind = Get-MeasurementValueKind $nominalText
-    if(-not (Test-MeasurementActualTextAllowed $text $kind)){ return $text }
-    if($null -eq (Convert-MeasurementValueForResult $text $kind)){ return $text }
-
-    $nominal = (Normalize-MeasurementTypedText $nominalText).Trim()
-    $upperNominal = $nominal.ToUpperInvariant()
-    $upperText = $text.ToUpperInvariant()
-
-    if($kind -eq "R"){
-        if($upperText -match '^(R|SR)'){ return $text }
-        $prefix = if($upperNominal -match '^SR'){ "SR" } else { "R" }
-        return ($prefix + $text)
-    }
-    if($kind -eq "C"){
-        if($upperText -match '^(C|CH|CHAMFER)'){ return $text }
-        return ("C" + $text)
-    }
-    if($kind -eq "DIA"){
-        if($upperText -match '^(Ø|Φ)'){ return $text }
-        return ("Ø" + $text)
-    }
-    if($kind -eq "ANGLE"){
-        $angle = Try-ParseAngleDmsText $text
-        if($angle){ return [string]$angle.Text }
-        if($text -match '[°º]'){ return $text }
-        return ($text + [string][char]176)
-    }
-
-    return $text
-}
-
-function Test-MeasurementActualKindCompatible($nominalKind,$actualText){
-    $expected = [string]$nominalKind
-    if([string]::IsNullOrWhiteSpace($expected) -or $expected -eq "LINEAR"){ return $true }
-
-    $actual = ([string]$actualText).Trim()
-    if([string]::IsNullOrWhiteSpace($actual)){ return $true }
-    $actualKind = Get-MeasurementValueKind $actual
-    if($actualKind -eq "LINEAR"){ return $true }
-    return ([string]$actualKind -eq $expected)
-}
-
 function Get-MeasurementResult($nominalText,$tolMinusText,$tolPlusText,$actualText){
-    $nominalKind = Get-MeasurementValueKind $nominalText
-    if(-not (Test-MeasurementActualKindCompatible $nominalKind $actualText)){
-        return "INVALID"
-    }
-    if(-not (Test-MeasurementActualTextAllowed $actualText $nominalKind)){
-        return "INVALID"
-    }
+    $actual = Convert-MeasurementNumber $actualText
+    if($null -eq $actual){ return "" }
 
-    $actual = Convert-MeasurementValueForResult $actualText $nominalKind
-    if($null -eq $actual){
-        if([string]::IsNullOrWhiteSpace([string]$actualText)){ return "" }
-        return "INVALID"
-    }
-
-    $nominal = Convert-MeasurementValueForResult $nominalText $nominalKind
+    $nominal = Convert-MeasurementNumber $nominalText
     if($null -eq $nominal){ return "INVALID" }
 
     $tolMinus = Convert-MeasurementNumber $tolMinusText
@@ -1405,39 +1269,12 @@ function Get-MeasurementOverrideForStep($step){
 
     $record = $script:MeasurementResults[$stepKey]
     if(!$record){ return $null }
-    $actuals = @()
-    if($record.PSObject.Properties.Name -contains "Actuals"){
-        foreach($item in @(Convert-SessionValueToList $record.Actuals)){
-            $actuals += [string]$item
-        }
-    }
-
     $actual = [string]$record.Actual
-    if($actuals.Count -eq 0 -and -not [string]::IsNullOrWhiteSpace($actual)){
-        $actuals = @($actual)
-    }
-
-    $hasActual = $false
-    foreach($item in @($actuals)){
-        if(-not [string]::IsNullOrWhiteSpace([string]$item)){
-            $hasActual = $true
-            break
-        }
-    }
-    if(-not $hasActual){ return $null }
-
-    $results = @()
-    if($record.PSObject.Properties.Name -contains "Results"){
-        foreach($item in @(Convert-SessionValueToList $record.Results)){
-            $results += [string]$item
-        }
-    }
+    if([string]::IsNullOrWhiteSpace($actual)){ return $null }
 
     return [PSCustomObject]@{
-        Actual = if(-not [string]::IsNullOrWhiteSpace($actual)){ $actual } else { [string]($actuals | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Select-Object -First 1) }
-        Actuals = @($actuals)
+        Actual = $actual
         Result = [string]$record.Result
-        Results = @($results)
     }
 }
 
@@ -1483,300 +1320,8 @@ function Focus-StepFromResultsView($row){
     }
 }
 
-function Get-CurrentResultsViewQuantity{
-    $resultsQty = 0
-    $partQty = 0
-    [void][int]::TryParse([string]$script:ResultsViewActualColumnCount,[ref]$resultsQty)
-    [void][int]::TryParse([string]$script:PartQuantity,[ref]$partQty)
-
-    if($resultsQty -gt 0 -and $partQty -gt 0){
-        return [Math]::Max([int]$resultsQty,[int]$partQty)
-    }
-    if($resultsQty -gt 0){ return [int]$resultsQty }
-    if($partQty -gt 0){ return [int]$partQty }
-    return 1
-}
-
-function Set-ResultsViewQuantity($grid,$qtyText,$txtQty = $null,$lblQtyStatus = $null){
-    $qtyValue = 0
-    if(-not [int]::TryParse(([string]$qtyText).Trim(),[ref]$qtyValue)){
-        $qtyValue = Get-CurrentResultsViewQuantity
-    }
-    if($qtyValue -lt 1){ $qtyValue = 1 }
-
-    $script:ResultsViewActualColumnCount = [int]$qtyValue
-    $script:PartQuantity = [string]$qtyValue
-    if($txtQty){ $txtQty.Text = [string]$qtyValue }
-    if($lblQtyStatus){ $lblQtyStatus.Text = "" }
-
-    Queue-SessionStateSave
-    return [int]$qtyValue
-}
-
-function Get-ResultsViewDebugLogPath{
-    return (Join-Path ([System.IO.Path]::GetTempPath()) "RapidOcrResultsView-debug.log")
-}
-
-function Get-ResultsViewDebugSnapshot($grid = $null,$extra = $null){
-    $actualColumns = @()
-    if($grid){
-        try{ $actualColumns = @(Get-ResultsViewActualColumnNames $grid) } catch{ $actualColumns = @("<column-read-failed>") }
-    }
-
-    $snapshot = [ordered]@{
-        PartQuantity = [string]$script:PartQuantity
-        ResultsViewActualColumnCount = [string]$script:ResultsViewActualColumnCount
-        CurrentQuantity = [string](Get-CurrentResultsViewQuantity)
-        GridActualColumnCount = [string]$actualColumns.Count
-        GridActualColumns = ($actualColumns -join ",")
-        GridRows = if($grid){ [string]$grid.Rows.Count } else { "" }
-        Session = [string]$script:CurrentSessionFilePath
-    }
-
-    if($extra){
-        foreach($key in @($extra.Keys)){
-            $snapshot[[string]$key] = [string]$extra[$key]
-        }
-    }
-
-    return $snapshot
-}
-
-function Write-ResultsViewDebugLog($stage,$grid = $null,$extra = $null,$exception = $null){
-    $path = Get-ResultsViewDebugLogPath
-    try{
-        $snapshot = Get-ResultsViewDebugSnapshot $grid $extra
-        $lines = New-Object System.Collections.ArrayList
-        [void]$lines.Add(("[" + (Get-Date).ToString("yyyy-MM-dd HH:mm:ss.fff") + "] " + [string]$stage))
-        foreach($key in @($snapshot.Keys)){
-            [void]$lines.Add(("  " + [string]$key + ": " + [string]$snapshot[$key]))
-        }
-        if($exception){
-            [void]$lines.Add(("  ErrorType: " + $exception.GetType().FullName))
-            [void]$lines.Add(("  Message: " + [string]$exception.Message))
-            [void]$lines.Add(("  Stack: " + [string]$exception.StackTrace))
-        }
-        [void]$lines.Add("")
-        [System.IO.File]::AppendAllText($path,(($lines -join [Environment]::NewLine) + [Environment]::NewLine),[System.Text.Encoding]::UTF8)
-    }
-    catch{}
-    return $path
-}
-
-function Show-ResultsViewError($stage,$grid,$exception,$extra = $null){
-    $logPath = Write-ResultsViewDebugLog $stage $grid $extra $exception
-    $snapshot = Get-ResultsViewDebugSnapshot $grid $extra
-    $text = New-Object System.Text.StringBuilder
-    [void]$text.AppendLine("Results View error.")
-    [void]$text.AppendLine("")
-    [void]$text.AppendLine(("Stage: " + [string]$stage))
-    [void]$text.AppendLine(("Log: " + [string]$logPath))
-    [void]$text.AppendLine(("PartQuantity: " + [string]$snapshot.PartQuantity))
-    [void]$text.AppendLine(("ResultsViewActualColumnCount: " + [string]$snapshot.ResultsViewActualColumnCount))
-    [void]$text.AppendLine(("GridActualColumnCount: " + [string]$snapshot.GridActualColumnCount))
-    [void]$text.AppendLine(("GridActualColumns: " + [string]$snapshot.GridActualColumns))
-    [void]$text.AppendLine("")
-    [void]$text.AppendLine(("Error type: " + $exception.GetType().FullName))
-    [void]$text.AppendLine(("Message: " + [string]$exception.Message))
-    [System.Windows.Forms.MessageBox]::Show([string]$text.ToString(),"Results View Error",[System.Windows.Forms.MessageBoxButtons]::OK,[System.Windows.Forms.MessageBoxIcon]::Error) | Out-Null
-}
-
-function Get-ResultsViewActualColumnNames($grid){
-    $names = @()
-    if(!$grid){ return $names }
-    foreach($col in @($grid.Columns)){
-        if(!$col){ continue }
-        if(([string]$col.Name) -match '^Actual\d+$'){
-            $names += [string]$col.Name
-        }
-    }
-    return @($names | Sort-Object { [int](([string]$_).Substring(6)) })
-}
-
-function Add-ResultsViewActualColumn($grid,$sampleIndex){
-    if(!$grid){ return }
-    $index = [int]$sampleIndex
-    if($index -lt 1){ $index = 1 }
-    $name = "Actual" + [string]$index
-    if($grid.Columns.Contains($name)){ return }
-
-    $col = New-Object Windows.Forms.DataGridViewTextBoxColumn
-    $col.Name = $name
-    $col.HeaderText = [string]$index
-    $col.ReadOnly = $false
-    $col.Width = 86
-    $col.MinimumWidth = 52
-    $col.FillWeight = 12
-    [void]$grid.Columns.Add($col)
-}
-
-function Remove-ResultsViewLastActualColumn($grid){
-    if(!$grid){ return 1 }
-    $actualColumns = @(Get-ResultsViewActualColumnNames $grid)
-    if($actualColumns.Count -le 1){ return 1 }
-
-    $lastName = [string]$actualColumns[$actualColumns.Count - 1]
-    if($grid.Columns.Contains($lastName)){
-        $grid.Columns.Remove($lastName)
-    }
-    return [Math]::Max(1,$actualColumns.Count - 1)
-}
-
-function Refresh-ResultsViewActualColumns($grid,$targetQty){
-    Write-ResultsViewDebugLog "Refresh columns enter" $grid @{ TargetQty = [string]$targetQty } | Out-Null
-    if(!$grid){ return 1 }
-    $qty = 1
-    try{ $qty = [int]$targetQty } catch{ $qty = 1 }
-    if($qty -lt 1){ $qty = 1 }
-
-    $oldActualColumns = @(Get-ResultsViewActualColumnNames $grid)
-    $rowActuals = @{}
-    foreach($row in @($grid.Rows)){
-        if(!$row -or $row.IsNewRow){ continue }
-        $values = New-Object System.Collections.ArrayList
-        foreach($columnName in @($oldActualColumns)){
-            if($grid.Columns.Contains($columnName)){
-                [void]$values.Add([string]$row.Cells[$columnName].Value)
-            }
-        }
-        $rowActuals[[int]$row.Index] = @($values)
-    }
-
-    $grid.SuspendLayout()
-    try{
-        foreach($columnName in @($oldActualColumns | Sort-Object { [int](([string]$_).Substring(6)) } -Descending)){
-            if($grid.Columns.Contains($columnName)){
-                $grid.Columns.Remove($columnName)
-            }
-        }
-
-        for($sampleIndex = 1; $sampleIndex -le $qty; $sampleIndex++){
-            Add-ResultsViewActualColumn $grid $sampleIndex
-        }
-        if($grid.Columns.Contains("Result")){
-            $grid.Columns["Result"].DisplayIndex = $grid.Columns.Count - 1
-        }
-
-        foreach($row in @($grid.Rows)){
-            if(!$row -or $row.IsNewRow){ continue }
-            $values = @()
-            if($rowActuals.ContainsKey([int]$row.Index)){
-                $values = @($rowActuals[[int]$row.Index])
-            }
-            for($sampleIndex = 1; $sampleIndex -le $qty; $sampleIndex++){
-                $columnName = "Actual" + [string]$sampleIndex
-                if(-not $grid.Columns.Contains($columnName)){ continue }
-                $value = ""
-                if(($sampleIndex - 1) -lt $values.Count){
-                    $value = [string]$values[$sampleIndex - 1]
-                }
-                $row.Cells[$columnName].Value = $value
-            }
-        }
-    }
-    finally{
-        $grid.ResumeLayout($true)
-    }
-
-    $grid.Invalidate()
-    $grid.PerformLayout()
-    $grid.Refresh()
-    Write-ResultsViewDebugLog "Refresh columns done" $grid @{ TargetQty = [string]$targetQty; FinalQty = [string]$qty } | Out-Null
-    return [int]$qty
-}
-
-function Get-MeasurementActualsForStep($step,$minimumCount = 1){
-    $count = [Math]::Max(1,[int]$minimumCount)
-    $actuals = New-Object System.Collections.ArrayList
-    for($i = 0; $i -lt $count; $i++){
-        [void]$actuals.Add("")
-    }
-
-    $stepKey = [string]$step
-    if([string]::IsNullOrWhiteSpace($stepKey) -or -not $script:MeasurementResults.ContainsKey($stepKey)){
-        return @($actuals)
-    }
-
-    $record = $script:MeasurementResults[$stepKey]
-    if(!$record){ return @($actuals) }
-
-    $stored = @()
-    if($record.PSObject.Properties.Name -contains "Actuals"){
-        $stored = @(Convert-SessionValueToList $record.Actuals)
-    }
-    elseif($record.PSObject.Properties.Name -contains "Actual"){
-        $stored = @([string]$record.Actual)
-    }
-
-    for($i = 0; $i -lt $stored.Count; $i++){
-        if($i -ge $actuals.Count){ [void]$actuals.Add("") }
-        $actuals[$i] = [string]$stored[$i]
-    }
-
-    return @($actuals)
-}
-
-function Get-MeasurementAggregateResult($nominal,$tolMinus,$tolPlus,$actuals){
-    $hasValue = $false
-    $hasInvalid = $false
-    $hasNg = $false
-
-    foreach($actual in @($actuals)){
-        $actualText = [string]$actual
-        if([string]::IsNullOrWhiteSpace($actualText)){ continue }
-        $hasValue = $true
-        $resultText = Get-MeasurementResult $nominal $tolMinus $tolPlus $actualText
-        if($resultText -eq "NG"){ $hasNg = $true }
-        elseif($resultText -eq "INVALID"){ $hasInvalid = $true }
-    }
-
-    if(-not $hasValue){ return "" }
-    if($hasNg){ return "NG" }
-    if($hasInvalid){ return "INVALID" }
-    return "OK"
-}
-
-function Get-MeasurementMinMaxTexts($nominalText,$tolMinusText,$tolPlusText){
-    $nominalKind = Get-MeasurementValueKind $nominalText
-    $nominal = Convert-MeasurementValueForResult $nominalText $nominalKind
-    if($null -eq $nominal){ return @("","") }
-
-    $tolMinus = Convert-MeasurementNumber $tolMinusText
-    $tolPlus = Convert-MeasurementNumber $tolPlusText
-    if($null -eq $tolMinus){ $tolMinus = 0.0 }
-    if($null -eq $tolPlus){ $tolPlus = 0.0 }
-
-    $minValue = [double]$nominal + [double]$tolMinus
-    $maxValue = [double]$nominal + [double]$tolPlus
-    if($minValue -gt $maxValue){
-        $tmp = $minValue
-        $minValue = $maxValue
-        $maxValue = $tmp
-    }
-
-    $decimals = 0
-    try{ $decimals = [int](Get-InspectionDisplayDecimalPlaces $nominalText $tolMinusText $tolPlusText) } catch{ $decimals = 4 }
-    if($decimals -lt 0){ $decimals = 0 }
-    $format = if($decimals -gt 0){ "0." + ("0" * $decimals) } else { "0.####" }
-    $minText = ([double]$minValue).ToString($format,[System.Globalization.CultureInfo]::InvariantCulture)
-    $maxText = ([double]$maxValue).ToString($format,[System.Globalization.CultureInfo]::InvariantCulture)
-
-    $minText = Format-MeasurementActualForNominal $nominalText $minText
-    $maxText = Format-MeasurementActualForNominal $nominalText $maxText
-    return @($minText,$maxText)
-}
-
 function Show-ResultsViewWindow{
     if(!$table){ return }
-    if($script:ResultsViewForm -and -not $script:ResultsViewForm.IsDisposed){
-        try{
-            $script:ResultsViewForm.Activate()
-            $script:ResultsViewForm.BringToFront()
-        }
-        catch{}
-        return
-    }
-    Write-ResultsViewDebugLog "Show window enter" $null @{ TableRows = [string]$table.Rows.Count } | Out-Null
 
     $formResults = New-Object Windows.Forms.Form
     $formResults.Text = "Results View"
@@ -1784,61 +1329,6 @@ function Show-ResultsViewWindow{
     $formResults.Size = New-Object Drawing.Size(760,520)
     $formResults.MinimizeBox = $true
     $formResults.MaximizeBox = $true
-    $script:ResultsViewForm = $formResults
-
-    $resultsLayout = New-Object Windows.Forms.TableLayoutPanel
-    $resultsLayout.Dock = [System.Windows.Forms.DockStyle]::Fill
-    $resultsLayout.ColumnCount = 1
-    $resultsLayout.RowCount = 2
-    $resultsLayout.Margin = New-Object Windows.Forms.Padding(0)
-    $resultsLayout.Padding = New-Object Windows.Forms.Padding(0)
-    [void]$resultsLayout.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent,100)))
-    [void]$resultsLayout.RowStyles.Add((New-Object Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute,30)))
-    [void]$resultsLayout.RowStyles.Add((New-Object Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent,100)))
-    $formResults.Controls.Add($resultsLayout)
-
-    $panelQty = New-Object Windows.Forms.Panel
-    $panelQty.Dock = [System.Windows.Forms.DockStyle]::Fill
-    $panelQty.Padding = New-Object Windows.Forms.Padding(8,2,8,2)
-    $resultsLayout.Controls.Add($panelQty,0,0)
-
-    $panelQtyActions = New-Object Windows.Forms.Panel
-    $panelQtyActions.Dock = [System.Windows.Forms.DockStyle]::Right
-    $panelQtyActions.Width = 152
-    $panelQtyActions.Padding = New-Object Windows.Forms.Padding(0,0,8,0)
-    $panelQty.Controls.Add($panelQtyActions)
-
-    $btnClearAllActual = New-Object Windows.Forms.Button
-    $btnClearAllActual.Text = "Clear All"
-    $btnClearAllActual.Font = New-Object Drawing.Font("Segoe UI",8)
-    $btnClearAllActual.Size = New-Object Drawing.Size(70,24)
-    $btnClearAllActual.Location = New-Object Drawing.Point(0,3)
-    $btnClearAllActual.FlatStyle = [System.Windows.Forms.FlatStyle]::System
-    $panelQtyActions.Controls.Add($btnClearAllActual)
-
-    $btnAddQtyColumn = New-Object Windows.Forms.Button
-    $btnAddQtyColumn.Text = "+"
-    $btnAddQtyColumn.Font = New-Object Drawing.Font("Segoe UI",12,[Drawing.FontStyle]::Bold)
-    $btnAddQtyColumn.Size = New-Object Drawing.Size(30,24)
-    $btnAddQtyColumn.Location = New-Object Drawing.Point(76,3)
-    $btnAddQtyColumn.FlatStyle = [System.Windows.Forms.FlatStyle]::System
-    $panelQtyActions.Controls.Add($btnAddQtyColumn)
-
-    $btnRemoveQtyColumn = New-Object Windows.Forms.Button
-    $btnRemoveQtyColumn.Text = "-"
-    $btnRemoveQtyColumn.Font = New-Object Drawing.Font("Segoe UI",12,[Drawing.FontStyle]::Bold)
-    $btnRemoveQtyColumn.Size = New-Object Drawing.Size(30,24)
-    $btnRemoveQtyColumn.Location = New-Object Drawing.Point(112,3)
-    $btnRemoveQtyColumn.FlatStyle = [System.Windows.Forms.FlatStyle]::System
-    $panelQtyActions.Controls.Add($btnRemoveQtyColumn)
-
-    $lblQtyStatus = New-Object Windows.Forms.Label
-    $lblQtyStatus.Text = ""
-    $lblQtyStatus.Font = New-Object Drawing.Font("Segoe UI",9)
-    $lblQtyStatus.ForeColor = [Drawing.Color]::DimGray
-    $lblQtyStatus.AutoSize = $true
-    $lblQtyStatus.Location = New-Object Drawing.Point(8,7)
-    $panelQty.Controls.Add($lblQtyStatus)
 
     $grid = New-Object Windows.Forms.DataGridView
     $grid.Dock = [System.Windows.Forms.DockStyle]::Fill
@@ -1847,49 +1337,28 @@ function Show-ResultsViewWindow{
     $grid.RowHeadersVisible = $false
     $grid.SelectionMode = [System.Windows.Forms.DataGridViewSelectionMode]::CellSelect
     $grid.MultiSelect = $false
-    $grid.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::None
+    $grid.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
     $grid.Font = New-Object Drawing.Font("Segoe UI",10)
     $grid.ColumnHeadersDefaultCellStyle.Font = New-Object Drawing.Font("Segoe UI",10,[Drawing.FontStyle]::Bold)
-    $formResults.Tag = $grid
-    $btnClearAllActual.Tag = $grid
-    $btnAddQtyColumn.Tag = $grid
-    $btnRemoveQtyColumn.Tag = $grid
 
     [void]$grid.Columns.Add("Step","Step")
     [void]$grid.Columns.Add("Nominal","Nominal")
-    [void]$grid.Columns.Add("Min","Min")
-    [void]$grid.Columns.Add("Max","Max")
     [void]$grid.Columns.Add("TolMinus","Tol -")
     [void]$grid.Columns.Add("TolPlus","Tol +")
+    [void]$grid.Columns.Add("Actual","Actual")
     [void]$grid.Columns.Add("Result","Result")
 
-    foreach($colName in @("Step","Nominal","Min","Max","TolMinus","TolPlus","Result")){
+    foreach($colName in @("Step","Nominal","TolMinus","TolPlus","Result")){
         $grid.Columns[$colName].ReadOnly = $true
     }
+    $grid.Columns["Actual"].ReadOnly = $false
 
     $grid.Columns["Step"].FillWeight = 12
-    $grid.Columns["Step"].Width = 70
     $grid.Columns["Nominal"].FillWeight = 28
-    $grid.Columns["Nominal"].Width = 160
-    $grid.Columns["Min"].FillWeight = 16
-    $grid.Columns["Min"].Width = 92
-    $grid.Columns["Max"].FillWeight = 16
-    $grid.Columns["Max"].Width = 92
     $grid.Columns["TolMinus"].FillWeight = 16
-    $grid.Columns["TolMinus"].Width = 92
     $grid.Columns["TolPlus"].FillWeight = 16
-    $grid.Columns["TolPlus"].Width = 92
+    $grid.Columns["Actual"].FillWeight = 18
     $grid.Columns["Result"].FillWeight = 14
-    $grid.Columns["Result"].Width = 80
-    foreach($frozenColName in @("Step","Nominal","Min","Max")){
-        $grid.Columns[$frozenColName].Frozen = $true
-    }
-
-    $currentQty = [Math]::Max(1,[int](Get-CurrentResultsViewQuantity))
-    for($sampleIndex = 1; $sampleIndex -le $currentQty; $sampleIndex++){
-        Add-ResultsViewActualColumn $grid $sampleIndex
-    }
-    $grid.Columns["Result"].DisplayIndex = $grid.Columns.Count - 1
 
     for($rowIndex=0; $rowIndex -lt $table.Rows.Count; $rowIndex++){
         $step = [string]$table.Rows[$rowIndex].Cells[0].Value
@@ -1897,20 +1366,12 @@ function Show-ResultsViewWindow{
         $nominal = [string]$table.Rows[$rowIndex].Cells[1].Value
         $tolMinus = [string]$table.Rows[$rowIndex].Cells[2].Value
         $tolPlus = [string]$table.Rows[$rowIndex].Cells[3].Value
-        $minMaxTexts = @(Get-MeasurementMinMaxTexts $nominal $tolMinus $tolPlus)
-        $actuals = @(Get-MeasurementActualsForStep $step $currentQty)
-        $resultText = Get-MeasurementAggregateResult $nominal $tolMinus $tolPlus $actuals
-        $rowValues = New-Object System.Collections.ArrayList
-        foreach($value in @($step,$nominal,$minMaxTexts[0],$minMaxTexts[1],$tolMinus,$tolPlus,$resultText)){
-            [void]$rowValues.Add([string]$value)
+        $actual = ""
+        if($script:MeasurementResults.ContainsKey($step)){
+            $actual = [string]$script:MeasurementResults[$step].Actual
         }
-        $newRowIndex = $grid.Rows.Add($rowValues.ToArray())
-        foreach($actualColumnName in @(Get-ResultsViewActualColumnNames $grid)){
-            $actualIndex = [int](([string]$actualColumnName).Substring(6)) - 1
-            if($actualIndex -lt $actuals.Count){
-                $grid.Rows[$newRowIndex].Cells[$actualColumnName].Value = [string]$actuals[$actualIndex]
-            }
-        }
+        $resultText = Get-MeasurementResult $nominal $tolMinus $tolPlus $actual
+        $newRowIndex = $grid.Rows.Add($step,$nominal,$tolMinus,$tolPlus,$actual,$resultText)
         $grid.Rows[$newRowIndex].Tag = $rowIndex
         Update-MeasurementGridRowStyle $grid.Rows[$newRowIndex]
     }
@@ -1918,13 +1379,7 @@ function Show-ResultsViewWindow{
     $grid.Add_CellEndEdit({
         param($sender,$e)
         if($e.RowIndex -lt 0){ return }
-        if(([string]$sender.Columns[$e.ColumnIndex].Name) -notmatch '^Actual\d+$'){ return }
-        $editRow = $sender.Rows[$e.RowIndex]
-        $rawActual = [string]$editRow.Cells[$e.ColumnIndex].Value
-        $formattedActual = Format-MeasurementActualForNominal $editRow.Cells["Nominal"].Value $rawActual
-        if($formattedActual -ne $rawActual){
-            $editRow.Cells[$e.ColumnIndex].Value = $formattedActual
-        }
+        if($sender.Columns[$e.ColumnIndex].Name -ne "Actual"){ return }
         Update-MeasurementGridRow $sender.Rows[$e.RowIndex]
     })
 
@@ -1942,240 +1397,32 @@ function Show-ResultsViewWindow{
 
     $grid.Add_KeyDown({
         param($sender,$e)
-        if($e.KeyCode -eq [System.Windows.Forms.Keys]::Delete){
-            $clearedRows = @{}
-            foreach($cell in @($sender.SelectedCells)){
-                if(!$cell){ continue }
-                if(([string]$sender.Columns[$cell.ColumnIndex].Name) -notmatch '^Actual\d+$'){ continue }
-                $cell.Value = ""
-                $clearedRows[[int]$cell.RowIndex] = $true
-            }
-            foreach($rowIndex in @($clearedRows.Keys)){
-                if($rowIndex -ge 0 -and $rowIndex -lt $sender.Rows.Count){
-                    Update-MeasurementGridRow $sender.Rows[[int]$rowIndex]
-                }
-            }
-            if($clearedRows.Count -gt 0){
-                $e.SuppressKeyPress = $true
-                return
-            }
-        }
         if($e.KeyCode -eq [System.Windows.Forms.Keys]::Enter){
             $e.SuppressKeyPress = $true
             if($sender.CurrentCell -and $sender.CurrentCell.RowIndex -lt ($sender.Rows.Count - 1)){
-                $currentColumnName = [string]$sender.CurrentCell.OwningColumn.Name
-                if($currentColumnName -notmatch '^Actual\d+$'){ $currentColumnName = "Actual1" }
-                $sender.CurrentCell = $sender.Rows[$sender.CurrentCell.RowIndex + 1].Cells[$currentColumnName]
+                $sender.CurrentCell = $sender.Rows[$sender.CurrentCell.RowIndex + 1].Cells["Actual"]
                 $sender.BeginEdit($true)
             }
         }
     })
 
-    $btnClearAllActual.Add_Click({
-        param($sender,$e)
-        $eventGrid = $sender.Tag
-        if(!$eventGrid){ $eventGrid = $grid }
-        try{
-            Write-ResultsViewDebugLog "Clear all enter" $eventGrid | Out-Null
-            if($eventGrid.IsCurrentCellInEditMode){ $eventGrid.EndEdit() }
-            $confirmClear = [System.Windows.Forms.MessageBox]::Show(
-                "Clear all Actual values in Results View?",
-                "Clear All Actual",
-                [System.Windows.Forms.MessageBoxButtons]::YesNo,
-                [System.Windows.Forms.MessageBoxIcon]::Warning
-            )
-            if($confirmClear -ne [System.Windows.Forms.DialogResult]::Yes){
-                Write-ResultsViewDebugLog "Clear all cancelled by user" $eventGrid | Out-Null
-                return
-            }
-
-            $actualColumns = @(Get-ResultsViewActualColumnNames $eventGrid)
-            $script:SuppressResultsViewRowSave = $true
-            try{
-                foreach($row in @($eventGrid.Rows)){
-                    if(!$row -or $row.IsNewRow){ continue }
-                    foreach($columnName in @($actualColumns)){
-                        if($eventGrid.Columns.Contains($columnName)){
-                            $row.Cells[$columnName].Value = ""
-                        }
-                    }
-                    Update-MeasurementGridRow $row
-                }
-            }
-            finally{
-                $script:SuppressResultsViewRowSave = $false
-            }
-
-            $script:MeasurementResults = @{}
-            Queue-SessionStateSave
-            $eventGrid.Refresh()
-            try{ if($txtOcrDebug){ $txtOcrDebug.Text = "Results View: cleared all Actual values." } } catch{}
-            Write-ResultsViewDebugLog "Clear all done" $eventGrid | Out-Null
-        }
-        catch{
-            Show-ResultsViewError "Clear all actual values" $eventGrid $_.Exception @{ RequestedAction = "ClearAll" }
-        }
-    })
-
-    $btnAddQtyColumn.Add_Click({
-        param($sender,$e)
-        $eventGrid = $sender.Tag
-        if(!$eventGrid){ $eventGrid = $grid }
-        try{
-            Write-ResultsViewDebugLog "Add button enter" $eventGrid | Out-Null
-            if($eventGrid.IsCurrentCellInEditMode){ $eventGrid.EndEdit() }
-            $currentActualColumns = @(Get-ResultsViewActualColumnNames $eventGrid)
-            $nextQty = [int]$currentActualColumns.Count + 1
-            $nextQty = Refresh-ResultsViewActualColumns $eventGrid $nextQty
-            $script:SuppressResultsViewRowSave = $true
-            try{
-                foreach($row in @($eventGrid.Rows)){
-                    if(!$row -or $row.IsNewRow){ continue }
-                    Update-MeasurementGridRow $row
-                }
-            }
-            finally{
-                $script:SuppressResultsViewRowSave = $false
-            }
-            [void](Set-ResultsViewQuantity $eventGrid $nextQty $null $null)
-            Queue-SessionStateSave
-            $eventForm = $eventGrid.FindForm()
-            if($eventForm){ $eventForm.Text = "Results View  +" + [string]$nextQty }
-            try{ if($txtOcrDebug){ $txtOcrDebug.Text = "Results View: added Actual column " + [string]$nextQty } } catch{}
-            Write-ResultsViewDebugLog "Add button done" $eventGrid @{ NextQty = [string]$nextQty } | Out-Null
-        }
-        catch{
-            Show-ResultsViewError "Add column button" $eventGrid $_.Exception @{ RequestedAction = "Add" }
-        }
-    })
-    $btnRemoveQtyColumn.Add_Click({
-        param($sender,$e)
-        $eventGrid = $sender.Tag
-        if(!$eventGrid){ $eventGrid = $grid }
-        try{
-            Write-ResultsViewDebugLog "Remove button enter" $eventGrid | Out-Null
-            if($eventGrid.IsCurrentCellInEditMode){ $eventGrid.EndEdit() }
-            $actualColumns = @(Get-ResultsViewActualColumnNames $eventGrid)
-            if($actualColumns.Count -le 1){
-                Write-ResultsViewDebugLog "Remove ignored at minimum column count" $eventGrid | Out-Null
-                return
-            }
-            $lastColumnName = [string]$actualColumns[$actualColumns.Count - 1]
-            $lastColumnHasData = $false
-            foreach($row in @($eventGrid.Rows)){
-                if(!$row -or $row.IsNewRow){ continue }
-                if(-not [string]::IsNullOrWhiteSpace([string]$row.Cells[$lastColumnName].Value)){
-                    $lastColumnHasData = $true
-                    break
-                }
-            }
-            if($lastColumnHasData){
-                $confirmRemove = [System.Windows.Forms.MessageBox]::Show(
-                    ("Column " + $eventGrid.Columns[$lastColumnName].HeaderText + " already has data. Remove it anyway?"),
-                    "Remove Actual Column",
-                    [System.Windows.Forms.MessageBoxButtons]::YesNo,
-                    [System.Windows.Forms.MessageBoxIcon]::Warning
-                )
-                if($confirmRemove -ne [System.Windows.Forms.DialogResult]::Yes){
-                    Write-ResultsViewDebugLog "Remove cancelled by user" $eventGrid @{ LastColumn = $lastColumnName } | Out-Null
-                    return
-                }
-            }
-            $nextQty = [Math]::Max(1,$actualColumns.Count - 1)
-            $nextQty = Refresh-ResultsViewActualColumns $eventGrid $nextQty
-            $script:SuppressResultsViewRowSave = $true
-            try{
-                foreach($row in @($eventGrid.Rows)){
-                    if(!$row -or $row.IsNewRow){ continue }
-                    Update-MeasurementGridRow $row
-                }
-            }
-            finally{
-                $script:SuppressResultsViewRowSave = $false
-            }
-            [void](Set-ResultsViewQuantity $eventGrid $nextQty $null $null)
-            Queue-SessionStateSave
-            $eventGrid.Refresh()
-            $eventForm = $eventGrid.FindForm()
-            if($eventForm){ $eventForm.Text = "Results View  -" + [string]$nextQty }
-            try{ if($txtOcrDebug){ $txtOcrDebug.Text = "Results View: removed to " + [string]$nextQty + " Actual column(s)" } } catch{}
-            Write-ResultsViewDebugLog "Remove button done" $eventGrid @{ NextQty = [string]$nextQty } | Out-Null
-        }
-        catch{
-            Show-ResultsViewError "Remove column button" $eventGrid $_.Exception @{ RequestedAction = "Remove" }
-        }
-    })
-    $formResults.Add_FormClosing({
-        param($sender,$e)
-        $closingGrid = $sender.Tag
-        if(!$closingGrid){ $closingGrid = $grid }
-        Write-ResultsViewDebugLog "Closing enter" $closingGrid | Out-Null
-        try{
-            if($closingGrid.IsCurrentCellInEditMode){
-                $closingGrid.EndEdit()
-            }
-        }
-        catch{
-            Show-ResultsViewError "Closing end edit" $closingGrid $_.Exception
-        }
-        try{
-            $closingActualColumns = @(Get-ResultsViewActualColumnNames $closingGrid)
-            [void](Set-ResultsViewQuantity $closingGrid ([int]$closingActualColumns.Count) $null $null)
-            Write-ResultsViewDebugLog "Closing quantity saved" $closingGrid @{ ClosingCount = [string]$closingActualColumns.Count } | Out-Null
-        }
-        catch{
-            Show-ResultsViewError "Closing quantity save" $closingGrid $_.Exception
-        }
-        if($script:ResultsViewForm -eq $formResults){
-            $script:ResultsViewForm = $null
-        }
-        Write-ResultsViewDebugLog "Closing done" $closingGrid | Out-Null
-    })
-
-    $resultsLayout.Controls.Add($grid,0,1)
-    Write-ResultsViewDebugLog "Show window done" $grid | Out-Null
+    $formResults.Controls.Add($grid)
     [void]$formResults.Show($form)
 }
 
 function Update-MeasurementGridRow($row){
     if(!$row){ return }
     $step = [string]$row.Cells["Step"].Value
-    if($row.DataGridView -and $row.DataGridView.Columns.Contains("Min") -and $row.DataGridView.Columns.Contains("Max")){
-        $minMaxTexts = @(Get-MeasurementMinMaxTexts $row.Cells["Nominal"].Value $row.Cells["TolMinus"].Value $row.Cells["TolPlus"].Value)
-        $row.Cells["Min"].Value = [string]$minMaxTexts[0]
-        $row.Cells["Max"].Value = [string]$minMaxTexts[1]
-    }
-    $actuals = @()
-    $results = @()
-    foreach($actualColumnName in @(Get-ResultsViewActualColumnNames $row.DataGridView)){
-        $actual = [string]$row.Cells[$actualColumnName].Value
-        $formattedActual = Format-MeasurementActualForNominal $row.Cells["Nominal"].Value $actual
-        if($formattedActual -ne $actual){
-            $row.Cells[$actualColumnName].Value = $formattedActual
-            $actual = $formattedActual
-        }
-        $actuals += $actual
-        if([string]::IsNullOrWhiteSpace($actual)){
-            $results += ""
-        }
-        else{
-            $results += (Get-MeasurementResult $row.Cells["Nominal"].Value $row.Cells["TolMinus"].Value $row.Cells["TolPlus"].Value $actual)
-        }
-    }
-    $resultText = Get-MeasurementAggregateResult $row.Cells["Nominal"].Value $row.Cells["TolMinus"].Value $row.Cells["TolPlus"].Value $actuals
+    $actual = [string]$row.Cells["Actual"].Value
+    $resultText = Get-MeasurementResult $row.Cells["Nominal"].Value $row.Cells["TolMinus"].Value $row.Cells["TolPlus"].Value $actual
     $row.Cells["Result"].Value = $resultText
     if(-not [string]::IsNullOrWhiteSpace($step)){
-        $firstActual = [string]($actuals | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Select-Object -First 1)
         $script:MeasurementResults[$step] = [PSCustomObject]@{
-            Actual = $firstActual
-            Actuals = @($actuals)
+            Actual = $actual
             Result = $resultText
-            Results = @($results)
             UpdatedAt = Get-Date
         }
-        if(-not [bool]$script:SuppressResultsViewRowSave){
-            Queue-SessionStateSave
-        }
+        Queue-SessionStateSave
     }
     Update-MeasurementGridRowStyle $row
 }
@@ -2186,19 +1433,14 @@ function Update-MeasurementGridRowStyle($row){
     switch($resultText){
         "OK" { $row.DefaultCellStyle.BackColor = [Drawing.Color]::Honeydew }
         "NG" { $row.DefaultCellStyle.BackColor = [Drawing.Color]::MistyRose }
-        "INVALID" { $row.DefaultCellStyle.BackColor = [Drawing.Color]::MistyRose }
+        "INVALID" { $row.DefaultCellStyle.BackColor = [Drawing.Color]::LemonChiffon }
         default { $row.DefaultCellStyle.BackColor = [Drawing.Color]::White }
     }
 }
 
 if($btnResultsView){
     $btnResultsView.Add_Click({
-        try{
-            Show-ResultsViewWindow
-        }
-        catch{
-            Show-ResultsViewError "Open Results View" $null $_.Exception
-        }
+        Show-ResultsViewWindow
     })
 }
 $pageList.Add_SelectedIndexChanged({
@@ -2241,6 +1483,7 @@ if($miAdvanceBalloonYellow){ $miAdvanceBalloonYellow.Add_Click({ Set-BalloonColo
 if($miAdvanceBalloonBlue){ $miAdvanceBalloonBlue.Add_Click({ Set-BalloonColorPreset "Blue" }) }
 if($miAdvanceBalloonGreen){ $miAdvanceBalloonGreen.Add_Click({ Set-BalloonColorPreset "Green" }) }
 if($miAdvanceBalloonOrange){ $miAdvanceBalloonOrange.Add_Click({ Set-BalloonColorPreset "Orange" }) }
+if($miAdvanceLeaderLine){ $miAdvanceLeaderLine.Add_Click({ Toggle-LeaderLine }) }
 
 $form.Add_FormClosing({
     param($sender,$e)
@@ -2285,9 +1528,6 @@ $script:selectionRect = $null
 $script:marks = @()
 $script:StepRects = @{}
 $script:MeasurementResults = @{}
-$script:ResultsViewForm = $null
-$script:SuppressResultsViewRowSave = $false
-$script:ResultsViewActualColumnCount = $null
 $script:dragMarkIndex = -1
 $script:isDraggingMark = $false
 $script:draggingMarkKind = $null
@@ -2295,7 +1535,8 @@ $script:UiCopiedMarks = @()
 $script:NextUiCopiedMarkId = 1
 $script:CopyViewOnly = $false
 $script:BalloonColorPreset = "White"
-$script:TrainingSaveExportEnabled = $true
+$script:LeaderLineEnabled = $true
+$script:TrainingSaveExportEnabled = $false
 $script:AdvancePanelVisible = $false
 $script:LastTextInsertTarget = $null
 $script:SelectedMarkKind = $null
@@ -2328,7 +1569,7 @@ $script:PartQuantity = $null
 $script:PartMaterial = $null
 $script:PartHrc = $null
 $script:PartUser = $null
-$script:PartDate = $null
+$script:InspectionDate = $null
 $script:CurrentSourcePath = $null
 $script:CurrentSessionFilePath = $null
 $script:DocumentPages = @()
@@ -2489,21 +1730,7 @@ $script:PreviewUpdateTimer.Add_Tick({
 
     Update-PreviewFromSelectionRect $script:PendingPreviewRect
 })
-$script:TranslateLensTimer = New-Object Windows.Forms.Timer
-$script:TranslateLensTimer.Interval = 450
-$script:TranslateLensTimer.Add_Tick({
-    $script:TranslateLensTimer.Stop()
-    if(-not $script:TranslateLensEnabled){ return }
-    if(-not $script:TranslateLensPendingRect){ return }
-    if($script:TranslateLensBusy){ return }
-    $script:TranslateLensBusy = $true
-    try{
-    Update-TranslateLensFromRect $script:TranslateLensPendingRect
-    }
-    finally{
-        $script:TranslateLensBusy = $false
-    }
-})
+$script:TranslateLensTimer = $null
 $script:SessionStateSaveTimer = New-Object Windows.Forms.Timer
 $script:SessionStateSaveTimer.Interval = 1200
 $script:SessionStateSaveTimer.Add_Tick({
@@ -2902,6 +2129,24 @@ function Set-BalloonColorPreset($preset){
     Save-SessionState
 }
 
+function Update-LeaderLineMenuState{
+    if($miAdvanceLeaderLine){
+        $miAdvanceLeaderLine.Text = if($script:LeaderLineEnabled){ "Leader Line On" } else { "Leader Line Off" }
+        $miAdvanceLeaderLine.Checked = [bool]$script:LeaderLineEnabled
+    }
+}
+
+function Set-LeaderLineEnabled([bool]$enabled){
+    $script:LeaderLineEnabled = [bool]$enabled
+    Update-LeaderLineMenuState
+    Request-CanvasRedraw
+    Save-SessionState
+}
+
+function Toggle-LeaderLine{
+    Set-LeaderLineEnabled (-not [bool]$script:LeaderLineEnabled)
+}
+
 function Update-TrainingSaveExportMenuState{
     if(!$miAdvanceTrainingExport){ return }
     if($script:TrainingSaveExportEnabled){
@@ -3142,7 +2387,7 @@ function Get-DrawingMetadataFromState($state){
         Material = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "PartMaterial")
         Hrc = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "PartHrc")
         User = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "PartUser")
-        Date = [string](Get-StatePropertyValue $state "PartDate")
+        InspectionDate = Normalize-DrawingMetadataText (Get-StatePropertyValue $state "InspectionDate")
         JobName = $jobName
     }
 }
@@ -3172,6 +2417,9 @@ function Get-DefaultDrawingMetadata($filePath,$state = $null){
     if($null -eq $metadata.Material){ $metadata.Material = "" }
     if($null -eq $metadata.Hrc){ $metadata.Hrc = "" }
     if([string]::IsNullOrWhiteSpace([string]$metadata.User)){ $metadata.User = "7139" }
+    if([string]::IsNullOrWhiteSpace($metadata.InspectionDate)){
+        $metadata.InspectionDate = (Get-Date).ToString("yyyy-MM-dd")
+    }
 
     if([string]::IsNullOrWhiteSpace($metadata.JobName)){
         $nameParts = @()
@@ -3258,16 +2506,11 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
     $txtUser.Text = [string]$defaults.User
     $dialog.Controls.Add($txtUser)
 
-    $defaultDate = if(-not [string]::IsNullOrWhiteSpace([string]$defaults.Date)){
-        [string]$defaults.Date
-    } else {
-        (Get-Date).ToString("dd/MM/yyyy")
-    }
     $txtDate = New-Object System.Windows.Forms.TextBox
     $txtDate.Location = New-Object System.Drawing.Point(116,232)
-    $txtDate.Size = New-Object System.Drawing.Size(160,24)
+    $txtDate.Size = New-Object System.Drawing.Size(120,24)
     $txtDate.Font = $font
-    $txtDate.Text = $defaultDate
+    $txtDate.Text = [string]$defaults.InspectionDate
     $dialog.Controls.Add($txtDate)
 
     $lblHint = New-Object System.Windows.Forms.Label
@@ -3329,8 +2572,7 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
     $material = Normalize-DrawingMetadataText $txtMaterial.Text
     $hrc = Normalize-DrawingMetadataText $txtHrc.Text
     $user = Normalize-DrawingMetadataText $txtUser.Text
-    $date = ([string]$txtDate.Text).Trim()
-    if([string]::IsNullOrWhiteSpace($date)){ $date = (Get-Date).ToString("dd/MM/yyyy") }
+    $inspectionDate = Normalize-DrawingMetadataText $txtDate.Text
 
     $dialog.Dispose()
 
@@ -3357,7 +2599,7 @@ function Show-DrawingMetadataDialog($filePath,$state = $null){
         Material = $material
         Hrc = $hrc
         User = $user
-        Date = $date
+        InspectionDate = $inspectionDate
         JobName = $jobName
     }
 }
@@ -3793,6 +3035,8 @@ function Remove-SelectedUiCopiedMark{
         Clear-SelectedMark
         Update-CopiedUiNote
         Request-CanvasRedraw
+        Save-CurrentPageState
+        Save-SessionState
     }
 
     return $removed
@@ -3823,8 +3067,23 @@ function Get-SelectedMarkCopyTemplate{
         }
         $sourceStep = [string]$sourceMark.Index
     }
+    elseif($table -and $table.SelectedRows.Count -gt 0){
+        $selectedRowIdx = $table.SelectedRows[0].Index
+        if($selectedRowIdx -ge 0 -and $selectedRowIdx -lt $script:marks.Count -and $script:marks[$selectedRowIdx]){
+            $sourceMark = $script:marks[$selectedRowIdx]
+            if($script:StepRects.ContainsKey($selectedRowIdx)){
+                $rect = $script:StepRects[$selectedRowIdx]
+                $sourceRect = New-Object Drawing.Rectangle($rect.X,$rect.Y,$rect.Width,$rect.Height)
+            }
+            $sourceStep = [string]$sourceMark.Index
+            $script:SelectedMarkKind = "Original"
+            $script:SelectedMarkRowIndex = $selectedRowIdx
+        }
+    }
 
     if(!$sourceMark){ return $null }
+
+    $sourcePageIndex = if($script:SelectedPageIndex -ge 0){ [int]$script:SelectedPageIndex } else { 0 }
 
     return [PSCustomObject]@{
         Index = [string]$sourceMark.Index
@@ -3833,6 +3092,7 @@ function Get-SelectedMarkCopyTemplate{
         Scale = (Get-MarkScale $sourceMark)
         SourceStep = $sourceStep
         SourceRect = $sourceRect
+        SourcePageIndex = $sourcePageIndex
     }
 }
 
@@ -3840,7 +3100,9 @@ function Copy-SelectedMarkToClipboard{
 
     $template = Get-SelectedMarkCopyTemplate
     if(!$template){
-        if($txtOcrDebug){ $txtOcrDebug.Text = "Copy balloon failed: select one balloon first." }
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = "Chưa chọn bong bóng để copy."
+        }
         return $false
     }
 
@@ -3856,8 +3118,8 @@ function Copy-SelectedMarkToClipboard{
     catch{}
 
     if($txtOcrDebug){
-        $pageLabel = if($script:SelectedPageIndex -ge 0){ [string]($script:SelectedPageIndex + 1) } else { "?" }
-        $txtOcrDebug.Text = "Copied balloon step " + [string]$template.Index + " from page " + $pageLabel + "."
+        $pageNum = if($script:SelectedPageIndex -ge 0){ $script:SelectedPageIndex + 1 } else { 1 }
+        $txtOcrDebug.Text = "Đã copy bong bóng $($template.Index) từ trang $pageNum vào clipboard."
     }
 
     return $true
@@ -3873,12 +3135,19 @@ function Add-UiCopiedMarkFromTemplate($template,$pastePoint = $null){
         $sourceStep = [string]$template.Index
     }
 
+    $sourcePageIndex = if($template.PSObject.Properties.Name -contains "SourcePageIndex" -and $null -ne $template.SourcePageIndex){ [int]$template.SourcePageIndex } else { [int]$script:SelectedPageIndex }
+
     $offset = [Math]::Max(18.0,(Get-MarkImageRadius * 0.9))
     $copyX = [double]($template.X + $offset)
     $copyY = [double]($template.Y + $offset)
     if($pastePoint){
         $copyX = [double]$pastePoint.X
         $copyY = [double]$pastePoint.Y
+    }
+
+    if($script:sourceBitmap){
+        $copyX = [Math]::Max(10.0, [Math]::Min(([double]$script:sourceBitmap.Width - 10.0), $copyX))
+        $copyY = [Math]::Max(10.0, [Math]::Min(([double]$script:sourceBitmap.Height - 10.0), $copyY))
     }
 
     $newCopy = [PSCustomObject]@{
@@ -3889,14 +3158,21 @@ function Add-UiCopiedMarkFromTemplate($template,$pastePoint = $null){
         Scale = (Normalize-MarkScale $template.Scale)
         SourceStep = $sourceStep
         SourceRect = $sourceRect
+        SourcePageIndex = $sourcePageIndex
     }
 
     $script:NextUiCopiedMarkId++
     $script:UiCopiedMarks += $newCopy
     Select-UiCopiedMark $newCopy.Id
     Update-CopiedUiNote
+    Save-CurrentPageState
     Request-CanvasRedraw
     Save-SessionState
+
+    if($txtOcrDebug){
+        $targetPageNum = if($script:SelectedPageIndex -ge 0){ $script:SelectedPageIndex + 1 } else { 1 }
+        $txtOcrDebug.Text = "Đã paste bong bóng $($template.Index) vào trang $targetPageNum."
+    }
 
     return $true
 }
@@ -3907,28 +3183,12 @@ function Add-UiCopiedMarkFromSelection{
 
 function Paste-ClipboardMark{
     if(!$script:ClipboardMarkTemplate){
-        if($txtOcrDebug){ $txtOcrDebug.Text = "Paste balloon failed: copy one balloon first." }
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = "Clipboard chưa có bong bóng. Hãy chọn bong bóng rồi nhấn Ctrl+C."
+        }
         return $false
     }
-    if(!$script:sourceBitmap){
-        if($txtOcrDebug){ $txtOcrDebug.Text = "Paste balloon failed: no PDF page is open." }
-        return $false
-    }
-
-    $pastePoint = Get-CurrentCrosshairImagePoint
-    if(!$pastePoint){
-        $pastePoint = Get-ViewportCenterImagePoint
-    }
-
-    $ok = Add-UiCopiedMarkFromTemplate $script:ClipboardMarkTemplate $pastePoint
-    if($ok -and $txtOcrDebug){
-        $pageLabel = if($script:SelectedPageIndex -ge 0){ [string]($script:SelectedPageIndex + 1) } else { "?" }
-        $txtOcrDebug.Text = "Pasted balloon step " + [string]$script:ClipboardMarkTemplate.Index + " to page " + $pageLabel + "."
-    }
-    elseif(!$ok -and $txtOcrDebug){
-        $txtOcrDebug.Text = "Paste balloon failed."
-    }
-    return $ok
+    return (Add-UiCopiedMarkFromTemplate $script:ClipboardMarkTemplate (Get-CurrentCrosshairImagePoint))
 }
 
 function Get-TableCellText($rowIndex,$columnIndex){
@@ -3970,13 +3230,11 @@ function Convert-MechanicalNumberToDouble($value,[ref]$number){
     $number.Value = 0.0
     if($null -eq $value){ return $false }
 
-    $text = Normalize-MeasurementTypedText $value
-    $text = $text.ToUpperInvariant().Trim()
+    $text = ([string]$value).Trim()
     if([string]::IsNullOrWhiteSpace($text)){ return $false }
 
     $text = $text -replace '，','.'
     $text = $text -replace '[°º]',''
-    $text = $text -replace '^(SR|CHAMFER|CH|DIAMETER|DIA|PHI)',''
     $text = $text -replace '^[CRØΦ]+',''
     $text = $text -replace '[^0-9\.\+\-]',''
     if([string]::IsNullOrWhiteSpace($text)){ return $false }
@@ -4003,7 +3261,8 @@ function Get-InspectionDisplayDecimalPlaces($nominalText,$tolMinusText = "",$tol
     $decimals = Get-InspectionResultDecimalPlaces $nominalText
     $tolMinusDecimals = Get-InspectionResultDecimalPlaces ([string]$tolMinusText)
     $tolPlusDecimals = Get-InspectionResultDecimalPlaces ([string]$tolPlusText)
-    return [Math]::Max([int]$decimals,[Math]::Max([int]$tolMinusDecimals,[int]$tolPlusDecimals))
+    $rawDecimals = [Math]::Max([int]$decimals,[Math]::Max([int]$tolMinusDecimals,[int]$tolPlusDecimals))
+    return [Math]::Min(3,[int]$rawDecimals)
 }
 
 function Convert-AngleDmsTextToDouble($text,[ref]$number){
@@ -4025,13 +3284,18 @@ function Convert-AngleDmsTextToDouble($text,[ref]$number){
     $minValue = 0.0
     $secValue = 0.0
     if(-not [string]::IsNullOrWhiteSpace([string]$angleDms.Minutes)){
-        [void][double]::TryParse(([string]$angleDms.Minutes),[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$minValue)
+        if(-not [double]::TryParse(([string]$angleDms.Minutes),[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$minValue)){
+            return $false
+        }
     }
     if(-not [string]::IsNullOrWhiteSpace([string]$angleDms.Seconds)){
-        [void][double]::TryParse(([string]$angleDms.Seconds),[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$secValue)
+        if(-not [double]::TryParse(([string]$angleDms.Seconds),[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$secValue)){
+            return $false
+        }
     }
 
-    $number.Value = $sign * ($degValue + ($minValue / 60.0) + ($secValue / 3600.0))
+    $totalDegrees = $degValue + ($minValue / 60.0) + ($secValue / 3600.0)
+    $number.Value = ($sign * $totalDegrees)
     return $true
 }
 
@@ -4039,13 +3303,14 @@ function Format-AngleDmsInspectionResultValue($value,$nominalText){
     $angleDms = Try-ParseAngleDmsText $nominalText
     if(!$angleDms){ return $null }
 
-    $absValue = [Math]::Abs([double]$value)
-    $signText = if([double]$value -lt 0){ "-" } else { "" }
-    $degrees = [int][Math]::Floor($absValue)
-    $minutesTotal = ($absValue - $degrees) * 60.0
-    $minutes = [int][Math]::Floor($minutesTotal)
-    $seconds = [int][Math]::Round(($minutesTotal - $minutes) * 60.0,0,[System.MidpointRounding]::AwayFromZero)
+    $totalDegrees = [double]$value
+    $sign = if($totalDegrees -lt 0){ "-" } else { "" }
+    $totalDegrees = [Math]::Abs($totalDegrees)
 
+    $degrees = [int][Math]::Floor($totalDegrees)
+    $remainderMinutes = ($totalDegrees - [double]$degrees) * 60.0
+    $minutes = [int][Math]::Floor($remainderMinutes)
+    $seconds = [int][Math]::Round(($remainderMinutes - [double]$minutes) * 60.0)
     if($seconds -ge 60){
         $seconds = 0
         $minutes++
@@ -4055,15 +3320,22 @@ function Format-AngleDmsInspectionResultValue($value,$nominalText){
         $degrees++
     }
 
-    if(-not [string]::IsNullOrWhiteSpace([string]$angleDms.Seconds)){
-        return ('{0}{1}°{2:00}''{3:00}"' -f $signText,$degrees,$minutes,$seconds)
+    $degFormat = if($angleDms.DegreeDecimals -gt 0){ "0." + ("0" * [int]$angleDms.DegreeDecimals) } else { "0" }
+    $degValue = if($angleDms.DegreeDecimals -gt 0){
+        $degDecimal = $totalDegrees - [Math]::Floor($totalDegrees)
+        $degrees + $degDecimal
     }
-    if(-not [string]::IsNullOrWhiteSpace([string]$angleDms.Minutes)){
-        return ('{0}{1}°{2:00}''' -f $signText,$degrees,$minutes)
+    else{
+        [double]$degrees
     }
 
-    $degreeDecimals = Get-InspectionResultDecimalPlaces ([string]$angleDms.Degrees)
-    $formattedDegrees = ([double]$value).ToString(("0." + ("0" * $degreeDecimals)).TrimEnd('.'),[System.Globalization.CultureInfo]::InvariantCulture)
+    $formattedDegrees = $sign + $degValue.ToString($degFormat,[System.Globalization.CultureInfo]::InvariantCulture)
+    if($angleDms.HasSeconds){
+        return ("{0}°{1:00}'{2:00}""" -f $formattedDegrees,$minutes,$seconds)
+    }
+    if($angleDms.HasMinutes){
+        return ("{0}°{1:00}'" -f $formattedDegrees,$minutes)
+    }
     return ($formattedDegrees + "°")
 }
 
@@ -4072,21 +3344,20 @@ function Format-InspectionResultValue($value,$nominalText){
 }
 
 function Format-InspectionResultValueWithDecimals($value,$nominalText,$decimals){
+    $effectiveDecimals = [Math]::Min(3,[Math]::Max(0,[int]$decimals))
     $nominal = [string]$nominalText
     if([string]::IsNullOrWhiteSpace($nominal)){
-        $fallbackFormat = if([int]$decimals -gt 0){ "0." + ("0" * [int]$decimals) } else { "0.####" }
+        $fallbackFormat = if($effectiveDecimals -gt 0){ "0." + ("0" * $effectiveDecimals) } else { "0.###" }
         return ([double]$value).ToString($fallbackFormat,[System.Globalization.CultureInfo]::InvariantCulture)
     }
 
     $formattedAngle = Format-AngleDmsInspectionResultValue $value $nominal
     if($formattedAngle){ return $formattedAngle }
 
-    $prefixMatch = [regex]::Match($nominal.Trim(),'^(?<prefix>[CRØΦ]+)\s*','IgnoreCase')
-    $prefix = if($prefixMatch.Success){ [string]$prefixMatch.Groups['prefix'].Value } else { "" }
     $suffix = if($nominal -match '[°º]\s*$'){ "°" } else { "" }
-    $format = if([int]$decimals -gt 0){ "0." + ("0" * [int]$decimals) } else { "0" }
+    $format = if($effectiveDecimals -gt 0){ "0." + ("0" * $effectiveDecimals) } else { "0" }
     $text = ([double]$value).ToString($format,[System.Globalization.CultureInfo]::InvariantCulture)
-    return ($prefix + $text + $suffix)
+    return ($text + $suffix)
 }
 
 function Get-DeterministicMeasurementUnitValue($seedText){
@@ -5419,7 +4690,6 @@ function Bind-SelectedPage{
         $page = $script:DocumentPages[$targetIndex]
         $script:sourceBitmap = $page.Bitmap
         $script:CurrentSourcePath = $page.SourcePath
-        $script:LastImageMousePoint = $null
         Stop-DeferredTextZoneWarmup
         Restore-PageTextZoneCache $page
 
@@ -5820,10 +5090,10 @@ function Delete-CurrentSessionAndRelatedData{
     $script:PartNo = $null
     $script:MoldName = $null
 $script:PartQuantity = ""
-$script:ResultsViewActualColumnCount = $null
 $script:PartMaterial = ""
 $script:PartHrc = ""
 $script:PartUser = "7139"
+$script:InspectionDate = $null
     Apply-PageState $null
     Update-PageNavigationUi
     Request-CanvasRedraw
@@ -5857,9 +5127,7 @@ function Get-AllInspectionRows{
                 TolPlus = [string]$entry.Cells[3]
                 Result = if($entry.Cells.Count -gt 4){ [string]$entry.Cells[4] } else { "" }
                 MeasurementActual = if($measurementOverride){ [string]$measurementOverride.Actual } else { "" }
-                MeasurementActuals = if($measurementOverride){ @($measurementOverride.Actuals) } else { @() }
                 MeasurementResult = if($measurementOverride){ [string]$measurementOverride.Result } else { "" }
-                MeasurementResults = if($measurementOverride){ @($measurementOverride.Results) } else { @() }
                 ToolState = if($entry.Cells.Count -gt 7){ (Convert-ToStepToolState $entry.Cells[7]) } else { "C" }
                 ImportantStep = if($entry.Cells.Count -gt 8){ (Convert-ToStepImportantFlag $entry.Cells[8]) } else { $false }
                 DisplayName = [string]$page.DisplayName
@@ -6005,84 +5273,25 @@ function Get-ExportMeasurementTextUnique($rowData,$absoluteSampleIndex,$usedText
     return $fallbackText
 }
 
-function Set-InspectionRowFormula($sheet,$row,$nominal,$tolMinus,$tolPlus,$sampleStart,$sampleEnd){
-    # Column P (16) = Remark/Judgement
-    $remarkCol = 16
-
-    # Sample columns F..O = 6..15
-    $sampleCols = @(Get-InspectionSampleColumnNumbers)
-    $usedSampleCount = [Math]::Min($sampleCols.Count,[Math]::Max(0,([int]$sampleEnd - [int]$sampleStart + 1)))
-    if($usedSampleCount -le 0){ return }
-
-    $firstSampleCol = $sampleCols[0]
-    $lastSampleCol  = $sampleCols[$usedSampleCount - 1]
-
-    # Convert column index to Excel letter
-    function ColLetter($n){ [char]([int][char]'A' + $n - 1) }
-    $firstLetter = [string](ColLetter $firstSampleCol)
-    $lastLetter  = [string](ColLetter $lastSampleCol)
-    $sampleRange = "${firstLetter}${row}:${lastLetter}${row}"
-
-    # Detect DMS: contains °, ', "
-    $isDms = $nominal -match '[°\u00b0\u00ba]' -and ($nominal -match "[']" -or $nominal -match '["]')
-
-    # Detect R/C prefix (radius/chamfer) or plain degree (45°)
-    $isTextBased = $isDms -or ($nominal -match '^[RC]')
-
-    try{
-        $cell = $sheet.Cells.Item([int]$row,[int]$remarkCol)
-        $cell.NumberFormat = "General"
-
-        if($isTextBased){
-            $nominalEscaped = $nominal -replace '"','""'
-            $formula = '=IF(COUNTA(' + $sampleRange + ')=0,"",IF(SUMPRODUCT((LEN(' + $sampleRange + ')>0)*(EXACT(' + $sampleRange + ',"' + $nominalEscaped + '")<>TRUE))>0,"NG","OK"))'
-            $cell.Formula = $formula
-        }
-        else{
-            $nomCol  = [string](ColLetter 2)  # B
-            $minCol  = [string](ColLetter 3)  # C  (TolMinus)
-            $plusCol = [string](ColLetter 4)  # D  (TolPlus)
-            # Use MIN(C,D) for lower bound and MAX(C,D) for upper bound so formula is correct
-            # even when OCR places a one-sided tolerance in the wrong column (e.g. 0.36+0.005 → C=+0.005, D=0)
-            $formula = '=IF(COUNT(' + $sampleRange + ')=0,"",IF(OR(' +
-                       'MIN(' + $sampleRange + ')<(' + $nomCol + [string]$row + '+MIN(' + $minCol + [string]$row + ',' + $plusCol + [string]$row + ')),' +
-                       'MAX(' + $sampleRange + ')>(' + $nomCol + [string]$row + '+MAX(' + $minCol + [string]$row + ',' + $plusCol + [string]$row + '))' +
-                       '),"NG","OK"))'
-            $cell.Formula = $formula
-        }
-    }
-    catch{}
-}
-
 function Write-InspectionSampleResults($sheet,$row,$rowData,$sampleStart,$sampleEnd){
 
     $sampleColumns = @(Get-InspectionSampleColumnNumbers)
     $sampleCount = [Math]::Min($sampleColumns.Count,[Math]::Max(0,([int]$sampleEnd - [int]$sampleStart + 1)))
     $usedTexts = @{}
 
-    foreach($col in $sampleColumns){
-        Set-ExcelCellTextValue $sheet $row $col ""
-    }
-
-    $manualActuals = @(Convert-SessionValueToList (Get-StatePropertyValue $rowData "MeasurementActuals"))
-    $legacyManualActual = [string](Get-StatePropertyValue $rowData "MeasurementActual")
-    if($manualActuals.Count -eq 0 -and -not [string]::IsNullOrWhiteSpace($legacyManualActual)){
-        $manualActuals = @($legacyManualActual)
+    $manualActual = [string](Get-StatePropertyValue $rowData "MeasurementActual")
+    if(-not [string]::IsNullOrWhiteSpace($manualActual)){
+        if($sampleCount -gt 0){
+            Set-ExcelCellSampleMeasurement $sheet $row $sampleColumns[0] $manualActual
+        }
+        return
     }
 
     for($sampleIndex = 1; $sampleIndex -le $sampleCount; $sampleIndex++){
         $absoluteSampleIndex = ([int]$sampleStart + $sampleIndex - 1)
         if(-not (Should-ExportMeasurementForSample $rowData $absoluteSampleIndex)){ continue }
         $targetColumn = $sampleColumns[$sampleIndex - 1]
-        $manualActual = ""
-        if(($absoluteSampleIndex - 1) -ge 0 -and ($absoluteSampleIndex - 1) -lt $manualActuals.Count){
-            $manualActual = [string]$manualActuals[$absoluteSampleIndex - 1]
-        }
-        if(-not [string]::IsNullOrWhiteSpace($manualActual)){
-            Set-ExcelCellTextValue $sheet $row $targetColumn $manualActual
-            continue
-        }
-        Set-ExcelCellTextValue $sheet $row $targetColumn (Get-ExportMeasurementTextUnique $rowData $absoluteSampleIndex $usedTexts)
+        Set-ExcelCellSampleMeasurement $sheet $row $targetColumn (Get-ExportMeasurementTextUnique $rowData $absoluteSampleIndex $usedTexts)
     }
 }
 
@@ -6102,6 +5311,7 @@ function New-MarkedPageBitmap($page,$includeImportantHighlights = $false){
     $bmp = New-Object Drawing.Bitmap $page.Bitmap
     $g = $null
     $originalMarks = $script:marks
+    $originalStepRects = $script:StepRects
     $originalUiCopiedMarks = $script:UiCopiedMarks
     $originalHighlightStrokes = $script:HighlightStrokes
     $originalSelectedMarkKind = $script:SelectedMarkKind
@@ -6114,6 +5324,7 @@ function New-MarkedPageBitmap($page,$includeImportantHighlights = $false){
         $g.TextRenderingHint = "AntiAliasGridFit"
 
         $script:marks = @()
+        $script:StepRects = @{}
         foreach($entry in @($page.Entries)){
             if($entry.Mark){
                 $script:marks += [PSCustomObject]@{
@@ -6126,6 +5337,16 @@ function New-MarkedPageBitmap($page,$includeImportantHighlights = $false){
             else{
                 $script:marks += $null
             }
+
+            $rowIndex = $script:marks.Count - 1
+            if($entry.Rect){
+                $script:StepRects[$rowIndex] = New-Object Drawing.Rectangle(
+                    [int]$entry.Rect.X,
+                    [int]$entry.Rect.Y,
+                    [int]$entry.Rect.Width,
+                    [int]$entry.Rect.Height
+                )
+            }
         }
 
         Clear-SelectedMark
@@ -6135,14 +5356,12 @@ function New-MarkedPageBitmap($page,$includeImportantHighlights = $false){
             Draw-ImportantStepHighlights $g $page.Entries 1.0
         }
         Draw-HighlightStrokes $g
-        if($script:ShowLeaderLines){
-            Draw-MarkLeaderLines $g 1.0
-        }
         Draw-MarkBalloons $g 1.0
         return $bmp
     }
     finally{
         $script:marks = $originalMarks
+        $script:StepRects = $originalStepRects
         $script:UiCopiedMarks = $originalUiCopiedMarks
         $script:HighlightStrokes = $originalHighlightStrokes
         $script:SelectedMarkKind = $originalSelectedMarkKind
@@ -6806,396 +6025,6 @@ function Save-AiPromptArea([double]$xRatio,[double]$yRatio){
     Save-GlobalRapidOcrSettings ([PSCustomObject]$ordered)
 }
 
-function Get-DrawingAssistantHistoryPath{
-    return (Join-Path $script:AppRoot "ocrtool-drawing-assistant-history.json")
-}
-
-function Convert-DrawingAssistantCellToString($value){
-    if($null -eq $value){ return "" }
-    return ([string]$value).Trim()
-}
-
-function Convert-DrawingAssistantCellToBool($value){
-    if($null -eq $value){ return $false }
-    if($value -is [bool]){ return [bool]$value }
-    $text = ([string]$value).Trim().ToLowerInvariant()
-    return ($text -in @("true","1","yes","y","checked","important"))
-}
-
-function Get-DrawingAssistantRows{
-    $rows = @()
-    if(!$table){ return @($rows) }
-
-    foreach($gridRow in @($table.Rows)){
-        if(!$gridRow -or $gridRow.IsNewRow){ continue }
-        $stepText = Convert-DrawingAssistantCellToString $gridRow.Cells[0].Value
-        if([string]::IsNullOrWhiteSpace($stepText)){ continue }
-
-        $rows += [PSCustomObject]@{
-            RowIndex = [int]$gridRow.Index
-            Step = $stepText
-            Nominal = Convert-DrawingAssistantCellToString $gridRow.Cells[1].Value
-            TolMinus = Convert-DrawingAssistantCellToString $gridRow.Cells[2].Value
-            TolPlus = Convert-DrawingAssistantCellToString $gridRow.Cells[3].Value
-            Result = Convert-DrawingAssistantCellToString $gridRow.Cells[4].Value
-            Duplicate = Convert-DrawingAssistantCellToString $gridRow.Cells[5].Value
-            Flag = Convert-DrawingAssistantCellToString $gridRow.Cells[7].Value
-            Important = Convert-DrawingAssistantCellToBool $gridRow.Cells[8].Value
-        }
-    }
-
-    return @($rows)
-}
-
-function Get-DrawingAssistantStats($rows){
-    $rows = @($rows)
-    $dupRows = @($rows | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.Duplicate) })
-    $flagRows = @($rows | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.Flag) })
-    $importantRows = @($rows | Where-Object { [bool]$_.Important })
-    $emptyNominalRows = @($rows | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.Nominal) })
-    $zeroTolRows = @($rows | Where-Object {
-        ([string]::IsNullOrWhiteSpace([string]$_.TolMinus) -or [string]$_.TolMinus -eq "0") -and
-        ([string]::IsNullOrWhiteSpace([string]$_.TolPlus) -or [string]$_.TolPlus -eq "0")
-    })
-
-    return [PSCustomObject]@{
-        Total = [int]$rows.Count
-        Duplicates = [int]$dupRows.Count
-        Flags = [int]$flagRows.Count
-        Important = [int]$importantRows.Count
-        EmptyNominal = [int]$emptyNominalRows.Count
-        ZeroTolerance = [int]$zeroTolRows.Count
-    }
-}
-
-function Format-DrawingAssistantRows($rows,[int]$limit = 20){
-    $lines = @()
-    foreach($row in @($rows | Select-Object -First $limit)){
-        $markers = @()
-        if(-not [string]::IsNullOrWhiteSpace([string]$row.Duplicate)){ $markers += ("Dup " + [string]$row.Duplicate) }
-        if(-not [string]::IsNullOrWhiteSpace([string]$row.Flag)){ $markers += ("Flag " + [string]$row.Flag) }
-        if([bool]$row.Important){ $markers += "Important" }
-        $suffix = if($markers.Count -gt 0){ " [" + ($markers -join ", ") + "]" } else { "" }
-        $lines += ("Step {0}: Nominal={1}, Tol-={2}, Tol+={3}{4}" -f $row.Step,$row.Nominal,$row.TolMinus,$row.TolPlus,$suffix)
-    }
-    if(@($rows).Count -gt $limit){
-        $lines += ("... còn {0} step nữa." -f (@($rows).Count - $limit))
-    }
-    return ($lines -join [Environment]::NewLine)
-}
-
-function Find-DrawingAssistantRows($query,$rows){
-    $queryText = ([string]$query).Trim()
-    if([string]::IsNullOrWhiteSpace($queryText)){ return @() }
-
-    $tokens = @(
-        $queryText -split '[\s,;:]+' |
-        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
-        ForEach-Object { ([string]$_).Trim() }
-    )
-    if($tokens.Count -le 0){ return @() }
-
-    $matches = @()
-    foreach($row in @($rows)){
-        $haystack = (@(
-            [string]$row.Step,
-            [string]$row.Nominal,
-            [string]$row.TolMinus,
-            [string]$row.TolPlus,
-            [string]$row.Duplicate,
-            [string]$row.Flag,
-            [string]$row.Result
-        ) -join " ").ToLowerInvariant()
-
-        $hit = $false
-        foreach($token in $tokens){
-            $tokenText = ([string]$token).ToLowerInvariant()
-            if($tokenText -in @("tim","tìm","kiem","kiếm","step","so","số","nominal","tol","dung","đúng","sai","loi","lỗi","du","dup","trung","trùng")){ continue }
-            if($haystack.Contains($tokenText)){
-                $hit = $true
-                break
-            }
-        }
-        if($hit){ $matches += $row }
-    }
-    return @($matches)
-}
-
-function Get-DrawingAssistantMetadataText{
-    $sourceName = if([string]::IsNullOrWhiteSpace([string]$script:CurrentSourcePath)){ "(chưa mở PDF)" } else { [System.IO.Path]::GetFileName([string]$script:CurrentSourcePath) }
-    $pageText = if($script:DocumentPages){ [string]$script:DocumentPages.Count } else { "0" }
-    $sessionText = if([string]::IsNullOrWhiteSpace([string]$script:CurrentSessionFilePath)){ "(chưa có)" } else { [System.IO.Path]::GetFileName([string]$script:CurrentSessionFilePath) }
-    return "PDF: $sourceName`r`nPages: $pageText`r`nSession: $sessionText"
-}
-
-function New-DrawingAssistantReport($rows){
-    $rows = @($rows)
-    $stats = Get-DrawingAssistantStats $rows
-    $issues = @($rows | Where-Object {
-        -not [string]::IsNullOrWhiteSpace([string]$_.Duplicate) -or
-        -not [string]::IsNullOrWhiteSpace([string]$_.Flag) -or
-        [string]::IsNullOrWhiteSpace([string]$_.Nominal)
-    })
-    $important = @($rows | Where-Object { [bool]$_.Important })
-
-    $text = New-Object System.Text.StringBuilder
-    [void]$text.AppendLine("Drawing Assistant Report")
-    [void]$text.AppendLine("========================")
-    [void]$text.AppendLine((Get-DrawingAssistantMetadataText))
-    [void]$text.AppendLine("")
-    [void]$text.AppendLine(("Total steps: {0}" -f $stats.Total))
-    [void]$text.AppendLine(("Important: {0}" -f $stats.Important))
-    [void]$text.AppendLine(("Duplicate warning: {0}" -f $stats.Duplicates))
-    [void]$text.AppendLine(("Flag warning: {0}" -f $stats.Flags))
-    [void]$text.AppendLine(("Missing nominal: {0}" -f $stats.EmptyNominal))
-    [void]$text.AppendLine(("Zero/empty tolerance: {0}" -f $stats.ZeroTolerance))
-    [void]$text.AppendLine("")
-    if($important.Count -gt 0){
-        [void]$text.AppendLine("Important steps:")
-        [void]$text.AppendLine((Format-DrawingAssistantRows $important 30))
-        [void]$text.AppendLine("")
-    }
-    if($issues.Count -gt 0){
-        [void]$text.AppendLine("Rows to review:")
-        [void]$text.AppendLine((Format-DrawingAssistantRows $issues 40))
-    }
-    else{
-        [void]$text.AppendLine("No obvious duplicate/flag/missing-nominal issues in the current table.")
-    }
-
-    return [string]$text.ToString().Trim()
-}
-
-function Get-DrawingAssistantPriorUserQuestion($history){
-    $candidate = ""
-    foreach($item in @($history | Select-Object -Last 20)){
-        if($item -and [string]$item.Role -eq "user" -and -not [string]::IsNullOrWhiteSpace([string]$item.Text)){
-            $candidate = [string]$item.Text
-        }
-    }
-    if([string]::IsNullOrWhiteSpace([string]$candidate)){ return "" }
-    return [string]$candidate
-}
-
-function Invoke-DrawingAssistantAnswer([string]$question,$history = $null){
-    $rows = @(Get-DrawingAssistantRows)
-    $stats = Get-DrawingAssistantStats $rows
-    $q = ([string]$question).Trim()
-    $ql = $q.ToLowerInvariant()
-    $effectiveQuestion = $q
-    if($ql -match '^(cai do|cái đó|tiep|tiếp|that|it|them|thêm)\b'){
-        $priorQuestion = Get-DrawingAssistantPriorUserQuestion $history
-        if(-not [string]::IsNullOrWhiteSpace($priorQuestion)){
-            $effectiveQuestion = ($priorQuestion + " " + $q)
-        }
-    }
-
-    if([string]::IsNullOrWhiteSpace($q)){
-        return "Bạn hỏi gì về bản vẽ/bảng OCR hiện tại? Ví dụ: thống kê lỗi, tìm step 12, sinh báo cáo, giải thích bản vẽ."
-    }
-
-    if($rows.Count -le 0){
-        return "Hiện chưa có dữ liệu MarkStep trong bảng. Hãy mở PDF hoặc Auto Map/OCR trước, rồi hỏi lại mình."
-    }
-
-    if($ql -match 'bao cao|báo cáo|report|summary|tong hop|tổng hợp'){
-        return (New-DrawingAssistantReport $rows)
-    }
-
-    if($ql -match 'thong ke|thống kê|stat|count|bao nhieu|bao nhiêu'){
-        return ("Thống kê hiện tại:`r`n- Total steps: {0}`r`n- Important: {1}`r`n- Dup warning: {2}`r`n- Flag warning: {3}`r`n- Missing nominal: {4}`r`n- Zero/empty tolerance: {5}" -f $stats.Total,$stats.Important,$stats.Duplicates,$stats.Flags,$stats.EmptyNominal,$stats.ZeroTolerance)
-    }
-
-    if($ql -match 'loi|lỗi|sai|dup|duplicate|trung|trùng|flag|canh bao|cảnh báo'){
-        $bad = @($rows | Where-Object {
-            -not [string]::IsNullOrWhiteSpace([string]$_.Duplicate) -or
-            -not [string]::IsNullOrWhiteSpace([string]$_.Flag) -or
-            [string]::IsNullOrWhiteSpace([string]$_.Nominal)
-        })
-        if($bad.Count -le 0){ return "Chưa thấy dòng có Dup/Flag hoặc thiếu Nominal trong bảng hiện tại." }
-        return ("Các dòng nên kiểm tra:`r`n" + (Format-DrawingAssistantRows $bad 35))
-    }
-
-    if($ql -match 'important|quan trong|quan trọng|mark'){
-        $important = @($rows | Where-Object { [bool]$_.Important })
-        if($important.Count -le 0){ return "Hiện chưa có step nào được tick Important." }
-        return ("Important steps:`r`n" + (Format-DrawingAssistantRows $important 40))
-    }
-
-    if($ql -match 'giai thich|giải thích|explain|ban ve|bản vẽ|drawing'){
-        $issueText = if(($stats.Duplicates + $stats.Flags + $stats.EmptyNominal) -gt 0){
-            "Có cảnh báo cần review: Dup=$($stats.Duplicates), Flag=$($stats.Flags), Missing nominal=$($stats.EmptyNominal)."
-        }
-        else{
-            "Bảng hiện tại chưa có cảnh báo Dup/Flag rõ ràng."
-        }
-        return ("Tóm tắt bản vẽ hiện tại:`r`n{0}`r`n`r`nApp đang có {1} MarkStep. Có {2} step Important. {3}`r`n`r`nGợi ý kiểm: xử lý hết Dup/Flag trước, sau đó kiểm lại các tolerance bằng 0 hoặc rỗng, rồi mới export/print." -f (Get-DrawingAssistantMetadataText),$stats.Total,$stats.Important,$issueText)
-    }
-
-    $matches = @(Find-DrawingAssistantRows $effectiveQuestion $rows)
-    if($matches.Count -gt 0){
-        return ("Mình tìm thấy {0} dòng liên quan:`r`n{1}" -f $matches.Count,(Format-DrawingAssistantRows $matches 30))
-    }
-
-    return ("Mình chưa thấy dữ liệu khớp trực tiếp với câu hỏi này. Dữ liệu hiện có: {0} steps, {1} dup warning, {2} flag warning, {3} important. Bạn có thể hỏi kiểu: `tìm 0.6`, `step 12`, `thống kê lỗi`, hoặc `sinh báo cáo`." -f $stats.Total,$stats.Duplicates,$stats.Flags,$stats.Important)
-}
-
-function Load-DrawingAssistantHistory{
-    $path = Get-DrawingAssistantHistoryPath
-    if(!(Test-Path -LiteralPath $path)){ return @() }
-    try{
-        $items = Get-Content -LiteralPath $path -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
-        return @($items)
-    }
-    catch{
-        return @()
-    }
-}
-
-function Save-DrawingAssistantHistory($history){
-    $path = Get-DrawingAssistantHistoryPath
-    try{
-        @($history | Select-Object -Last 120) | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $path -Encoding UTF8
-    }
-    catch{}
-}
-
-function Format-DrawingAssistantTranscript($history){
-    $lines = @()
-    foreach($item in @($history)){
-        $role = if([string]$item.Role -eq "assistant"){ "Assistant" } else { "You" }
-        $lines += ("[{0}] {1}`r`n{2}" -f ([string]$item.At),$role,([string]$item.Text))
-    }
-    return ($lines -join "`r`n`r`n")
-}
-
-function Show-DrawingAssistantWindow{
-    $dialog = New-Object System.Windows.Forms.Form
-    $dialog.Text = "Drawing Assistant"
-    $dialog.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterParent
-    $dialog.Size = New-Object System.Drawing.Size(760,620)
-    $dialog.MinimumSize = New-Object System.Drawing.Size(640,480)
-    $dialog.BackColor = [System.Drawing.Color]::White
-
-    $history = New-Object System.Collections.ArrayList
-    foreach($historyItem in @(Load-DrawingAssistantHistory)){
-        if($historyItem){ [void]$history.Add($historyItem) }
-    }
-
-    $txtChat = New-Object System.Windows.Forms.TextBox
-    $txtChat.Multiline = $true
-    $txtChat.ReadOnly = $true
-    $txtChat.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
-    $txtChat.Font = New-Object System.Drawing.Font("Consolas",10)
-    $txtChat.Location = New-Object System.Drawing.Point(12,12)
-    $txtChat.Size = New-Object System.Drawing.Size(718,410)
-    $txtChat.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
-    $dialog.Controls.Add($txtChat)
-
-    $txtQuestion = New-Object System.Windows.Forms.TextBox
-    $txtQuestion.Multiline = $true
-    $txtQuestion.ScrollBars = [System.Windows.Forms.ScrollBars]::Vertical
-    $txtQuestion.Font = New-Object System.Drawing.Font("Segoe UI",10)
-    $txtQuestion.Location = New-Object System.Drawing.Point(12,432)
-    $txtQuestion.Size = New-Object System.Drawing.Size(566,72)
-    $txtQuestion.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
-    $txtQuestion.Text = "thống kê lỗi"
-    $dialog.Controls.Add($txtQuestion)
-
-    $btnAsk = New-Object System.Windows.Forms.Button
-    $btnAsk.Text = "Ask"
-    $btnAsk.Font = New-Object System.Drawing.Font("Segoe UI",10,[System.Drawing.FontStyle]::Bold)
-    $btnAsk.Location = New-Object System.Drawing.Point(590,432)
-    $btnAsk.Size = New-Object System.Drawing.Size(140,34)
-    $btnAsk.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Right
-    $dialog.Controls.Add($btnAsk)
-
-    $btnReport = New-Object System.Windows.Forms.Button
-    $btnReport.Text = "Report"
-    $btnReport.Font = New-Object System.Drawing.Font("Segoe UI",10)
-    $btnReport.Location = New-Object System.Drawing.Point(590,470)
-    $btnReport.Size = New-Object System.Drawing.Size(140,34)
-    $btnReport.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Right
-    $dialog.Controls.Add($btnReport)
-
-    $btnCopy = New-Object System.Windows.Forms.Button
-    $btnCopy.Text = "Copy"
-    $btnCopy.Font = New-Object System.Drawing.Font("Segoe UI",9)
-    $btnCopy.Location = New-Object System.Drawing.Point(12,520)
-    $btnCopy.Size = New-Object System.Drawing.Size(92,30)
-    $btnCopy.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left
-    $dialog.Controls.Add($btnCopy)
-
-    $btnClear = New-Object System.Windows.Forms.Button
-    $btnClear.Text = "Clear Memory"
-    $btnClear.Font = New-Object System.Drawing.Font("Segoe UI",9)
-    $btnClear.Location = New-Object System.Drawing.Point(112,520)
-    $btnClear.Size = New-Object System.Drawing.Size(118,30)
-    $btnClear.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left
-    $dialog.Controls.Add($btnClear)
-
-    $lblHint = New-Object System.Windows.Forms.Label
-    $lblHint.Text = "Try: tìm 0.6 | step 12 | thống kê lỗi | sinh báo cáo | giải thích bản vẽ"
-    $lblHint.Font = New-Object System.Drawing.Font("Segoe UI",9)
-    $lblHint.AutoSize = $true
-    $lblHint.Location = New-Object System.Drawing.Point(244,526)
-    $lblHint.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left
-    $dialog.Controls.Add($lblHint)
-
-    $refreshChat = {
-        $txtChat.Text = Format-DrawingAssistantTranscript $history
-        $txtChat.SelectionStart = $txtChat.TextLength
-        $txtChat.ScrollToCaret()
-    }
-
-    $askAction = {
-        $question = [string]$txtQuestion.Text
-        if([string]::IsNullOrWhiteSpace($question)){ return }
-        $priorHistory = @($history)
-        $answer = Invoke-DrawingAssistantAnswer $question $priorHistory
-        [void]$history.Add([PSCustomObject]@{ Role = "user"; Text = $question; At = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss") })
-        [void]$history.Add([PSCustomObject]@{ Role = "assistant"; Text = $answer; At = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss") })
-        Save-DrawingAssistantHistory $history
-        & $refreshChat
-        $txtQuestion.Clear()
-        $txtQuestion.Focus()
-    }
-
-    $btnAsk.Add_Click($askAction)
-    $btnReport.Add_Click({
-        $txtQuestion.Text = "sinh báo cáo"
-        & $askAction
-    })
-    $btnCopy.Add_Click({
-        if(-not [string]::IsNullOrWhiteSpace($txtChat.Text)){
-            [System.Windows.Forms.Clipboard]::SetText($txtChat.Text)
-        }
-    })
-    $btnClear.Add_Click({
-        $history.Clear()
-        Save-DrawingAssistantHistory $history
-        & $refreshChat
-    })
-    $txtQuestion.Add_KeyDown({
-        if($_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::Enter){
-            & $askAction
-            $_.SuppressKeyPress = $true
-        }
-    })
-
-    if($history.Count -le 0){
-        [void]$history.Add([PSCustomObject]@{
-            Role = "assistant"
-            Text = "Mình đã sẵn sàng đọc bảng MarkStep hiện tại. Hỏi mình về lỗi, dup, important, thống kê, tìm kiếm step, hoặc sinh báo cáo."
-            At = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
-        })
-        Save-DrawingAssistantHistory $history
-    }
-    & $refreshChat
-
-    [void]$dialog.ShowDialog($form)
-}
-
 function Get-MarkStepCurrentPrintFolder{
     $root = Join-Path ([System.IO.Path]::GetTempPath()) "RapidOcrProUpdate-Print"
     $jobName = Get-SafeWindowsPathComponent (Get-PreferredExportJobName) "InspectionJob"
@@ -7270,7 +6099,7 @@ function Show-PrintMarkedDrawingOptionsDialog{
     }
 }
 
-function Invoke-DirectPrintMarkedDocument([string]$printColorMode,[bool]$showPrinterDialog = $true){
+function Invoke-DirectPrintMarkedDocument([string]$printColorMode){
     Save-CurrentPageState
     Validate-StepState
 
@@ -7290,28 +6119,6 @@ function Invoke-DirectPrintMarkedDocument([string]$printColorMode,[bool]$showPri
     $printDoc.PrintController = New-Object System.Drawing.Printing.StandardPrintController
     $printDoc.PrinterSettings.DefaultPageSettings.Color = [bool]$isColorPrint
     $printDoc.DefaultPageSettings.Color = [bool]$isColorPrint
-
-    if($showPrinterDialog){
-        $printDialog = New-Object System.Windows.Forms.PrintDialog
-        try{
-            $printDialog.Document = $printDoc
-            $printDialog.AllowSomePages = $false
-            $printDialog.AllowSelection = $false
-            $printDialog.UseEXDialog = $true
-            $printDialog.PrinterSettings.DefaultPageSettings.Color = [bool]$isColorPrint
-            $dialogResult = $printDialog.ShowDialog($form)
-            if($dialogResult -ne [System.Windows.Forms.DialogResult]::OK){
-                if($printDoc){ $printDoc.Dispose() }
-                return $false
-            }
-            $printDoc.PrinterSettings = $printDialog.PrinterSettings
-            $printDoc.PrinterSettings.DefaultPageSettings.Color = [bool]$isColorPrint
-            $printDoc.DefaultPageSettings.Color = [bool]$isColorPrint
-        }
-        finally{
-            if($printDialog){ $printDialog.Dispose() }
-        }
-    }
 
     $pageIndex = 0
     $currentBitmap = $null
@@ -7374,7 +6181,6 @@ function Invoke-DirectPrintMarkedDocument([string]$printColorMode,[bool]$showPri
 
     try{
         $printDoc.Print()
-        return $true
     }
     finally{
         if($currentBitmap){
@@ -7406,8 +6212,7 @@ function Invoke-PrintCurrentMarkedDrawing{
         }
         Save-SessionState
 
-        $printed = Invoke-DirectPrintMarkedDocument $printColorMode $true
-        if(-not $printed){ return }
+        Invoke-DirectPrintMarkedDocument $printColorMode
         $modeText = if([string]::Equals([string]$printColorMode,"BlackWhite",[System.StringComparison]::OrdinalIgnoreCase)){ "black and white" } else { "color" }
         [System.Windows.Forms.MessageBox]::Show(("Current marked drawing was sent to the default printer in " + $modeText + " mode."),"Print Current Drawing",[System.Windows.Forms.MessageBoxButtons]::OK,[System.Windows.Forms.MessageBoxIcon]::Information) | Out-Null
     }
@@ -8051,6 +6856,7 @@ function Load-SourceFile($filePath,[switch]$SkipMetadataPrompt,[switch]$SkipDupl
         $script:PartMaterial = $metadata.Material
         $script:PartHrc = $metadata.Hrc
         $script:PartUser = $metadata.User
+        $script:InspectionDate = $metadata.InspectionDate
         $script:JobName = $metadata.JobName
 
         $pageRecords = @()
@@ -8103,8 +6909,9 @@ function Load-SourceFile($filePath,[switch]$SkipMetadataPrompt,[switch]$SkipDupl
         $script:PartMaterial = $metadata.Material
         $script:PartHrc = $metadata.Hrc
         $script:PartUser = $metadata.User
+        $script:InspectionDate = $metadata.InspectionDate
         $script:JobName = $metadata.JobName
-        if($pageList.Items.Count -gt 0 -and $pageList.SelectedIndex -lt 0){
+        if($pageList -and $pageList.Items.Count -gt 0 -and $pageList.SelectedIndex -lt 0){
             $pageList.SelectedIndex = 0
             Bind-SelectedPage
         }
@@ -8324,6 +7131,16 @@ function Get-StatePropertyValue($stateObject,$propertyName){
     }
 
     return $null
+}
+
+function Convert-StateValueToBoolean($value,$defaultValue = $false){
+    if($null -eq $value){ return [bool]$defaultValue }
+    if($value -is [bool]){ return [bool]$value }
+
+    $text = ([string]$value).Trim()
+    if($text -match '^(1|true|yes|on)$'){ return $true }
+    if($text -match '^(0|false|no|off)$'){ return $false }
+    return [bool]$defaultValue
 }
 
 function Set-StatePropertyValue($stateObject,$propertyName,$propertyValue){
@@ -8653,6 +7470,7 @@ function Convert-UiCopiedMarksToSessionRows($marks){
                 Y = $mark.Y
                 Scale = (Get-MarkScale $mark)
                 SourceStep = $mark.SourceStep
+                SourcePageIndex = if($mark.PSObject.Properties.Name -contains "SourcePageIndex"){ $mark.SourcePageIndex } else { $null }
                 SourceRect = if($mark.SourceRect){
                     [ordered]@{
                         X = $mark.SourceRect.X
@@ -8707,6 +7525,9 @@ function Convert-SessionRowsToUiCopiedMarks($rows){
             continue
         }
 
+        $savedSourcePageIndex = Get-StatePropertyValue $savedRow "SourcePageIndex"
+        $sourcePageIndex = if($null -ne $savedSourcePageIndex -and -not [string]::IsNullOrWhiteSpace([string]$savedSourcePageIndex)){ [int]$savedSourcePageIndex } else { $null }
+
         $marks += [PSCustomObject]@{
             Id = [int](Get-StatePropertyValue $savedRow "Id")
             Index = $indexText
@@ -8715,6 +7536,7 @@ function Convert-SessionRowsToUiCopiedMarks($rows){
             Scale = (Normalize-MarkScale (Get-StatePropertyValue $savedRow "Scale"))
             SourceStep = $sourceStep
             SourceRect = $sourceRect
+            SourcePageIndex = $sourcePageIndex
         }
     }
 
@@ -8912,12 +7734,12 @@ function Get-CurrentSessionState{
         PartNo = $script:PartNo
         MoldName = $script:MoldName
         PartQuantity = $script:PartQuantity
-        ResultsViewActualColumnCount = [int](Get-CurrentResultsViewQuantity)
         PartMaterial = $script:PartMaterial
         PartHrc = $script:PartHrc
         PartUser = $script:PartUser
-        PartDate = $script:PartDate
+        InspectionDate = $script:InspectionDate
         BalloonColorPreset = $script:BalloonColorPreset
+        LeaderLineEnabled = [bool]$script:LeaderLineEnabled
         MeasurementResults = @(
             foreach($stepKey in @($script:MeasurementResults.Keys)){
                 $measurement = $script:MeasurementResults[$stepKey]
@@ -8925,24 +7747,7 @@ function Get-CurrentSessionState{
                 [ordered]@{
                     Step = [string]$stepKey
                     Actual = [string]$measurement.Actual
-                    Actuals = @(
-                        if($measurement.PSObject.Properties.Name -contains "Actuals"){
-                            foreach($actual in @(Convert-SessionValueToList $measurement.Actuals)){
-                                [string]$actual
-                            }
-                        }
-                        elseif(-not [string]::IsNullOrWhiteSpace([string]$measurement.Actual)){
-                            [string]$measurement.Actual
-                        }
-                    )
                     Result = [string]$measurement.Result
-                    Results = @(
-                        if($measurement.PSObject.Properties.Name -contains "Results"){
-                            foreach($result in @(Convert-SessionValueToList $measurement.Results)){
-                                [string]$result
-                            }
-                        }
-                    )
                     UpdatedAt = $measurement.UpdatedAt
                 }
             }
@@ -9046,47 +7851,32 @@ function Apply-SessionStateObject($state){
         if(-not [string]::IsNullOrWhiteSpace($stateMoldName)){ $script:MoldName = $stateMoldName }
         $statePartQuantity = [string](Get-StatePropertyValue $state "PartQuantity")
         if(-not [string]::IsNullOrWhiteSpace($statePartQuantity)){ $script:PartQuantity = $statePartQuantity }
-        $stateResultsViewActualColumnCount = [string](Get-StatePropertyValue $state "ResultsViewActualColumnCount")
-        $stateResultsViewActualColumnCountValue = 0
-        if([int]::TryParse($stateResultsViewActualColumnCount,[ref]$stateResultsViewActualColumnCountValue) -and $stateResultsViewActualColumnCountValue -gt 0){
-            $script:ResultsViewActualColumnCount = [int]$stateResultsViewActualColumnCountValue
-        }
-        elseif(-not [string]::IsNullOrWhiteSpace($statePartQuantity)){
-            $statePartQuantityValue = 0
-            if([int]::TryParse($statePartQuantity,[ref]$statePartQuantityValue) -and $statePartQuantityValue -gt 0){
-                $script:ResultsViewActualColumnCount = [int]$statePartQuantityValue
-            }
-        }
         $statePartMaterial = [string](Get-StatePropertyValue $state "PartMaterial")
         if($statePartMaterial -ne $null){ $script:PartMaterial = $statePartMaterial }
         $statePartHrc = [string](Get-StatePropertyValue $state "PartHrc")
         if($statePartHrc -ne $null){ $script:PartHrc = $statePartHrc }
         $statePartUser = [string](Get-StatePropertyValue $state "PartUser")
         if(-not [string]::IsNullOrWhiteSpace($statePartUser)){ $script:PartUser = $statePartUser }
-        $statePartDate = [string](Get-StatePropertyValue $state "PartDate")
-        if(-not [string]::IsNullOrWhiteSpace($statePartDate)){ $script:PartDate = $statePartDate }
+        $stateInspectionDate = [string](Get-StatePropertyValue $state "InspectionDate")
+        if(-not [string]::IsNullOrWhiteSpace($stateInspectionDate)){ $script:InspectionDate = $stateInspectionDate }
         $stateBalloonColorPreset = [string](Get-StatePropertyValue $state "BalloonColorPreset")
         if(-not [string]::IsNullOrWhiteSpace($stateBalloonColorPreset)){
             $script:BalloonColorPreset = $stateBalloonColorPreset
         }
         Update-BalloonColorMenuState
+        $stateLeaderLineEnabled = Get-StatePropertyValue $state "LeaderLineEnabled"
+        if($null -ne $stateLeaderLineEnabled){
+            $script:LeaderLineEnabled = Convert-StateValueToBoolean $stateLeaderLineEnabled $true
+        }
+        Update-LeaderLineMenuState
         $script:MeasurementResults = @{}
         $stateMeasurementResults = Get-StatePropertyValue $state "MeasurementResults"
         foreach($measurement in @(Convert-SessionValueToList $stateMeasurementResults)){
             $step = [string](Get-StatePropertyValue $measurement "Step")
             if([string]::IsNullOrWhiteSpace($step)){ continue }
-            $actuals = @(Convert-SessionValueToList (Get-StatePropertyValue $measurement "Actuals"))
-            if($actuals.Count -eq 0){
-                $legacyActual = [string](Get-StatePropertyValue $measurement "Actual")
-                if(-not [string]::IsNullOrWhiteSpace($legacyActual)){
-                    $actuals = @($legacyActual)
-                }
-            }
             $script:MeasurementResults[$step] = [PSCustomObject]@{
                 Actual = [string](Get-StatePropertyValue $measurement "Actual")
-                Actuals = @($actuals | ForEach-Object { [string]$_ })
                 Result = [string](Get-StatePropertyValue $measurement "Result")
-                Results = @(Convert-SessionValueToList (Get-StatePropertyValue $measurement "Results") | ForEach-Object { [string]$_ })
                 UpdatedAt = Get-StatePropertyValue $measurement "UpdatedAt"
             }
         }
@@ -9480,10 +8270,7 @@ function Restore-SessionState{
         $appState = Import-ClixmlSafe $script:AppStateFilePath
     }
 
-    $stateTrainingSaveExportEnabled = Get-StatePropertyValue $appState "TrainingSaveExportEnabled"
-    if($null -ne $stateTrainingSaveExportEnabled -and -not [string]::IsNullOrWhiteSpace([string]$stateTrainingSaveExportEnabled)){
-        $script:TrainingSaveExportEnabled = Convert-ToStepImportantFlag $stateTrainingSaveExportEnabled
-    }
+    $script:TrainingSaveExportEnabled = $false
     Update-TrainingSaveExportMenuState
 
     $script:AdaptiveDetectorStats = @{}
@@ -9507,10 +8294,18 @@ function Restore-SessionState{
 function Clear-InspectionSheet($sheet,$rowStart,$maxPerPage){
 
     $lastRow = $rowStart + $maxPerPage - 1
-    $sheet.Range([string]("A{0}:P{1}" -f [int]$rowStart,[int]$lastRow)).ClearContents()
+    $sheet.Range([string]("A{0}:O{1}" -f [int]$rowStart,[int]$lastRow)).ClearContents()
+    try{
+        $sheet.Range([string]("B{0}:B{1}" -f [int]$rowStart,[int]$lastRow)).Font.Bold = $false
+    }
+    catch{}
+    try{
+        $sheet.Range([string]("F{0}:O{1}" -f [int]$rowStart,[int]$lastRow)).NumberFormat = "0.000"
+    }
+    catch{}
 }
 
-function Set-InspectionHeader($sheet,$model,$mold,$qty = "",$material = "",$hrc = "",$user = "",$measureDate = ""){
+function Set-InspectionHeader($sheet,$model,$mold,$qty = "",$material = "",$hrc = "",$user = "",$inspectionDate = ""){
 
     $sheet.Range("C5").Value2 = [string]$model
     $sheet.Range("G5").Value2 = [string]$mold
@@ -9530,8 +8325,19 @@ function Set-InspectionHeader($sheet,$model,$mold,$qty = "",$material = "",$hrc 
     }
     $dateCell = $sheet.Range("N4")
     $dateCell.NumberFormat = "@"
-    $resolvedDate = if(-not [string]::IsNullOrWhiteSpace([string]$measureDate)){ [string]$measureDate } else { (Get-Date).ToString("dd/MM/yyyy") }
-    $dateCell.Value2 = $resolvedDate
+    $dateText = if(-not [string]::IsNullOrWhiteSpace([string]$inspectionDate)){
+        $parsedDate = [DateTime]::MinValue
+        if([DateTime]::TryParse([string]$inspectionDate,[ref]$parsedDate)){
+            $parsedDate.ToString("dd-MMM-yyyy",[System.Globalization.CultureInfo]::InvariantCulture)
+        }
+        else{
+            [string]$inspectionDate
+        }
+    }
+    else{
+        (Get-Date).ToString("dd-MMM-yyyy",[System.Globalization.CultureInfo]::InvariantCulture)
+    }
+    $dateCell.Value2 = $dateText
 }
 
 function Get-InspectionBatchLabel($sampleStart,$sampleEnd){
@@ -9542,15 +8348,144 @@ function Get-InspectionSheetName($startIndex,$endIndex){
     return "Inspection $startIndex-$endIndex"
 }
 
+function Set-ComCellValue($cell, $val){
+    if($null -eq $val){
+        [void]$cell.GetType().InvokeMember("Value2", [System.Reflection.BindingFlags]::SetProperty, $null, $cell, @(""))
+        return
+    }
+    [void]$cell.GetType().InvokeMember("Value2", [System.Reflection.BindingFlags]::SetProperty, $null, $cell, @($val))
+}
+
 function Set-ExcelCellTextValue($sheet,$row,$column,$value){
-    $sheet.Cells.Item([int]$row,[int]$column).Value2 = [string]$value
+    $cell = $sheet.Cells.Item([int]$row,[int]$column)
+    Set-ComCellValue $cell ([string]$value)
+}
+
+function Set-ExcelCellSampleMeasurement($sheet,$row,$column,$value){
+    $valStr = ([string]$value).Trim()
+    if([string]::IsNullOrWhiteSpace($valStr)){
+        $cell = $sheet.Cells.Item([int]$row,[int]$column)
+        Set-ComCellValue $cell ""
+        return
+    }
+
+    $parsed = 0.0
+    if([double]::TryParse($valStr,[System.Globalization.NumberStyles]::Float,[System.Globalization.CultureInfo]::InvariantCulture,[ref]$parsed)){
+        $rounded = [Math]::Round([double]$parsed, 3, [System.MidpointRounding]::AwayFromZero)
+        $cell = $sheet.Cells.Item([int]$row,[int]$column)
+        try{
+            $cell.NumberFormat = "0.000"
+        }
+        catch{}
+        try{
+            Set-ComCellValue $cell $rounded
+        }
+        catch{
+            Set-ComCellValue $cell $valStr
+        }
+    }
+    else{
+        $cell = $sheet.Cells.Item([int]$row,[int]$column)
+        Set-ComCellValue $cell $valStr
+    }
+}
+
+function Set-ExcelInspectionJudgeFormula($sheet,$row,$nominalText){
+    $nominal = [string]$nominalText
+    $degree = [string][char]176
+    $isAngle = ($nominal -match [regex]::Escape($degree) -or $nominal -match [string][char]186 -or $nominal -match "(?i)deg")
+    try{
+        if($isAngle){
+            $sheet.Cells.Item([int]$row, 16).Formula = "=IF(COUNTA(F$row:O$row)=0, """", IF(COUNTIF(F$row:O$row, ""*NG*"")>0, ""NG"", ""OK""))"
+        }
+    }
+    catch{}
 }
 
 function Set-ExcelCellBold($sheet,$row,$column,$isBold){
+    if(-not $isBold){ return }
     try{
-        $sheet.Cells.Item([int]$row,[int]$column).Font.Bold = [bool]$isBold
+        $sheet.Cells.Item([int]$row,[int]$column).Font.Bold = $true
     }
     catch{}
+}
+
+function Set-ExcelCellNominalValue($sheet,$row,$column,$nominalText){
+    $cell = $sheet.Cells.Item([int]$row,[int]$column)
+    if($null -eq $nominalText){
+        Set-ComCellValue $cell ""
+        return
+    }
+
+    $raw = [string]$nominalText
+    if([string]::IsNullOrWhiteSpace($raw)){
+        Set-ComCellValue $cell ""
+        return
+    }
+
+    $text = $raw.Trim()
+    $decimals = Get-InspectionResultDecimalPlaces $text
+    $numFmt = if($decimals -gt 0){ "0." + ("0" * $decimals) } else { "0" }
+
+    # Prefix like C, R, Dia, Phi, SR, CH
+    $prefixMatch = [regex]::Match($text, '^(?<prefix>SR|DIA|CH|[CRØΦ])\s*(?<num>[-+]?[0-9]+(?:[\.,][0-9]+)?)$', 'IgnoreCase')
+    if($prefixMatch.Success){
+        $prefix = $prefixMatch.Groups['prefix'].Value.ToUpperInvariant()
+        $numStr = $prefixMatch.Groups['num'].Value -replace '，','.' -replace ',','.'
+        $numVal = 0.0
+        if([double]::TryParse($numStr, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$numVal)){
+            $pDecimals = Get-InspectionResultDecimalPlaces $numStr
+            $pNumFmt = if($pDecimals -gt 0){ "0." + ("0" * $pDecimals) } else { "0" }
+            try{ $cell.NumberFormat = """$prefix""$pNumFmt" } catch{}
+            Set-ComCellValue $cell ([double]$numVal)
+            return
+        }
+    }
+
+    # Degree
+    $degreeMatch = [regex]::Match($text, '^(?<num>[-+]?[0-9]+(?:[\.,][0-9]+)?)\s*[°º]$', 'IgnoreCase')
+    if($degreeMatch.Success){
+        $numStr = $degreeMatch.Groups['num'].Value -replace '，','.' -replace ',','.'
+        $numVal = 0.0
+        if([double]::TryParse($numStr, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$numVal)){
+            try{ $cell.NumberFormat = "0.###""°""" } catch{}
+            Set-ComCellValue $cell ([double]$numVal)
+            return
+        }
+    }
+
+    $normalized = $text -replace '，','.' -replace ',','.' -replace '\s+',''
+    $dblVal = 0.0
+    if([double]::TryParse($normalized, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$dblVal)){
+        try{ $cell.NumberFormat = $numFmt } catch{}
+        Set-ComCellValue $cell ([double]$dblVal)
+        return
+    }
+
+    Set-ComCellValue $cell $text
+}
+
+function Set-ExcelCellToleranceValue($sheet,$row,$column,$tolValue){
+    $cell = $sheet.Cells.Item([int]$row,[int]$column)
+    if($null -eq $tolValue){
+        Set-ComCellValue $cell ""
+        return
+    }
+
+    $raw = [string]$tolValue
+    if([string]::IsNullOrWhiteSpace($raw)){
+        Set-ComCellValue $cell ""
+        return
+    }
+
+    $text = $raw.Trim()
+    $decimals = Get-InspectionResultDecimalPlaces $text
+    $formatPattern = if($decimals -gt 0){ "0." + ("0" * $decimals) } else { "0.###" }
+    $tolFmt = "+$formatPattern;-$formatPattern;0"
+
+    $dblVal = Convert-MarkStepToleranceCellToDouble $text
+    try{ $cell.NumberFormat = $tolFmt } catch{}
+    Set-ComCellValue $cell ([double]$dblVal)
 }
 
 function Try-QueueBackgroundTrainingFlush{
@@ -9573,6 +8508,21 @@ function Try-QueueBackgroundTrainingFlush{
     }
 }
 
+function Set-InspectionAppearanceRow($sheet,$sampleStart,$sampleEnd){
+    $sampleColumns = @(Get-InspectionSampleColumnNumbers)
+    $sampleCount = [Math]::Min($sampleColumns.Count,[Math]::Max(0,([int]$sampleEnd - [int]$sampleStart + 1)))
+
+    for($i = 0; $i -lt $sampleColumns.Count; $i++){
+        $targetColumn = [int]$sampleColumns[$i]
+        if($i -lt $sampleCount){
+            Set-ExcelCellTextValue $sheet 54 $targetColumn "OK"
+        }
+        else{
+            Set-ExcelCellTextValue $sheet 54 $targetColumn ""
+        }
+    }
+}
+
 function Set-InspectionSampleHeaders($sheet,$sampleStart,$sampleEnd){
     $sampleColumns = @(Get-InspectionSampleColumnNumbers)
     $sampleCount = [Math]::Min($sampleColumns.Count,[Math]::Max(0,([int]$sampleEnd - [int]$sampleStart + 1)))
@@ -9586,6 +8536,7 @@ function Set-InspectionSampleHeaders($sheet,$sampleStart,$sampleEnd){
             Set-ExcelCellTextValue $sheet 12 $targetColumn ""
         }
     }
+    Set-InspectionAppearanceRow $sheet $sampleStart $sampleEnd
 }
 
 function Get-InspectionSampleColumnNumbers{
@@ -9636,6 +8587,7 @@ function Get-ExportJobInfo{
             PartMaterial = $script:PartMaterial
             PartHrc = $script:PartHrc
             PartUser = $script:PartUser
+            InspectionDate = $script:InspectionDate
             JobName = $script:JobName
         }
     }
@@ -9648,7 +8600,7 @@ function Get-ExportJobInfo{
     $script:PartMaterial = $metadata.Material
     $script:PartHrc = $metadata.Hrc
     $script:PartUser = $metadata.User
-    $script:PartDate = $metadata.Date
+    $script:InspectionDate = $metadata.InspectionDate
     $script:JobName = $metadata.JobName
 
     $folderDialog = New-Object Windows.Forms.FolderBrowserDialog
@@ -10044,26 +8996,24 @@ function Get-CurrentCrosshairImagePoint{
             }
         }
         catch{}
+
+        try{
+            if($canvas.ClientSize.Width -gt 0 -and $canvas.ClientSize.Height -gt 0){
+                $centerCanvasPoint = New-Object Drawing.Point([int]($canvas.ClientSize.Width / 2), [int]($canvas.ClientSize.Height / 2))
+                $centerImagePoint = Set-LastImageMousePointFromCanvasPoint $centerCanvasPoint
+                if($centerImagePoint){
+                    return $centerImagePoint
+                }
+            }
+        }
+        catch{}
     }
 
     if($script:LastImageMousePoint){
         return (Clamp-ImagePointToBitmap $script:LastImageMousePoint)
     }
 
-    return $null
-}
-
-function Get-ViewportCenterImagePoint{
-
-    if(!$script:sourceBitmap){ return $null }
-
-    $viewport = Get-ViewportSize
-    $centerPoint = New-Object Drawing.PointF(
-        [float]($viewport.Width / 2.0),
-        [float]($viewport.Height / 2.0)
-    )
-
-    return (Clamp-ImagePointToBitmap (Convert-ScreenPointToImagePoint $centerPoint))
+    return (New-Object Drawing.PointF([float]($script:sourceBitmap.Width / 2.0), [float]($script:sourceBitmap.Height / 2.0)))
 }
 
 function Get-NormalizedSelectionRect($startPoint,$endPoint){
@@ -10300,61 +9250,90 @@ function Try-ParseAngleDmsText($text){
     $value = ([string]$text).Trim()
     $value = $value -replace ',', '.'
     $value = $value -replace '(?i)DEG',$degree
-    $value = $value -replace '(?i)ĐỘ',$degree
-    $value = $value -replace '(?i)(?<=[0-9])DO(?=[0-9\s]|$)',$degree
-    $value = $value -replace '(?i)(?<=[0-9])D(?=[0-9\s]|$)',$degree
-    $value = $value -replace '(?i)(?<=[0-9])M(?=[0-9\s]|$)',"'"
-    $value = $value -replace '(?i)(?<=[0-9])S(?=\s*$|[^A-Z])','"'
     $value = $value -replace ([string][char]186),$degree
+    $value = $value -replace "''", '"'
     $value = $value -replace "[′’`´]","'"
     $value = $value -replace '[″“”]','"'
-    if($value -match "^\s*(?<deg>[-+]?\d+)\s+(?<min>\d{1,2})\s+(?<sec>\d{1,2}(?:\.\d+)?)\s*$"){
-        $degText = [string]$Matches['deg']
-        $minText = [string]$Matches['min']
-        $secText = [string]$Matches['sec']
-        $txt = ('{0}{1}{2}{3}{4}"' -f $degText,$degree,$minText,([string][char]39),$secText)
-        return [PSCustomObject]@{ Text = $txt; Degrees = $degText; Minutes = $minText; Seconds = $secText }
-    }
     $compact = ($value -replace '\s+','')
     # Parentheses around reference angle, e.g. (0.352°), are wrappers only.
     # OCR may also miss one side of the wrapper, so strip them before angle parse.
     $compact = $compact -replace '[\(\)\[\]]',''
 
+    # Degree only, e.g. 45°, 0.352°
     if($compact -match ("^(?<deg>[-+]?\d+(?:\.\d+)?)" + [regex]::Escape($degree) + "$")){
-        return [PSCustomObject]@{ Text = ([string]$Matches['deg'] + $degree); Degrees = [string]$Matches['deg']; Minutes = ''; Seconds = '' }
+        $degText = [string]$Matches['deg']
+        $decimals = 0
+        $dotIdx = $degText.IndexOf('.')
+        if($dotIdx -ge 0){ $decimals = $degText.Length - $dotIdx - 1 }
+        return [PSCustomObject]@{
+            Text = ($degText + $degree)
+            Degrees = $degText
+            Minutes = ''
+            Seconds = ''
+            HasMinutes = $false
+            HasSeconds = $false
+            DegreeDecimals = $decimals
+        }
     }
 
-    if($compact -match "^(?<min>\d{1,2})'(?<sec>\d{1,2}(?:\.\d+)?)\""$"){
-        $minText = [string]$Matches['min']
-        $secText = [string]$Matches['sec']
-        $txt = ('0{0}{1}{2}{3}"' -f $degree,$minText,([string][char]39),$secText)
-        return [PSCustomObject]@{ Text = $txt; Degrees = '0'; Minutes = $minText; Seconds = $secText }
-    }
-
-    if($compact -match ("^(?<deg>[-+]?\d+(?:\.\d+)?)" + [regex]::Escape($degree) + "(?<min>\d{1,2})'(?<sec>\d{1,2}(?:\.\d+)?)\""$")){
+    # Deg + Min + Sec, e.g. 1°32'23", 1°8'17''
+    if($compact -match ("^(?<deg>[-+]?\d+(?:\.\d+)?)" + [regex]::Escape($degree) + "(?<min>\d{1,2})'(?<sec>\d{1,2}(?:\.\d+)?)[`"']{0,2}$")){
         $degText = [string]$Matches['deg']
         $minText = [string]$Matches['min']
         $secText = [string]$Matches['sec']
         $txt = ('{0}{1}{2}{3}{4}"' -f $degText,$degree,$minText,([string][char]39),$secText)
-        return [PSCustomObject]@{ Text = $txt; Degrees = $degText; Minutes = $minText; Seconds = $secText }
+        return [PSCustomObject]@{
+            Text = $txt
+            Degrees = $degText
+            Minutes = $minText
+            Seconds = $secText
+            HasMinutes = $true
+            HasSeconds = $true
+            DegreeDecimals = 0
+        }
     }
 
+    # Deg + Min, e.g. 1°32'
     if($compact -match ("^(?<deg>[-+]?\d+(?:\.\d+)?)" + [regex]::Escape($degree) + "(?<min>\d{1,2})'$")){
         $degText = [string]$Matches['deg']
         $minText = [string]$Matches['min']
         $txt = ('{0}{1}{2}{3}' -f $degText,$degree,$minText,([string][char]39))
-        return [PSCustomObject]@{ Text = $txt; Degrees = $degText; Minutes = $minText; Seconds = '' }
+        return [PSCustomObject]@{
+            Text = $txt
+            Degrees = $degText
+            Minutes = $minText
+            Seconds = ''
+            HasMinutes = $true
+            HasSeconds = $false
+            DegreeDecimals = 0
+        }
     }
 
     if($compact -match ("^(?<deg>[-+]?\d+)" + [regex]::Escape($degree) + "(?<rest>\d{2,4}).*$")){
         $rest = [string]$Matches['rest']
         if($rest.Length -ge 4){
             $txt = ('{0}{1}{2}{3}{4}{5}' -f $Matches['deg'],$degree,$rest.Substring(0,2),([string][char]39),$rest.Substring(2,2),([string][char]34))
-            return [PSCustomObject]@{ Text = $txt; Degrees = [string]$Matches['deg']; Minutes = $rest.Substring(0,2); Seconds = $rest.Substring(2,2) }
+            return [PSCustomObject]@{
+                Text = $txt
+                Degrees = [string]$Matches['deg']
+                Minutes = $rest.Substring(0,2)
+                Seconds = $rest.Substring(2,2)
+                HasMinutes = $true
+                HasSeconds = $true
+                DegreeDecimals = 0
+            }
         }
         if($rest.Length -ge 2){
             $txt = ('{0}{1}{2}{3}' -f $Matches['deg'],$degree,$rest.Substring(0,2),([string][char]39))
-            return [PSCustomObject]@{ Text = $txt; Degrees = [string]$Matches['deg']; Minutes = $rest.Substring(0,2); Seconds = '' }
+            return [PSCustomObject]@{
+                Text = $txt
+                Degrees = [string]$Matches['deg']
+                Minutes = $rest.Substring(0,2)
+                Seconds = ''
+                HasMinutes = $true
+                HasSeconds = $false
+                DegreeDecimals = 0
+            }
         }
     }
 
@@ -10368,13 +9347,6 @@ function Normalize-MechanicalOcrText($text){
     $value = $value -replace ',', '.'
     $value = $value -replace '：', ':'
     $value = $value -replace ':', '.'
-    # OCR can glue a leading symmetric tolerance to the nominal, e.g.
-    # "±0.00252.3975" should be treated as "±0.0025 2.3975".
-    $value = [regex]::Replace(
-        $value,
-        '(?<tol>[±+\-]\s*0?\.\d{3,5})(?<nom>[1-9]\d*\.\d+)',
-        '${tol} ${nom}'
-    )
     # Mechanical OCR often returns chamfer/radius prefixes like CO.100 / RO.5
     # where O is actually zero. Repair this before filtering non-mechanical text.
     $value = [regex]::Replace($value,'(?<![A-Z0-9])([CR])\s*O(?=\s*(?:\.\s*\d|\d))', '${1}0')
@@ -10495,11 +9467,6 @@ function Parse-Dimension($text){
     $text = $text.ToUpperInvariant()
     $text = Collapse-SpacedMechanicalDimensionText $text
     $text = [regex]::Replace($text,'(?<=\d)\s*\.\s*(?=\d)','.')
-    $text = [regex]::Replace(
-        $text,
-        '(?<tol>[±+\-]\s*0?\.\d{3,5})(?<nom>[1-9]\d*\.\d+)',
-        '${tol} ${nom}'
-    )
 
     $angleDms = Try-ParseAngleDmsText $text
     if($angleDms){ return [string]$angleDms.Text }
@@ -10925,9 +9892,9 @@ $btnAdvance.Add_Click({
         Update-PdfTextZonesButton
         Update-InspectionSampleAutoFillButton
         Update-BalloonColorMenuState
+        Update-LeaderLineMenuState
         Update-TrainingSaveExportMenuState
         Update-SidePanelToggleUi
-        Update-OptionMenuState
         $advanceMenu.Show($btnAdvance,0,$btnAdvance.Height)
     }
 })
@@ -10940,11 +9907,7 @@ $miAdvanceRotatePage = $null
 $miAdvanceSampleAutoFill = $null
 $miAdvanceBulkAiRecovery = $null
 $miAdvanceCapturePromptArea = $null
-$miAdvanceDrawingAssistant = $null
 if($advanceMenu){
-    $miAdvanceDrawingAssistant = New-Object System.Windows.Forms.ToolStripMenuItem("Drawing Assistant")
-    if($miAdvanceOcrMenu){ [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceDrawingAssistant) }
-    else{ [void]$advanceMenu.Items.Add($miAdvanceDrawingAssistant) }
     $miAdvanceSampleAutoFill = New-Object System.Windows.Forms.ToolStripMenuItem("Sample Auto Fill On")
     if($miAdvanceOcrMenu){ [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceSampleAutoFill) }
     else{ [void]$advanceMenu.Items.Add($miAdvanceSampleAutoFill) }
@@ -10993,21 +9956,15 @@ $btnCopyView.Add_Click({
     $picture.Invalidate()
 })
 
-$btnAutoMapPdf.Add_Click({
-    Invoke-AutoMapPdfTextLayer
-})
-
-if($btnAutoYolo){
-    $btnAutoYolo.Add_Click({
-        Invoke-YoloAutoDetectTextZones
+if($btnAutoScan){
+    $btnAutoScan.Add_Click({
+        Invoke-AutoScanYoloPpOcr
     })
 }
 
-
-
-
-
-
+$btnAutoMapPdf.Add_Click({
+    Invoke-AutoMapPdfTextLayer
+})
 
 $btnTranslateLens.Enabled = $false
 $btnTranslateLens.Visible = $false
@@ -11106,333 +10063,39 @@ if($miAdvancePdfTextZones){
 if($miAdvanceToggleSidePanel){
     $miAdvanceToggleSidePanel.Add_Click({ Toggle-DrawSidePanel })
 }
-if($miAdvanceAutoMapPdf){
-    $miAdvanceAutoMapPdf.Add_Click({ $btnAutoMapPdf.PerformClick() })
-}
-if($miAdvanceAutoYolo){
-    $miAdvanceAutoYolo.Add_Click({
-        if($btnAutoYolo){ $btnAutoYolo.PerformClick() } else { Invoke-YoloAutoDetectTextZones }
+if($miAdvanceAutoScan){
+    $miAdvanceAutoScan.Add_Click({
+        if($btnAutoScan){ $btnAutoScan.PerformClick() } else { Invoke-AutoScanYoloPpOcr }
     })
 }
 
-$script:ShowBalloons = $true
-$script:ShowLeaderLines = $false
-$script:EnableDefaultTolerance = $true
-$script:TrainModeEnabled = $false
+# --- OCR Model radio-style submenu ---
+$script:AutoScanSelectedModel = "PP-OCRv4 CAD (Fine-Tuned)"
+$script:OcrModelMenuItems = @($miOcrModelV4,$miOcrModelV6,$miOcrModelHybrid,$miOcrModelBuiltin)
 
-function Toggle-ShowBalloons{
-    $script:ShowBalloons = -not ($script:ShowBalloons -ne $false)
-    if($miOptionBalloon){ $miOptionBalloon.Checked = [bool]$script:ShowBalloons }
-    if($txtOcrDebug){
-        $txtOcrDebug.Text = "Balloon (B): " + (if($script:ShowBalloons){ "BẬT" } else { "TẮT" })
+function Set-OcrModelSelection($selectedItem){
+    foreach($mi in $script:OcrModelMenuItems){
+        if($mi){ $mi.Checked = ($mi -eq $selectedItem) }
     }
-    Request-CanvasRedraw
+    $script:AutoScanSelectedModel = $selectedItem.Text
+    if($txtOcrDebug){ $txtOcrDebug.Text = "OCR Model: $($selectedItem.Text)" }
 }
 
-function Toggle-ShowLeaderLines{
-    $script:ShowLeaderLines = -not [bool]$script:ShowLeaderLines
-    if($miOptionLeaderLine){ $miOptionLeaderLine.Checked = [bool]$script:ShowLeaderLines }
-    if($txtOcrDebug){
-        $txtOcrDebug.Text = "Leader Line (L): " + (if($script:ShowLeaderLines){ "BẬT" } else { "TẮT" })
-    }
-    Request-CanvasRedraw
+if($miOcrModelV4){
+    $miOcrModelV4.Add_Click({ Set-OcrModelSelection $miOcrModelV4 })
 }
-
-function Toggle-DefaultTolerance{
-    $script:EnableDefaultTolerance = -not ($script:EnableDefaultTolerance -ne $false)
-    if($miOptionDefaultTol){ $miOptionDefaultTol.Checked = [bool]$script:EnableDefaultTolerance }
-    if($txtOcrDebug){
-        $txtOcrDebug.Text = "Default Tol (±): " + (if($script:EnableDefaultTolerance){ "BẬT" } else { "TẮT" })
-    }
+if($miOcrModelV6){
+    $miOcrModelV6.Add_Click({ Set-OcrModelSelection $miOcrModelV6 })
 }
-
-function Ensure-TrainModeDirectories{
-    $baseDir = Join-Path $script:AppRoot "training_dataset"
-    $yoloImgDir = Join-Path $baseDir "yolo_detection\images"
-    $yoloLblDir = Join-Path $baseDir "yolo_detection\labels"
-    $ocrImgDir = Join-Path $baseDir "ocr_corrections\images"
-
-    foreach($d in @($yoloImgDir, $yoloLblDir, $ocrImgDir)){
-        if(-not (Test-Path $d)){
-            New-Item -ItemType Directory -Force -Path $d | Out-Null
-        }
-    }
-
-    $yamlPath = Join-Path $baseDir "yolo_detection\dataset.yaml"
-    if(-not (Test-Path $yamlPath)){
-        $yamlContent = "path: ./training_dataset/yolo_detection`ntrain: images`nval: images`nnames:`n  0: textzone`n"
-        [System.IO.File]::WriteAllText($yamlPath, $yamlContent, [System.Text.Encoding]::UTF8)
-    }
+if($miOcrModelHybrid){
+    $miOcrModelHybrid.Add_Click({ Set-OcrModelSelection $miOcrModelHybrid })
 }
-
-function Toggle-TrainMode{
-    $script:TrainModeEnabled = -not [bool]$script:TrainModeEnabled
-    if($miOptionTrainModeToggle){ $miOptionTrainModeToggle.Checked = [bool]$script:TrainModeEnabled }
-    if($script:TrainModeEnabled){
-        Ensure-TrainModeDirectories
-        if($txtOcrDebug){
-            $txtOcrDebug.Text = "[TRAIN MODE: BẬT] Tự động xuất ảnh YOLO & ghi nhận dữ liệu sửa lỗi OCR..."
-        }
-    }
-    else{
-        if($txtOcrDebug){
-            $txtOcrDebug.Text = "[TRAIN MODE: TẮT]"
-        }
-    }
+if($miOcrModelBuiltin){
+    $miOcrModelBuiltin.Add_Click({ Set-OcrModelSelection $miOcrModelBuiltin })
 }
-
-function Export-CurrentDrawingYoloDataset([switch]$Silent){
-    if(!$script:sourceBitmap){
-        if(-not $Silent){
-            [System.Windows.Forms.MessageBox]::Show("Chưa mở file bản vẽ nào để xuất nhãn YOLO.", "Train Mode")
-        }
-        return
-    }
-
-    $zones = @($script:PdfTextLayerZones | Where-Object { $_ -and $_.Rect -and $_.Rect.Width -gt 0 -and $_.Rect.Height -gt 0 })
-    if($zones.Count -le 0){
-        if(-not $Silent){
-            [System.Windows.Forms.MessageBox]::Show("Không có khung Text Zone (BlueBox) nào trên bản vẽ để xuất nhãn YOLO.", "Train Mode")
-        }
-        return
-    }
-
-    Ensure-TrainModeDirectories
-    $baseDir = Join-Path $script:AppRoot "training_dataset\yolo_detection"
-    $imgDir = Join-Path $baseDir "images"
-    $lblDir = Join-Path $baseDir "labels"
-
-    $docName = if(-not [string]::IsNullOrWhiteSpace($script:CurrentSourcePath)){
-        [System.IO.Path]::GetFileNameWithoutExtension($script:CurrentSourcePath)
-    } else { "drawing" }
-    $page = if($script:SelectedPageIndex -ge 0){ $script:SelectedPageIndex + 1 } else { 1 }
-    $timeStr = (Get-Date -Format "yyyyMMdd_HHmmss")
-    $sampleId = "{0}_p{1}_{2}" -f ($docName -replace '[^a-zA-Z0-9_-]','_'), $page, $timeStr
-
-    $imgPath = Join-Path $imgDir "$sampleId.png"
-    $lblPath = Join-Path $lblDir "$sampleId.txt"
-
-    try{
-        $script:sourceBitmap.Save($imgPath, [System.Drawing.Imaging.ImageFormat]::Png)
-
-        $imgW = [float]$script:sourceBitmap.Width
-        $imgH = [float]$script:sourceBitmap.Height
-        $lines = New-Object System.Collections.Generic.List[string]
-
-        foreach($z in $zones){
-            $r = $z.Rect
-            $cx = [Math]::Round(([float]($r.X + ($r.Width / 2.0)) / $imgW), 6)
-            $cy = [Math]::Round(([float]($r.Y + ($r.Height / 2.0)) / $imgH), 6)
-            $w = [Math]::Round(([float]$r.Width / $imgW), 6)
-            $h = [Math]::Round(([float]$r.Height / $imgH), 6)
-
-            $cx = [Math]::Max(0.0, [Math]::Min(1.0, $cx))
-            $cy = [Math]::Max(0.0, [Math]::Min(1.0, $cy))
-            $w = [Math]::Max(0.001, [Math]::Min(1.0, $w))
-            $h = [Math]::Max(0.001, [Math]::Min(1.0, $h))
-
-            $line = ("0 {0:F6} {1:F6} {2:F6} {3:F6}" -f $cx, $cy, $w, $h)
-            [void]$lines.Add($line)
-        }
-
-        [System.IO.File]::WriteAllLines($lblPath, $lines, [System.Text.Encoding]::UTF8)
-
-        $msg = ("Train Mode: Đã xuất bản vẽ và {0} nhãn YOLO vào: {1}" -f $zones.Count, $lblPath)
-        if($txtOcrDebug){ $txtOcrDebug.Text = $msg }
-        if(-not $Silent){
-            [System.Windows.Forms.MessageBox]::Show($msg, "YOLO Dataset Exported", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-        }
-    }
-    catch{
-        if(-not $Silent){
-            [System.Windows.Forms.MessageBox]::Show("Lỗi xuất dữ liệu YOLO: " + $_.Exception.Message, "Train Mode Error")
-        }
-    }
+if($miAdvanceAutoMapPdf){
+    $miAdvanceAutoMapPdf.Add_Click({ $btnAutoMapPdf.PerformClick() })
 }
-
-function Track-OcrCorrectionTrainingData($rowIndex, $colIndex, $oldValue, $newValue, $rect){
-    if(-not [bool]$script:TrainModeEnabled){ return }
-    if(!$script:sourceBitmap){ return }
-
-    if(!$rect -or $rect.Width -le 4 -or $rect.Height -le 4){
-        if($script:StepRects -and $script:StepRects.ContainsKey($rowIndex)){
-            $rect = $script:StepRects[$rowIndex]
-        }
-    }
-    if(!$rect -or $rect.Width -le 4 -or $rect.Height -le 4){ return }
-
-    Ensure-TrainModeDirectories
-    $baseDir = Join-Path $script:AppRoot "training_dataset\ocr_corrections"
-    $imgDir = Join-Path $baseDir "images"
-
-    $step = Get-TableCellText $rowIndex 0
-    $nominal = Get-TableCellText $rowIndex 1
-    $tolMinus = Get-TableCellText $rowIndex 2
-    $tolPlus = Get-TableCellText $rowIndex 3
-    $fieldName = switch($colIndex){
-        1 { "Nominal" }
-        2 { "TolMinus" }
-        3 { "TolPlus" }
-        default { "Field_$colIndex" }
-    }
-
-    $timeStr = (Get-Date -Format "yyyyMMdd_HHmmssfff")
-    $cropFile = "crop_step{0}_{1}.png" -f $step, $timeStr
-    $cropPath = Join-Path $imgDir $cropFile
-
-    $pad = 4
-    $cropX = [Math]::Max(0, ($rect.X - $pad))
-    $cropY = [Math]::Max(0, ($rect.Y - $pad))
-    $cropW = [Math]::Min(($script:sourceBitmap.Width - $cropX), ($rect.Width + ($pad * 2)))
-    $cropH = [Math]::Min(($script:sourceBitmap.Height - $cropY), ($rect.Height + ($pad * 2)))
-
-    if($cropW -le 2 -or $cropH -le 2){ return }
-
-    try{
-        $cropRect = New-Object System.Drawing.Rectangle($cropX, $cropY, $cropW, $cropH)
-        $croppedBmp = $script:sourceBitmap.Clone($cropRect, $script:sourceBitmap.PixelFormat)
-        $croppedBmp.Save($cropPath, [System.Drawing.Imaging.ImageFormat]::Png)
-        $croppedBmp.Dispose()
-
-        $relImagePath = "images/$cropFile"
-        $groundTruthText = ("{0} {1} {2}" -f $nominal, $tolMinus, $tolPlus).Trim()
-
-        $labelsTxtPath = Join-Path $baseDir "labels.txt"
-        $txtEntry = "{0}`t{1}" -f $relImagePath, $groundTruthText
-        [System.IO.File]::AppendAllText($labelsTxtPath, ($txtEntry + [Environment]::NewLine), [System.Text.Encoding]::UTF8)
-
-        $labelsJsonlPath = Join-Path $baseDir "labels.jsonl"
-        $jsonObj = [ordered]@{
-            image = $relImagePath
-            step = $step
-            nominal = $nominal
-            tol_minus = $tolMinus
-            tol_plus = $tolPlus
-            ground_truth = $groundTruthText
-            edited_field = $fieldName
-            old_value = $oldValue
-            new_value = $newValue
-            crop_rect = @($cropX, $cropY, $cropW, $cropH)
-            source_file = [System.IO.Path]::GetFileName([string]$script:CurrentSourcePath)
-            timestamp = (Get-Date -Format "o")
-        }
-        $jsonLine = (ConvertTo-Json -Compress $jsonObj)
-        [System.IO.File]::AppendAllText($labelsJsonlPath, ($jsonLine + [Environment]::NewLine), [System.Text.Encoding]::UTF8)
-
-        if($txtOcrDebug){
-            $txtOcrDebug.Text = "[TRAIN MODE] Đã lưu mẫu sửa lỗi Step ${step}: '$groundTruthText' vào $relImagePath"
-        }
-    }
-    catch{}
-}
-
-function Open-TrainingDatasetFolder{
-    Ensure-TrainModeDirectories
-    $folder = Join-Path $script:AppRoot "training_dataset"
-    if(Test-Path $folder){
-        [System.Diagnostics.Process]::Start("explorer.exe", $folder) | Out-Null
-    }
-}
-
-function Update-OptionMenuState{
-    if($miOptionBalloon){
-        $miOptionBalloon.Checked = ($script:ShowBalloons -ne $false)
-    }
-    if($miOptionLeaderLine){
-        $miOptionLeaderLine.Checked = [bool]$script:ShowLeaderLines
-    }
-    if($miOptionTextZone){
-        $miOptionTextZone.Checked = [bool]$script:ShowPdfTextZones
-    }
-    if($miOptionDefaultTol){
-        $miOptionDefaultTol.Checked = ($script:EnableDefaultTolerance -ne $false)
-    }
-    if($miOptionTrainModeToggle){
-        $miOptionTrainModeToggle.Checked = [bool]$script:TrainModeEnabled
-    }
-}
-
-function Draw-MarkLeaderLines($graphics, $renderScale){
-    if(!$graphics -or !$script:ShowLeaderLines -or !$script:marks -or $script:marks.Count -le 0){ return }
-
-    $leaderColor = [Drawing.Color]::FromArgb(235, 220, 20, 20)
-    $leaderPen = New-Object Drawing.Pen($leaderColor, 1.5)
-    $leaderPen.DashStyle = [Drawing.Drawing2D.DashStyle]::Dash
-    $dotBrush = New-Object Drawing.SolidBrush($leaderColor)
-    $metrics = Get-MarkLayoutMetrics $renderScale
-    $radius = [float]$metrics.Radius
-
-    try{
-        for($rowIndex = 0; $rowIndex -lt $script:marks.Count; $rowIndex++){
-            $mark = $script:marks[$rowIndex]
-            if(!$mark){ continue }
-
-            $stepKey = [string]$mark.Index
-            $rect = $null
-            if($script:StepRects -and $script:StepRects.ContainsKey($rowIndex)){
-                $rect = $script:StepRects[$rowIndex]
-            }
-            elseif($script:StepRects -and $script:StepRects.ContainsKey($stepKey)){
-                $rect = $script:StepRects[$stepKey]
-            }
-
-            if(!$rect -or $rect.Width -le 0 -or $rect.Height -le 0){ continue }
-
-            $bx = [float]($mark.X * $renderScale)
-            $by = [float]($mark.Y * $renderScale)
-
-            $tx = [float](($rect.X + ($rect.Width / 2.0)) * $renderScale)
-            $ty = [float](($rect.Y + ($rect.Height / 2.0)) * $renderScale)
-
-            $dx = $tx - $bx
-            $dy = $ty - $by
-            $dist = [Math]::Sqrt(($dx * $dx) + ($dy * $dy))
-            if($dist -le ($radius * 1.2)){ continue }
-
-            $startX = $bx + [float](($dx / $dist) * $radius)
-            $startY = $by + [float](($dy / $dist) * $radius)
-
-            $endX = [Math]::Max([float]($rect.Left * $renderScale), [Math]::Min([float]($rect.Right * $renderScale), $tx))
-            $endY = [Math]::Max([float]($rect.Top * $renderScale), [Math]::Min([float]($rect.Bottom * $renderScale), $ty))
-
-            $graphics.DrawLine($leaderPen, $startX, $startY, $endX, $endY)
-
-            $dotSize = 5.0
-            $graphics.FillEllipse($dotBrush, ($endX - ($dotSize / 2.0)), ($endY - ($dotSize / 2.0)), $dotSize, $dotSize)
-        }
-    }
-    finally{
-        if($leaderPen){ $leaderPen.Dispose() }
-        if($dotBrush){ $dotBrush.Dispose() }
-    }
-}
-
-if($miOptionBalloon){
-    $miOptionBalloon.Add_Click({ Toggle-ShowBalloons })
-}
-if($miOptionLeaderLine){
-    $miOptionLeaderLine.Add_Click({ Toggle-ShowLeaderLines })
-}
-if($miOptionTextZone){
-    $miOptionTextZone.Add_Click({ Toggle-QuickTextZoneView })
-}
-if($miOptionDefaultTol){
-    $miOptionDefaultTol.Add_Click({ Toggle-DefaultTolerance })
-}
-if($miOptionTrainModeToggle){
-    $miOptionTrainModeToggle.Add_Click({ Toggle-TrainMode })
-}
-if($miOptionExportYoloSample){
-    $miOptionExportYoloSample.Add_Click({ Export-CurrentDrawingYoloDataset })
-}
-if($miOptionOpenTrainFolder){
-    $miOptionOpenTrainFolder.Add_Click({ Open-TrainingDatasetFolder })
-}
-
-
-
-
-
 if($miAdvanceClearGray){
     $miAdvanceClearGray.Add_Click({ $btnClearGrayZones.PerformClick() })
 }
@@ -11441,21 +10104,6 @@ if($miAdvanceSampleAutoFill){
         $script:InspectionSampleAutoFillEnabled = -not $script:InspectionSampleAutoFillEnabled
         Update-InspectionSampleAutoFillButton
         Save-SessionState
-    })
-}
-if($miAdvanceDrawingAssistant){
-    $miAdvanceDrawingAssistant.Add_Click({
-        try{
-            Show-DrawingAssistantWindow
-        }
-        catch{
-            [System.Windows.Forms.MessageBox]::Show(
-                ("Drawing Assistant failed: " + $_.Exception.Message),
-                "Drawing Assistant",
-                [System.Windows.Forms.MessageBoxButtons]::OK,
-                [System.Windows.Forms.MessageBoxIcon]::Error
-            ) | Out-Null
-        }
     })
 }
 if($miAdvanceBulkAiRecovery){
@@ -11545,6 +10193,15 @@ $form.Add_KeyDown({
         }
     }
 
+    if((-not (Test-TextInputActive)) -and $_.KeyCode -eq [System.Windows.Forms.Keys]::L){
+        Toggle-LeaderLine
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = if($script:LeaderLineEnabled){ "Leader Line: On" } else { "Leader Line: Off" }
+        }
+        $_.SuppressKeyPress = $true
+        return
+    }
+
     if($_.Control -and $_.Shift -and $_.KeyCode -eq [System.Windows.Forms.Keys]::R){
         if(Rotate-CurrentPageClockwise){
             if($txtOcrDebug){
@@ -11553,18 +10210,6 @@ $form.Add_KeyDown({
             $_.SuppressKeyPress = $true
             return
         }
-    }
-
-    if((-not (Test-TextInputActive)) -and $_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::Y){
-        Invoke-YoloAutoDetectTextZones
-        $_.SuppressKeyPress = $true
-        return
-    }
-
-    if((-not (Test-TextInputActive)) -and $_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::Enter){
-        Invoke-CommitTextZonesToTable
-        $_.SuppressKeyPress = $true
-        return
     }
 
     if((-not (Test-TextInputActive)) -and $_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::B){
@@ -11650,15 +10295,9 @@ $form.Add_KeyDown({
         return
     }
 
-    if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::L){
-        Toggle-ShowLeaderLines
-        $_.SuppressKeyPress = $true
-        return
-    }
-
     if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt){
         if($_.KeyCode -eq [System.Windows.Forms.Keys]::B){
-            Toggle-ShowBalloons; if($true){
+            if(Set-SelectedStepToolState "B"){
                 $_.SuppressKeyPress = $true
                 return
             }
@@ -12115,13 +10754,11 @@ $picture.Add_MouseUp({
     # =========================
     if($script:isDraggingMark){
         $script:isDraggingMark = $false
-        $draggedOriginalMark = ($script:draggingMarkKind -eq "Original")
         $script:draggingMarkKind = $null
         $script:dragMarkIndex = -1
         Request-CanvasRedraw
-        if($draggedOriginalMark){
-            Save-SessionState
-        }
+        Save-CurrentPageState
+        Save-SessionState
     }
 
     if($script:IsDraggingTextZone){
@@ -12287,7 +10924,6 @@ $picture.Add_Paint({
 
     Draw-ImportantStepHighlights $g (Get-AllStepEntries) $script:zoom
 
-    if($script:ShowLeaderLines){ Draw-MarkLeaderLines $g 1.0 }
     # Draw balloons in image space; the active transform turns them into a WYSIWYG zoomed preview.
     Draw-MarkBalloons $g 1.0 $true $script:CopyViewOnly
     $g.ResetTransform()
@@ -12417,9 +11053,6 @@ function Get-DetachedToleranceFromStuckNominal($text,$nominal){
 
 function Get-GeneralToleranceForNominal($nominalText){
 
-    if(-not [bool]($script:EnableDefaultTolerance -ne $false)){
-        return [PSCustomObject]@{ TolMinus = ""; TolPlus = ""; Detected = $false; Source = "None" }
-    }
     if([string]::IsNullOrWhiteSpace([string]$nominalText)){
         return [PSCustomObject]@{
             TolMinus = ""
@@ -14472,64 +13105,6 @@ function Initialize-RapidOcrNetForAutoOcr{
         }
         $script:RapidOcrNetEngine = $null
         $script:RapidOcrNetAutoOcrUnavailable = $true
-        return $false
-    }
-}
-
-function Initialize-YoloCadDetector{
-
-    if($script:YoloCadDetectorLoaded -and $script:YoloCadDetectorEngine){ return $true }
-    if($script:YoloCadDetectorUnavailable){ return $false }
-    if($PSVersionTable.PSEdition -ne "Core"){
-        $script:YoloCadDetectorUnavailable = $true
-        return $false
-    }
-
-    try{
-        $ocrRoot = Join-Path $script:AppRoot "lib\OcrAi"
-        $nativeRoot = Join-Path $ocrRoot "Microsoft.ML.OnnxRuntime.1.24.3\runtimes\win-x64\native"
-        $detectorDll = Join-Path $ocrRoot "YoloCadDetector\lib\net8.0\YoloCadDetector.dll"
-        $managedDll = Join-Path $ocrRoot "Microsoft.ML.OnnxRuntime.Managed\lib\net8.0\Microsoft.ML.OnnxRuntime.dll"
-        $tensorsDll = Join-Path $ocrRoot "System.Numerics.Tensors\lib\net9.0\System.Numerics.Tensors.dll"
-
-        if(!(Test-Path $detectorDll)){
-            $script:YoloCadDetectorUnavailable = $true
-            return $false
-        }
-
-        if(Test-Path (Join-Path $nativeRoot "onnxruntime_providers_shared.dll")){
-            try{ [System.Runtime.InteropServices.NativeLibrary]::Load((Join-Path $nativeRoot "onnxruntime_providers_shared.dll")) | Out-Null } catch{}
-        }
-        if(Test-Path (Join-Path $nativeRoot "onnxruntime.dll")){
-            try{ [System.Runtime.InteropServices.NativeLibrary]::Load((Join-Path $nativeRoot "onnxruntime.dll")) | Out-Null } catch{}
-        }
-
-        foreach($assemblyPath in @($tensorsDll, $managedDll, $detectorDll)){
-            if(Test-Path $assemblyPath){
-                Add-Type -Path $assemblyPath -ErrorAction Stop
-            }
-        }
-
-        $yoloModelPath = Join-Path $script:AppRoot "lib\OcrAi\RapidOcrNet\models\v5\yolo11_cad_det.onnx"
-        if(-not (Test-Path $yoloModelPath)){
-            $yoloModelPath = Join-Path $script:AppRoot "CustomTrainonx\AutoScan_YOLO_Trained_Model\best.onnx"
-        }
-        if(-not (Test-Path $yoloModelPath)){
-            $fallbackPath = "C:\Users\IRS03-415\Desktop\AutoScanText\AutoScan_YOLO_Trained_Model\best.onnx"
-            if(Test-Path $fallbackPath){ $yoloModelPath = $fallbackPath }
-        }
-
-        if(-not (Test-Path $yoloModelPath)){
-            $script:YoloCadDetectorUnavailable = $true
-            return $false
-        }
-
-        $script:YoloCadDetectorEngine = [RapidOcrPro.Ai.YoloCadDetector]::GetOrCreate($yoloModelPath)
-        $script:YoloCadDetectorLoaded = $true
-        return $true
-    }
-    catch{
-        $script:YoloCadDetectorUnavailable = $true
         return $false
     }
 }
@@ -17184,400 +15759,6 @@ function Merge-TextZonePreviewSources($dimensionZones,$rawZones){
     )
 }
 
-function Sort-CandidatesSpatialOrder($candidates){
-    if(!$candidates -or @($candidates).Count -le 1){ return $candidates }
-
-    $list = @($candidates)
-    $heights = @()
-    foreach($c in $list){
-        if($c.h -and [double]$c.h -gt 5){
-            $heights += [double]$c.h
-        }
-    }
-    $avgH = if($heights.Count -gt 0){ ($heights | Measure-Object -Average).Average } else { 30 }
-    if(!$avgH -or $avgH -le 10){ $avgH = 30 }
-    $rowTol = [Math]::Max(40.0, $avgH * 1.5)
-
-    $sortedByY = @($list | Sort-Object @{ Expression = { [int]$_.y } }, @{ Expression = { [int]$_.x } })
-
-    $bands = [System.Collections.ArrayList]::new()
-    $currentBand = [System.Collections.ArrayList]::new()
-    $currentBandY = $null
-
-    foreach($item in $sortedByY){
-        $iy = [double]$item.y
-        if($null -eq $currentBandY){
-            [void]$currentBand.Add($item)
-            $currentBandY = $iy
-        }
-        elseif([Math]::Abs($iy - $currentBandY) -le $rowTol){
-            [void]$currentBand.Add($item)
-            $sumY = 0.0
-            foreach($b in $currentBand){ $sumY += [double]$b.y }
-            $currentBandY = $sumY / $currentBand.Count
-        }
-        else{
-            $bandSorted = @($currentBand | Sort-Object @{ Expression = { [int]$_.x } })
-            [void]$bands.Add($bandSorted)
-            $currentBand = [System.Collections.ArrayList]::new()
-            [void]$currentBand.Add($item)
-            $currentBandY = $iy
-        }
-    }
-    if($currentBand.Count -gt 0){
-        $bandSorted = @($currentBand | Sort-Object @{ Expression = { [int]$_.x } })
-        [void]$bands.Add($bandSorted)
-    }
-
-    $result = [System.Collections.ArrayList]::new()
-    foreach($b in $bands){
-        foreach($item in $b){
-            [void]$result.Add($item)
-        }
-    }
-    return $result.ToArray()
-}
-
-function Invoke-AutoScanYoloPpOcr{
-    if(!$script:sourceBitmap){
-        [System.Windows.Forms.MessageBox]::Show(
-            "Vui lòng mở file bản vẽ PDF hoặc hình ảnh trước khi sử dụng Auto-Scan.",
-            "Auto-Scan (YOLO + PP-OCR)",
-            [System.Windows.Forms.MessageBoxButtons]::OK,
-            [System.Windows.Forms.MessageBoxIcon]::Warning
-        )
-        return
-    }
-
-    if($table.Rows.Count -gt 0 -or @($script:marks).Count -gt 0){
-        $dlgRes = [System.Windows.Forms.MessageBox]::Show(
-            "Bản vẽ hiện tại đã có dữ liệu bước đo ($($table.Rows.Count) dòng)." + [Environment]::NewLine +
-            "Bạn có muốn xóa dữ liệu cũ để quét lại từ đầu không?" + [Environment]::NewLine + [Environment]::NewLine +
-            "[Yes] = Xóa cũ và quét mới" + [Environment]::NewLine +
-            "[No] = Giữ dữ liệu cũ và quét thêm tiếp" + [Environment]::NewLine +
-            "[Cancel] = Hủy bỏ",
-            "Auto-Scan (YOLO + PP-OCR)",
-            [System.Windows.Forms.MessageBoxButtons]::YesNoCancel,
-            [System.Windows.Forms.MessageBoxIcon]::Question
-        )
-        if($dlgRes -eq [System.Windows.Forms.DialogResult]::Cancel){
-            return
-        }
-        if($dlgRes -eq [System.Windows.Forms.DialogResult]::Yes){
-            $table.Rows.Clear()
-            $script:marks = @()
-            $script:StepRects.Clear()
-            $script:PdfTextLayerZones = @()
-            Request-CanvasRedraw
-        }
-    }
-
-    $oldCursor = $form.Cursor
-    $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
-    if($txtOcrDebug){
-        $txtOcrDebug.Text = "⏳ Đang chạy Auto-Scan: YOLOv11 tìm kiếm + PP-OCR nhận diện chi tiết..."
-        [System.Windows.Forms.Application]::DoEvents()
-    }
-
-    $tempImgPath = $null
-    $tempJsonPath = $null
-    $tempOutLog = $null
-    $tempErrLog = $null
-
-    try{
-        $tempImgPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".png"))
-        $tempJsonPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".json"))
-        $tempOutLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_out_" + [System.Guid]::NewGuid().ToString("N") + ".log"))
-        $tempErrLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_err_" + [System.Guid]::NewGuid().ToString("N") + ".log"))
-
-        $script:sourceBitmap.Save($tempImgPath, [System.Drawing.Imaging.ImageFormat]::Png)
-
-        $bridgeScript = Join-Path $script:AppRoot "tools\autoscan_bridge.py"
-        if(-not (Test-Path -LiteralPath $bridgeScript)){
-            throw "Không tìm thấy file bridge: $bridgeScript"
-        }
-
-        $pythonExe = "python.exe"
-        $pyCandidates = @(
-            "C:\Users\IRS03-415\AppData\Local\Programs\Python\Python312\python.exe",
-            "C:\Users\IRS03-415\AppData\Local\Programs\Python\Python311\python.exe",
-            "C:\Python312\python.exe",
-            "C:\Python311\python.exe"
-        )
-        foreach($cand in $pyCandidates){
-            if(Test-Path -LiteralPath $cand){
-                $pythonExe = $cand
-                break
-            }
-        }
-
-        $selectedModelText = if($script:AutoScanSelectedModel){ $script:AutoScanSelectedModel } else { "PP-OCRv6 CAD (Fine-Tuned Mới)" }
-        $bridgeModel = "v6"
-        $useBuiltinOcr = $false
-
-        if($selectedModelText -match "PP-OCRv6|v6"){
-            $bridgeModel = "v6"
-        }
-        elseif($selectedModelText -match "PP-OCRv4|v4"){
-            $bridgeModel = "v4"
-        }
-        elseif($selectedModelText -match "Hybrid"){
-            $bridgeModel = "hybrid"
-        }
-        elseif($selectedModelText -match "Google AI|Playwright"){
-            $bridgeModel = "google_ai_web"
-        }
-        elseif($selectedModelText -match "RapidOCR|Hiện Hành"){
-            $bridgeModel = "boxes_only"
-            $useBuiltinOcr = $true
-        }
-
-        $argString = ('-X utf8 "{0}" --image "{1}" --out "{2}" --model {3}' -f $bridgeScript, $tempImgPath, $tempJsonPath, $bridgeModel)
-        $proc = Start-Process -FilePath $pythonExe `
-            -ArgumentList $argString `
-            -RedirectStandardOutput $tempOutLog `
-            -RedirectStandardError $tempErrLog `
-            -WindowStyle Hidden `
-            -PassThru
-
-        $sw = [System.Diagnostics.Stopwatch]::StartNew()
-        $lastLogPos = 0
-        $currentStatusText = "YOLOv11 đang quét tìm các ô kích thước..."
-
-        while(-not $proc.HasExited){
-            [System.Windows.Forms.Application]::DoEvents()
-            Start-Sleep -Milliseconds 120
-
-            # Đọc log đầu ra theo thời gian thực để người dùng thấy rõ tiến trình
-            if(Test-Path -LiteralPath $tempOutLog){
-                try{
-                    $fs = [System.IO.File]::Open($tempOutLog, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
-                    if($fs.Length -gt $lastLogPos){
-                        $fs.Seek($lastLogPos, [System.IO.SeekOrigin]::Begin) | Out-Null
-                        $reader = New-Object System.IO.StreamReader($fs, [System.Text.Encoding]::UTF8)
-                        $newText = $reader.ReadToEnd()
-                        $lastLogPos = $fs.Position
-                        $logLines = $newText -split "`r?`n"
-                        foreach($line in $logLines){
-                            $lineClean = $line.Trim()
-                            if(-not [string]::IsNullOrWhiteSpace($lineClean)){
-                                if($lineClean -match '^\[\d+/\d+\]|^\s*\[\*\]|^\s*\[✔\]|AUTO_SCAN_SUCCESS'){
-                                    $currentStatusText = $lineClean
-                                }
-                            }
-                        }
-                    }
-                    $fs.Close()
-                } catch{}
-            }
-
-            $elapsedSec = [int]$sw.Elapsed.TotalSeconds
-            if($txtOcrDebug){
-                $txtOcrDebug.Text = "⏳ [${elapsedSec}s] $currentStatusText"
-            }
-        }
-        $proc.WaitForExit()
-
-        if($proc.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $tempJsonPath)){
-            $errDetail = ""
-            if(Test-Path -LiteralPath $tempErrLog){
-                try{
-                    $rawLines = [System.IO.File]::ReadAllLines($tempErrLog, [System.Text.Encoding]::UTF8)
-                    $cleanLines = @($rawLines | Where-Object { $_ -notmatch 'INFO:|Running PIR pass|print_statistics|UserWarning:|warnings\.warn|CleanUnusedInitializersAndNodeArgs|recompiling all source files|W:onnxruntime|Removing initializer' })
-                    $errDetail = ($cleanLines -join [Environment]::NewLine).Trim()
-                } catch{}
-            }
-            if([string]::IsNullOrWhiteSpace($errDetail) -and (Test-Path -LiteralPath $tempOutLog)){
-                try{ $errDetail = [System.IO.File]::ReadAllText($tempOutLog, [System.Text.Encoding]::UTF8).Trim() } catch{}
-            }
-            throw "Auto-Scan thất bại (Mã lỗi $($proc.ExitCode)): $errDetail"
-        }
-
-        $jsonRaw = [System.IO.File]::ReadAllText($tempJsonPath, [System.Text.Encoding]::UTF8)
-        $candidatesJson = $jsonRaw | ConvertFrom-Json
-
-        if(!$candidatesJson -or @($candidatesJson).Count -le 0){
-            if($txtOcrDebug){
-                $txtOcrDebug.Text = "Auto-Scan: Không phát hiện được kích thước nào trên trang này."
-            }
-            [System.Windows.Forms.MessageBox]::Show(
-                "Không tìm thấy kích thước nào trên bản vẽ này.",
-                "Auto-Scan ($selectedModelText)",
-                [System.Windows.Forms.MessageBoxButtons]::OK,
-                [System.Windows.Forms.MessageBoxIcon]::Information
-            )
-            return
-        }
-
-        # Sắp xếp các ô kích thước theo thứ tự đọc bản vẽ chuẩn: Từ Trên xuống Dưới, Từ Trái sang Phải
-        $candidatesJson = @(Sort-CandidatesSpatialOrder $candidatesJson)
-
-        $addedCount = 0
-        $totalItems = @($candidatesJson).Count
-        $itemIdx = 0
-
-        if($table){ $table.SuspendLayout() }
-        try{
-            foreach($item in @($candidatesJson)){
-                $itemIdx++
-                if($txtOcrDebug -and ($itemIdx % 5 -eq 0 -or $itemIdx -eq $totalItems)){
-                    $txtOcrDebug.Text = "⏳ Đang nạp kết quả vào bảng ($itemIdx / $totalItems)..."
-                    [System.Windows.Forms.Application]::DoEvents()
-                }
-
-                $rect = New-Object System.Drawing.Rectangle([int]$item.x, [int]$item.y, [int]$item.w, [int]$item.h)
-
-                $nomText = ""
-                $rawText = ""
-                $tolMinus = ""
-                $tolPlus = ""
-                $hasExplicitTol = $false
-
-                if($useBuiltinOcr){
-                    if($txtOcrDebug){
-                        $txtOcrDebug.Text = "⏳ RapidOCR hiện hành đang quét ô $itemIdx / $totalItems..."
-                        [System.Windows.Forms.Application]::DoEvents()
-                    }
-                    try{
-                        $crop = $script:sourceBitmap.Clone($rect, $script:sourceBitmap.PixelFormat)
-                        $rawText = Run-OCR $crop
-                        $crop.Dispose()
-                    }
-                    catch{}
-
-                    if([string]::IsNullOrWhiteSpace($rawText)){ continue }
-
-                    $nom = Resolve-OcrTextAsMechanicalNominal $rawText $rect
-                    $nomText = if($nom -and -not [string]::IsNullOrWhiteSpace($nom.Nominal)){ [string]$nom.Nominal } else { "" }
-                    $nomText = [regex]::Replace($nomText, '^\s*[\(\[]\s*([^\(\)\[\]]+?)\s*[\)\]]\s*$', '$1').Trim()
-
-                    # Khong cho lot chu vao lam nominal
-                    if([string]::IsNullOrWhiteSpace($nomText) -or $nomText -match '^[A-Za-z\s:.\-_]+$' -or -not ($nomText -match '\d')){
-                        continue
-                    }
-
-                    $tol = Parse-ToleranceFull $rawText $nomText
-                    if($tol -and $tol.Detected){
-                        $hasExplicitTol = $true
-                        $tolMinus = $tol.TolMinus
-                        $tolPlus = $tol.TolPlus
-                    }
-                    else{
-                        $tolMinus = ""
-                        $tolPlus = ""
-                    }
-                }
-                else{
-                    $nomText = [string]$item.nominal
-                    $nomText = [regex]::Replace($nomText, '^\s*[\(\[]\s*([^\(\)\[\]]+?)\s*[\)\]]\s*$', '$1').Trim()
-                    # Khong cho lot chu vao lam nominal
-                    if([string]::IsNullOrWhiteSpace($nomText) -or $nomText -match '^[A-Za-z\s:.\-_]+$' -or -not ($nomText -match '\d')){
-                        continue
-                    }
-                    $rawText = [string]$item.raw_text
-                    $tolMinus = [string]$item.tol_minus
-                    $tolPlus = [string]$item.tol_plus
-                    $hasExplicitTol = (-not [string]::IsNullOrWhiteSpace($tolMinus) -or -not [string]::IsNullOrWhiteSpace($tolPlus))
-                }
-
-                $candObj = [PSCustomObject]@{
-                    Rect = $rect
-                    Nominal = $nomText
-                    RawText = $rawText
-                    DuplicateCheckPassed = $true
-                    Source = if($useBuiltinOcr){ "RapidOcrNet" } else { ("LocalAi_" + $bridgeModel) }
-                    Tolerance = [PSCustomObject]@{
-                        Detected = $hasExplicitTol
-                        TolMinus = $tolMinus
-                        TolPlus = $tolPlus
-                    }
-                }
-
-                if(Add-OcrCandidateToTable $candObj){
-                    $addedCount++
-                }
-            }
-        }
-        finally{
-            if($table){ $table.ResumeLayout() }
-        }
-
-        
-        $newZones = @()
-        foreach($b in @($candidatesJson)){
-            $bRect = New-Object System.Drawing.Rectangle([int]$b.x, [int]$b.y, [int]$b.w, [int]$b.h)
-            $newZones += [PSCustomObject]@{
-                Rect = $bRect
-                Nominal = [string]$b.nominal
-                RawText = [string]$b.raw_text
-                Text = [string]$b.nominal
-                IsDimension = $true
-                Tolerance = [PSCustomObject]@{
-                    TolMinus = [string]$b.tol_minus
-                    TolPlus = [string]$b.tol_plus
-                    Detected = (-not [string]::IsNullOrWhiteSpace([string]$b.tol_minus) -or -not [string]::IsNullOrWhiteSpace([string]$b.tol_plus))
-                }
-                Confidence = if($b.confidence){ [double]$b.confidence } else { 0.95 }
-            }
-        }
-        $script:PdfTextLayerZones = @($newZones)
-        $script:YoloDetectedBoxes = @($newZones)
-
-        if($script:TrainModeEnabled){
-            try{ Export-CurrentDrawingYoloDataset -Silent } catch{}
-        }
-
-        Clear-PreviewImage
-        Save-CurrentPageState
-        Validate-StepState
-        Refresh-DuplicateState
-        Apply-TableSearchFilter
-        Request-CanvasRedraw
-        Save-SessionState
-
-        if($table.Rows.Count -gt 0){
-            $lastRow = $table.Rows.Count - 1
-            $table.ClearSelection()
-            $table.Rows[$lastRow].Selected = $true
-            $table.CurrentCell = $table.Rows[$lastRow].Cells[0]
-            $table.FirstDisplayedScrollingRowIndex = $lastRow
-        }
-
-        if($txtOcrDebug){
-            $txtOcrDebug.Text = "✔ Auto-Scan hoàn tất: Đã nhận diện được $addedCount kích thước ($selectedModelText)."
-        }
-        [System.Windows.Forms.Application]::DoEvents()
-    }
-    catch{
-        [System.Windows.Forms.MessageBox]::Show(
-            "Lỗi trong quá trình Auto-Scan: $($_.Exception.Message)",
-            "Lỗi Auto-Scan",
-            [System.Windows.Forms.MessageBoxButtons]::OK,
-            [System.Windows.Forms.MessageBoxIcon]::Error
-        )
-        if($txtOcrDebug){
-            $txtOcrDebug.Text = "Auto-Scan lỗi: $($_.Exception.Message)"
-        }
-    }
-    finally{
-        $form.Cursor = $oldCursor
-        try{ if($tempImgPath -and (Test-Path -LiteralPath $tempImgPath)){ Remove-Item -LiteralPath $tempImgPath -Force -ErrorAction SilentlyContinue } } catch{}
-        try{ if($tempJsonPath -and (Test-Path -LiteralPath $tempJsonPath)){ Remove-Item -LiteralPath $tempJsonPath -Force -ErrorAction SilentlyContinue } } catch{}
-        try{ if($tempOutLog -and (Test-Path -LiteralPath $tempOutLog)){ Remove-Item -LiteralPath $tempOutLog -Force -ErrorAction SilentlyContinue } } catch{}
-        try{ if($tempErrLog -and (Test-Path -LiteralPath $tempErrLog)){ Remove-Item -LiteralPath $tempErrLog -Force -ErrorAction SilentlyContinue } } catch{}
-    }
-}
-
-
-function Invoke-YoloAutoDetectTextZones{
-    Invoke-AutoScanYoloPpOcr
-}
-
-function Invoke-CommitTextZonesToTable([bool]$silentSuccess = $false){
-    Invoke-AutoScanYoloPpOcr
-}
-
-
 function Refresh-PdfTextLayerZones{
 
     if(!$script:sourceBitmap){ return @() }
@@ -18586,7 +16767,7 @@ function Add-OcrCandidateToTable($candidate){
 
     $preferTextMapBalloon = (
         $candidate.PSObject.Properties.Name -contains "Source" -and
-        ([string]$candidate.Source -eq "PdfTextLayer" -or [string]$candidate.Source -eq "ImageOcrAuto" -or [string]$candidate.Source -eq "TextZoneLabel" -or [string]$candidate.Source -eq "YoloAutoScan")
+        ([string]$candidate.Source -eq "PdfTextLayer" -or [string]$candidate.Source -eq "ImageOcrAuto" -or [string]$candidate.Source -eq "TextZoneLabel")
     )
     $markScale = Get-CurrentPageBalloonScale
     if($preferTextMapBalloon){
@@ -19358,23 +17539,9 @@ function Show-AutoMapRegionSelectionWindow{
     $regionForm.Controls.Add($btnBalloonColor)
     $script:AutoMapRegionBalloonColorButton = $btnBalloonColor
 
-    $btnAutoYoloRegion = New-Object Windows.Forms.Button
-    $btnAutoYoloRegion.Text = "Scan (Y)"
-    $btnAutoYoloRegion.Location = New-Object Drawing.Point(430,114)
-    $btnAutoYoloRegion.Size = New-Object Drawing.Size(124,28)
-    $btnAutoYoloRegion.Add_Click({
-        Invoke-YoloAutoDetectTextZones
-    })
-    $regionForm.Controls.Add($btnAutoYoloRegion)
-
     $regionForm.Add_KeyDown({
         if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::T){
             Toggle-QuickTextZoneView
-            $_.SuppressKeyPress = $true
-            return
-        }
-        if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::Y){
-            Invoke-YoloAutoDetectTextZones
             $_.SuppressKeyPress = $true
             return
         }
@@ -19480,6 +17647,258 @@ function Get-AutoMapPdfPreparedCandidates{
         Blocks = @($blocks)
         Mode = [string]$autoMapMode
         Message = ""
+    }
+}
+
+function Invoke-AutoScanYoloPpOcr{
+    if(!$script:sourceBitmap){
+        [System.Windows.Forms.MessageBox]::Show(
+            "Vui lòng mở file bản vẽ PDF hoặc hình ảnh trước khi sử dụng Auto-Scan.",
+            "Auto-Scan (YOLO + PP-OCR)",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+        return
+    }
+
+    if($table.Rows.Count -gt 0 -or @($script:marks).Count -gt 0){
+        $dlgRes = [System.Windows.Forms.MessageBox]::Show(
+            "Bản vẽ hiện tại đã có dữ liệu bước đo ($($table.Rows.Count) dòng)." + [Environment]::NewLine +
+            "Bạn có muốn xóa dữ liệu cũ để quét lại từ đầu không?" + [Environment]::NewLine + [Environment]::NewLine +
+            "[Yes] = Xóa cũ và quét mới" + [Environment]::NewLine +
+            "[No] = Giữ dữ liệu cũ và quét thêm tiếp" + [Environment]::NewLine +
+            "[Cancel] = Hủy bỏ",
+            "Auto-Scan (YOLO + PP-OCR)",
+            [System.Windows.Forms.MessageBoxButtons]::YesNoCancel,
+            [System.Windows.Forms.MessageBoxIcon]::Question
+        )
+        if($dlgRes -eq [System.Windows.Forms.DialogResult]::Cancel){
+            return
+        }
+        if($dlgRes -eq [System.Windows.Forms.DialogResult]::Yes){
+            $table.Rows.Clear()
+            $script:marks = @()
+            $script:StepRects.Clear()
+            $script:PdfTextLayerZones = @()
+            Request-CanvasRedraw
+        }
+    }
+
+    $oldCursor = $form.Cursor
+    $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+    if($txtOcrDebug){
+        $txtOcrDebug.Text = "⏳ Đang chạy Auto-Scan: YOLOv11 tìm kiếm + PP-OCR nhận diện chi tiết..."
+        [System.Windows.Forms.Application]::DoEvents()
+    }
+
+    $tempImgPath = $null
+    $tempJsonPath = $null
+    $tempOutLog = $null
+    $tempErrLog = $null
+
+    try{
+        $tempImgPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".png"))
+        $tempJsonPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".json"))
+        $tempOutLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_out_" + [System.Guid]::NewGuid().ToString("N") + ".log"))
+        $tempErrLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_err_" + [System.Guid]::NewGuid().ToString("N") + ".log"))
+
+        $script:sourceBitmap.Save($tempImgPath, [System.Drawing.Imaging.ImageFormat]::Png)
+
+        $bridgeScript = Join-Path $script:AppRoot "tools\autoscan_bridge.py"
+        if(-not (Test-Path -LiteralPath $bridgeScript)){
+            throw "Không tìm thấy file bridge: $bridgeScript"
+        }
+
+        $pythonExe = "python.exe"
+        $pyCandidates = @(
+            "C:\Users\IRS03-415\AppData\Local\Programs\Python\Python312\python.exe",
+            "C:\Users\IRS03-415\AppData\Local\Programs\Python\Python311\python.exe",
+            "C:\Python312\python.exe",
+            "C:\Python311\python.exe"
+        )
+        foreach($cand in $pyCandidates){
+            if(Test-Path -LiteralPath $cand){
+                $pythonExe = $cand
+                break
+            }
+        }
+
+        $selectedModelText = if($script:AutoScanSelectedModel){ $script:AutoScanSelectedModel } else { "PP-OCRv4 CAD (Fine-Tuned)" }
+        $bridgeModel = "v4"
+        $useBuiltinOcr = $false
+
+        if($selectedModelText -match "PP-OCRv4|Fine-Tuned"){
+            $bridgeModel = "v4"
+        }
+        elseif($selectedModelText -match "PP-OCRv6|Bản Gốc"){
+            $bridgeModel = "v6"
+        }
+        elseif($selectedModelText -match "Hybrid"){
+            $bridgeModel = "hybrid"
+        }
+        elseif($selectedModelText -match "RapidOCR|Hiện Hành"){
+            $bridgeModel = "boxes_only"
+            $useBuiltinOcr = $true
+        }
+
+        $argString = ('-X utf8 "{0}" --image "{1}" --out "{2}" --model {3}' -f $bridgeScript, $tempImgPath, $tempJsonPath, $bridgeModel)
+        $proc = Start-Process -FilePath $pythonExe `
+            -ArgumentList $argString `
+            -RedirectStandardOutput $tempOutLog `
+            -RedirectStandardError $tempErrLog `
+            -WindowStyle Hidden `
+            -PassThru
+
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        while(-not $proc.HasExited){
+            [System.Windows.Forms.Application]::DoEvents()
+            Start-Sleep -Milliseconds 150
+            $elapsedSec = [int]$sw.Elapsed.TotalSeconds
+            if($txtOcrDebug){
+                $txtOcrDebug.Text = "⏳ Đang chạy Auto-Scan [${selectedModelText}] (${elapsedSec}s)..."
+            }
+        }
+        $proc.WaitForExit()
+
+        if($proc.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $tempJsonPath)){
+            $errDetail = ""
+            if(Test-Path -LiteralPath $tempErrLog){
+                try{
+                    $rawLines = [System.IO.File]::ReadAllLines($tempErrLog, [System.Text.Encoding]::UTF8)
+                    $cleanLines = @($rawLines | Where-Object { $_ -notmatch 'INFO:|Running PIR pass|print_statistics|UserWarning:' })
+                    $errDetail = ($cleanLines -join [Environment]::NewLine).Trim()
+                } catch{}
+            }
+            if([string]::IsNullOrWhiteSpace($errDetail) -and (Test-Path -LiteralPath $tempOutLog)){
+                try{ $errDetail = [System.IO.File]::ReadAllText($tempOutLog, [System.Text.Encoding]::UTF8).Trim() } catch{}
+            }
+            throw "Auto-Scan thất bại (Mã lỗi $($proc.ExitCode)): $errDetail"
+        }
+
+        $jsonRaw = [System.IO.File]::ReadAllText($tempJsonPath, [System.Text.Encoding]::UTF8)
+        $candidatesJson = $jsonRaw | ConvertFrom-Json
+
+        if(!$candidatesJson -or @($candidatesJson).Count -le 0){
+            if($txtOcrDebug){
+                $txtOcrDebug.Text = "Auto-Scan: Không phát hiện được kích thước nào trên trang này."
+            }
+            [System.Windows.Forms.MessageBox]::Show(
+                "Không tìm thấy kích thước nào trên bản vẽ này.",
+                "Auto-Scan ($selectedModelText)",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Information
+            )
+            return
+        }
+
+        $addedCount = 0
+        $totalItems = @($candidatesJson).Count
+        $itemIdx = 0
+
+        foreach($item in @($candidatesJson)){
+            $itemIdx++
+            $rect = New-Object System.Drawing.Rectangle([int]$item.x, [int]$item.y, [int]$item.w, [int]$item.h)
+
+            $nomText = ""
+            $rawText = ""
+            $tolMinus = ""
+            $tolPlus = ""
+            $hasExplicitTol = $false
+
+            if($useBuiltinOcr){
+                if($txtOcrDebug){
+                    $txtOcrDebug.Text = "⏳ RapidOCR hiện hành đang quét ô $itemIdx / $totalItems..."
+                    [System.Windows.Forms.Application]::DoEvents()
+                }
+                try{
+                    $crop = $script:sourceBitmap.Clone($rect, $script:sourceBitmap.PixelFormat)
+                    $rawText = Run-OCR $crop
+                    $crop.Dispose()
+                }
+                catch{}
+
+                if([string]::IsNullOrWhiteSpace($rawText)){ continue }
+
+                $nom = Resolve-OcrTextAsMechanicalNominal $rawText $rect
+                $nomText = if($nom -and -not [string]::IsNullOrWhiteSpace($nom.Nominal)){ [string]$nom.Nominal } else { $rawText }
+
+                $tol = Parse-ToleranceFull $rawText $nomText
+                if($tol -and $tol.Detected){
+                    $hasExplicitTol = $true
+                    $tolMinus = $tol.TolMinus
+                    $tolPlus = $tol.TolPlus
+                }
+                else{
+                    $tolMinus = 0
+                    $tolPlus = 0
+                }
+            }
+            else{
+                $nomText = [string]$item.nominal
+                if([string]::IsNullOrWhiteSpace($nomText)){
+                    $nomText = [string]$item.raw_text
+                }
+                $rawText = [string]$item.raw_text
+                $tolMinus = [string]$item.tol_minus
+                $tolPlus = [string]$item.tol_plus
+                $hasExplicitTol = (-not [string]::IsNullOrWhiteSpace($tolMinus) -or -not [string]::IsNullOrWhiteSpace($tolPlus))
+            }
+
+            $candObj = [PSCustomObject]@{
+                Rect = $rect
+                Nominal = $nomText
+                RawText = $rawText
+                DuplicateCheckPassed = $true
+                Source = if($useBuiltinOcr){ "RapidOcrNet" } else { ("LocalAi_" + $bridgeModel) }
+                Tolerance = [PSCustomObject]@{
+                    Detected = $hasExplicitTol
+                    TolMinus = $tolMinus
+                    TolPlus = $tolPlus
+                }
+            }
+
+            if(Add-OcrCandidateToTable $candObj){
+                $addedCount++
+            }
+        }
+
+        Clear-PreviewImage
+        Save-CurrentPageState
+        Validate-StepState
+        Refresh-DuplicateState
+        Apply-TableSearchFilter
+        Request-CanvasRedraw
+        Save-SessionState
+
+        if($table.Rows.Count -gt 0){
+            $lastRow = $table.Rows.Count - 1
+            $table.ClearSelection()
+            $table.Rows[$lastRow].Selected = $true
+            $table.CurrentCell = $table.Rows[$lastRow].Cells[0]
+            $table.FirstDisplayedScrollingRowIndex = $lastRow
+        }
+
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = "✔ Auto-Scan hoàn tất: Đã nhận diện được $addedCount kích thước (YOLOv11 + PP-OCR)."
+        }
+    }
+    catch{
+        [System.Windows.Forms.MessageBox]::Show(
+            "Lỗi trong quá trình Auto-Scan: $($_.Exception.Message)",
+            "Lỗi Auto-Scan",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Error
+        )
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = "Auto-Scan lỗi: $($_.Exception.Message)"
+        }
+    }
+    finally{
+        $form.Cursor = $oldCursor
+        try{ if($tempImgPath -and (Test-Path -LiteralPath $tempImgPath)){ Remove-Item -LiteralPath $tempImgPath -Force -ErrorAction SilentlyContinue } } catch{}
+        try{ if($tempJsonPath -and (Test-Path -LiteralPath $tempJsonPath)){ Remove-Item -LiteralPath $tempJsonPath -Force -ErrorAction SilentlyContinue } } catch{}
+        try{ if($tempOutLog -and (Test-Path -LiteralPath $tempOutLog)){ Remove-Item -LiteralPath $tempOutLog -Force -ErrorAction SilentlyContinue } } catch{}
+        try{ if($tempErrLog -and (Test-Path -LiteralPath $tempErrLog)){ Remove-Item -LiteralPath $tempErrLog -Force -ErrorAction SilentlyContinue } } catch{}
     }
 }
 
@@ -19683,7 +18102,9 @@ function Find-BalloonPositionNextToRect($rect,$imgW,$imgH,$markScale = 1.0,$slot
 function Draw-MarkBalloons($graphics,$renderScale,$showDuplicateHighlight = $false,$copyViewOnly = $false){
 
     if(!$graphics){ return }
-    if($script:ShowBalloons -eq $false){ return }
+    $hasOriginalMarks = ($script:marks -and $script:marks.Count -gt 0)
+    $hasCopiedMarks = ($script:UiCopiedMarks -and $script:UiCopiedMarks.Count -gt 0)
+    if(!$hasOriginalMarks -and !$hasCopiedMarks){ return }
 
     $metrics = $null
     $defaultBrush = $null
@@ -19733,6 +18154,8 @@ function Draw-MarkBalloons($graphics,$renderScale,$showDuplicateHighlight = $fal
             $selectedOutlinePen = New-Object Drawing.Pen([Drawing.Color]::FromArgb(255,192,98,16),[float][Math]::Max(($outlineWidth * 1.15),1.0))
             $selectedCopyHaloPen = New-Object Drawing.Pen([Drawing.Color]::FromArgb(255,96,168,235),[float][Math]::Max(($outlineWidth * 1.8),1.2))
             $selectedCopyOutlinePen = New-Object Drawing.Pen([Drawing.Color]::FromArgb(255,52,120,198),[float][Math]::Max(($outlineWidth * 1.15),1.0))
+            $leaderPen = $null
+            $leaderAnchorBrush = $null
 
             try{
             $text = [string]$markItem.Index
@@ -19784,6 +18207,41 @@ function Draw-MarkBalloons($graphics,$renderScale,$showDuplicateHighlight = $fal
                 $graphics.DrawEllipse($haloPen,$haloX,$haloY,$haloDiameter,$haloDiameter)
             }
 
+            if($script:LeaderLineEnabled -and (-not $isUiCopy) -and $rowIndex -ge 0 -and $script:StepRects.ContainsKey($rowIndex)){
+                $leaderRect = $script:StepRects[$rowIndex]
+                if($leaderRect){
+                    $anchorX = [float](($leaderRect.X + ($leaderRect.Width / 2.0)) * $renderScale)
+                    $anchorY = [float](($leaderRect.Y + ($leaderRect.Height / 2.0)) * $renderScale)
+                    $dx = [double]($anchorX - $sx)
+                    $dy = [double]($anchorY - $sy)
+                    $dist = [Math]::Sqrt(($dx * $dx) + ($dy * $dy))
+                    if($dist -gt 0.01){
+                        $unitX = $dx / $dist
+                        $unitY = $dy / $dist
+                        $lineStartX = [float]($sx + ($unitX * ($radius + ([Math]::Max($outlineWidth,1.0) * 0.5))))
+                        $lineStartY = [float]($sy + ($unitY * ($radius + ([Math]::Max($outlineWidth,1.0) * 0.5))))
+                        $leaderColor = [Drawing.Color]::FromArgb(180,[int]$balloonStrokeColor.R,[int]$balloonStrokeColor.G,[int]$balloonStrokeColor.B)
+                        $leaderPen = New-Object Drawing.Pen($leaderColor,[float][Math]::Max(($outlineWidth * 0.75),0.75))
+                        $leaderPen.StartCap = [Drawing.Drawing2D.LineCap]::Round
+                        $leaderPen.EndCap = [Drawing.Drawing2D.LineCap]::Round
+                        $leaderPen.LineJoin = [Drawing.Drawing2D.LineJoin]::Round
+                        $graphics.DrawLine($leaderPen,$lineStartX,$lineStartY,$anchorX,$anchorY)
+
+                        if(-not $script:IsInteractiveCanvasUpdate){
+                            $anchorDot = [float][Math]::Max(($outlineWidth * 2.0),2.0)
+                            $leaderAnchorBrush = New-Object Drawing.SolidBrush($leaderColor)
+                            $graphics.FillEllipse(
+                                $leaderAnchorBrush,
+                                [float]($anchorX - ($anchorDot / 2.0)),
+                                [float]($anchorY - ($anchorDot / 2.0)),
+                                $anchorDot,
+                                $anchorDot
+                            )
+                        }
+                    }
+                }
+            }
+
             $graphics.FillEllipse($fillBrush,$cx,$cy,$diameter,$diameter)
             $graphics.DrawEllipse($outlinePen,$cx,$cy,$diameter,$diameter)
 
@@ -19802,6 +18260,8 @@ function Draw-MarkBalloons($graphics,$renderScale,$showDuplicateHighlight = $fal
                 if($selectedOutlinePen){ $selectedOutlinePen.Dispose() }
                 if($selectedCopyHaloPen){ $selectedCopyHaloPen.Dispose() }
                 if($selectedCopyOutlinePen){ $selectedCopyOutlinePen.Dispose() }
+                if($leaderPen){ $leaderPen.Dispose() }
+                if($leaderAnchorBrush){ $leaderAnchorBrush.Dispose() }
             }
         }
 
@@ -21543,7 +20003,7 @@ $btnExcel.Add_Click({
     $material = [string]$script:PartMaterial
     $hrc = [string]$script:PartHrc
     $user = if([string]::IsNullOrWhiteSpace([string]$script:PartUser)){ "7139" } else { [string]$script:PartUser }
-    $measureDate = if(-not [string]::IsNullOrWhiteSpace([string]$script:PartDate)){ [string]$script:PartDate } else { (Get-Date).ToString("dd/MM/yyyy") }
+    $inspectionDate = [string]$script:InspectionDate
     $sampleBatches = @(Get-InspectionSampleBatches $qty)
     $savedExcelPaths = New-Object System.Collections.Generic.List[string]
     $hasImportantSteps = Test-AnyImportantInspectionSteps
@@ -21602,109 +20062,88 @@ $btnExcel.Add_Click({
             $exportStage = "Open template"
             Update-ExportProgress ("Opening Excel template... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 15
             $wb = $excel.Workbooks.Open([string]$script:ExcelTemplate)
+            $excel.ScreenUpdating = $false
+            $origCalculation = $excel.Calculation
+            try{ $excel.Calculation = -4135 } catch{} # xlCalculationManual
 
-            # Remember how many sheets the template has so we can delete them all at the end
-            $templateSheetCount = [int]$wb.Worksheets.Count
-            $templateSheet = $wb.Worksheets.Item([int]1)
-
-            $exportStage = "Prepare sheet"
-            Update-ExportProgress ("Preparing sheet... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 18
-
-            # Create first data sheet by copying template AFTER itself (After = 2nd positional arg)
-            # Using [System.Type]::Missing for the Before arg so Excel uses After
-            $templateSheet.Copy([System.Type]::Missing, $wb.Worksheets.Item([int]$wb.Worksheets.Count))
-            $ws = $wb.Worksheets.Item([int]$wb.Worksheets.Count)
-
-            Clear-InspectionSheet $ws $rowStart $maxPerPage
-            Set-InspectionHeader $ws $model $mold $qty $material $hrc $user $measureDate
-            Set-InspectionSampleHeaders $ws $batchStart $batchEnd
-            $initialEnd = if($exportRows.Count -gt 0){ [Math]::Min($maxPerPage,$exportRows.Count) } else { 1 }
-            $ws.Name = [string](Get-InspectionSheetName 1 $initialEnd)
-
-            $page = 1
-            $count = 0
-            $row = $rowStart
-
-            foreach($rowData in $exportRows){
-
-                if($count -ge $maxPerPage){
-                    $page++
-
-                    $exportStage = "Copy sheet"
-                    # Copy a FRESH template sheet (After current last sheet) for the next page
-                    $templateSheet.Copy([System.Type]::Missing, $wb.Worksheets.Item([int]$wb.Worksheets.Count))
-                    if($ws){
-                        [System.Runtime.Interopservices.Marshal]::ReleaseComObject($ws) | Out-Null
-                        $ws = $null
-                    }
-
-                    $ws = $wb.Worksheets.Item([int]$wb.Worksheets.Count)
-                    $exportStage = "Prepare copied sheet"
-                    Clear-InspectionSheet $ws $rowStart $maxPerPage
-                    Set-InspectionHeader $ws $model $mold $qty $material $hrc $user $measureDate
-                    Set-InspectionSampleHeaders $ws $batchStart $batchEnd
-
-                    $pageStartIndex = (($page - 1) * $maxPerPage) + 1
-                    $pageEndIndex = [Math]::Min($page * $maxPerPage,$exportRows.Count)
-                    $ws.Name = [string](Get-InspectionSheetName $pageStartIndex $pageEndIndex)
-
-                    $row = $rowStart
-                    $count = 0
+            $pageChunks = @()
+            if($exportRows.Count -gt 0){
+                for($offset = 0; $offset -lt $exportRows.Count; $offset += $maxPerPage){
+                    $chunkCount = [Math]::Min($maxPerPage, ($exportRows.Count - $offset))
+                    $pageChunks += ,@($exportRows[$offset..($offset + $chunkCount - 1)])
                 }
+            }
+            else{
+                $pageChunks += ,@()
+            }
+
+            $targetSheetCount = [Math]::Max(1, $pageChunks.Count)
+
+            while($wb.Worksheets.Count -lt $targetSheetCount){
+                $lastSheet = $wb.Worksheets.Item([int]$wb.Worksheets.Count)
+                $lastSheet.Copy($lastSheet)
+                [System.Runtime.InteropServices.Marshal]::ReleaseComObject($lastSheet) | Out-Null
+            }
+
+            while($wb.Worksheets.Count -gt $targetSheetCount){
+                $sheetToDelete = $wb.Worksheets.Item([int]$wb.Worksheets.Count)
+                $sheetToDelete.Delete()
+                [System.Runtime.InteropServices.Marshal]::ReleaseComObject($sheetToDelete) | Out-Null
+            }
+
+            for($p = 0; $p -lt $pageChunks.Count; $p++){
+                $pageRows = @($pageChunks[$p])
+                $firstStep = if($pageRows.Count -gt 0){ [string]$pageRows[0].Step } else { "1" }
+                $lastStep = if($pageRows.Count -gt 0){ [string]$pageRows[-1].Step } else { "1" }
+                $pageSheetName = [string](Get-InspectionSheetName $firstStep $lastStep)
+
+                $exportStage = "Prepare sheet"
+                Update-ExportProgress ("Preparing sheet " + [string]($p + 1) + "/" + [string]$pageChunks.Count + "... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 18
+                $ws = $wb.Worksheets.Item([int]($p + 1))
+
+                Clear-InspectionSheet $ws $rowStart $maxPerPage
+                Set-InspectionHeader $ws $model $mold $qty $material $hrc $user $inspectionDate
+                Set-InspectionSampleHeaders $ws $batchStart $batchEnd
+                $ws.Name = $pageSheetName
 
                 $exportStage = "Write rows"
-                $writtenRows++
-                if(($writtenRows -eq 1) -or (($writtenRows % 5) -eq 0) -or ($writtenRows -eq $totalRowsToWrite)){
-                    $rowPercent = 20 + [int][Math]::Round(45.0 * ([double]$writtenRows / [double]$totalRowsToWrite))
-                    Update-ExportProgress ("Writing Excel rows... " + [string]$writtenRows + "/" + [string]$totalRowsToWrite) $rowPercent
+                $row = $rowStart
+                foreach($rowData in $pageRows){
+                    $writtenRows++
+                    if(($writtenRows -eq 1) -or (($writtenRows % 5) -eq 0) -or ($writtenRows -eq $totalRowsToWrite)){
+                        $rowPercent = 20 + [int][Math]::Round(45.0 * ([double]$writtenRows / [double]$totalRowsToWrite))
+                        Update-ExportProgress ("Writing Excel rows... " + [string]$writtenRows + "/" + [string]$totalRowsToWrite) $rowPercent
+                    }
+                    $tMinus = Convert-MarkStepToleranceCellToDouble $rowData.TolMinus
+                    $tPlus = Convert-MarkStepToleranceCellToDouble $rowData.TolPlus
+                    $lowerTol = [double]$tMinus
+                    $upperTol = [double]$tPlus
+                    if($upperTol -lt $lowerTol){
+                        $swap = $lowerTol
+                        $lowerTol = $upperTol
+                        $upperTol = $swap
+                    }
+
+                    Set-ExcelCellTextValue $ws $row 1 ([string]$rowData.Step)
+                    Set-ExcelCellNominalValue $ws $row 2 ([string]$rowData.Nominal)
+                    Set-ExcelCellBold $ws $row 2 (Convert-ToStepImportantFlag $rowData.ImportantStep)
+                    Set-ExcelCellToleranceValue $ws $row 3 $lowerTol
+                    Set-ExcelCellToleranceValue $ws $row 4 $upperTol
+                    Set-ExcelCellTextValue $ws $row 5 (Get-ExportToolCode $rowData)
+                    Write-InspectionSampleResults $ws $row $rowData $batchStart $batchEnd
+                    Set-ExcelInspectionJudgeFormula $ws $row ([string]$rowData.Nominal)
+
+                    $row++
                 }
-                Set-ExcelCellTextValue $ws $row 1 ([string]$rowData.Step)
-                Set-ExcelCellTextValue $ws $row 2 ([string]$rowData.Nominal)
-                Set-ExcelCellBold $ws $row 2 (Convert-ToStepImportantFlag $rowData.ImportantStep)
-
-                # Normalize Tol- / Tol+: ensure column C <= column D numerically
-                # OCR sometimes puts a one-sided positive tolerance in the wrong column (e.g. 0.36+0.005 → TolMinus=+0.005, TolPlus=0)
-                $exportTolMinus = [string]$rowData.TolMinus
-                $exportTolPlus  = [string]$rowData.TolPlus
-                $parsedMinus = 0.0
-                $parsedPlus  = 0.0
-                $minusOk = [double]::TryParse($exportTolMinus, [System.Globalization.NumberStyles]::Any, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$parsedMinus)
-                $plusOk  = [double]::TryParse($exportTolPlus,  [System.Globalization.NumberStyles]::Any, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$parsedPlus)
-                if($minusOk -and $plusOk -and $parsedMinus -gt $parsedPlus){
-                    # Swap so the smaller value goes to Tol- (col C) and larger to Tol+ (col D)
-                    $exportTolMinus = [string]$rowData.TolPlus
-                    $exportTolPlus  = [string]$rowData.TolMinus
-                }
-
-                Set-ExcelCellTextValue $ws $row 3 $exportTolMinus
-                Set-ExcelCellTextValue $ws $row 4 $exportTolPlus
-                Set-ExcelCellTextValue $ws $row 5 (Get-ExportToolCode $rowData)
-                Write-InspectionSampleResults $ws $row $rowData $batchStart $batchEnd
-                Set-InspectionRowFormula $ws $row ([string]$rowData.Nominal) $exportTolMinus $exportTolPlus $batchStart $batchEnd
-
-                $row++
-                $count++
-            }
-
-            # Delete all original template sheets (they are at positions 1..$templateSheetCount)
-            # Must delete in reverse order so indices don't shift
-            $excel.DisplayAlerts = $false
-            for($ti = $templateSheetCount; $ti -ge 1; $ti--){
-                try{
-                    $sheetToDelete = $wb.Worksheets.Item([int]$ti)
-                    $sheetToDelete.Delete()
-                    [System.Runtime.Interopservices.Marshal]::ReleaseComObject($sheetToDelete) | Out-Null
-                }
-                catch{}
-            }
-            $excel.DisplayAlerts = $false
-            if($templateSheet){
-                [System.Runtime.Interopservices.Marshal]::ReleaseComObject($templateSheet) | Out-Null
-                $templateSheet = $null
             }
 
             $exportStage = "Save workbook"
             Update-ExportProgress ("Saving workbook... batch " + [string]$batchOrdinal + "/" + [string]$sampleBatches.Count) 68
+            try{ $excel.Calculate() } catch{}
+            if($origCalculation -ne $null){
+                try{ $excel.Calculation = $origCalculation } catch{}
+            }
+            $excel.ScreenUpdating = $true
             $wb.SaveAs($excelPath,$excelFormat)
             if(!(Test-Path -LiteralPath $excelPath)){
                 throw "Excel export finished without creating the output file."
@@ -21769,6 +20208,11 @@ $btnExcel.Add_Click({
     finally{
         $script:IsInspectionExportGeneratingSamples = $false
         if($excel){
+            try{ $excel.ScreenUpdating = $true } catch{}
+            if($origCalculation -ne $null){
+                try{ $excel.Calculation = $origCalculation } catch{}
+            }
+
             if($originalEnableEvents -ne $null){
                 $excel.EnableEvents = $originalEnableEvents
             }
