@@ -21661,11 +21661,26 @@ $btnExcel.Add_Click({
                 Set-ExcelCellTextValue $ws $row 1 ([string]$rowData.Step)
                 Set-ExcelCellTextValue $ws $row 2 ([string]$rowData.Nominal)
                 Set-ExcelCellBold $ws $row 2 (Convert-ToStepImportantFlag $rowData.ImportantStep)
-                Set-ExcelCellTextValue $ws $row 3 ([string]$rowData.TolMinus)
-                Set-ExcelCellTextValue $ws $row 4 ([string]$rowData.TolPlus)
+
+                # Normalize Tol- / Tol+: ensure column C <= column D numerically
+                # OCR sometimes puts a one-sided positive tolerance in the wrong column (e.g. 0.36+0.005 → TolMinus=+0.005, TolPlus=0)
+                $exportTolMinus = [string]$rowData.TolMinus
+                $exportTolPlus  = [string]$rowData.TolPlus
+                $parsedMinus = 0.0
+                $parsedPlus  = 0.0
+                $minusOk = [double]::TryParse($exportTolMinus, [System.Globalization.NumberStyles]::Any, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$parsedMinus)
+                $plusOk  = [double]::TryParse($exportTolPlus,  [System.Globalization.NumberStyles]::Any, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$parsedPlus)
+                if($minusOk -and $plusOk -and $parsedMinus -gt $parsedPlus){
+                    # Swap so the smaller value goes to Tol- (col C) and larger to Tol+ (col D)
+                    $exportTolMinus = [string]$rowData.TolPlus
+                    $exportTolPlus  = [string]$rowData.TolMinus
+                }
+
+                Set-ExcelCellTextValue $ws $row 3 $exportTolMinus
+                Set-ExcelCellTextValue $ws $row 4 $exportTolPlus
                 Set-ExcelCellTextValue $ws $row 5 (Get-ExportToolCode $rowData)
                 Write-InspectionSampleResults $ws $row $rowData $batchStart $batchEnd
-                Set-InspectionRowFormula $ws $row ([string]$rowData.Nominal) ([string]$rowData.TolMinus) ([string]$rowData.TolPlus) $batchStart $batchEnd
+                Set-InspectionRowFormula $ws $row ([string]$rowData.Nominal) $exportTolMinus $exportTolPlus $batchStart $batchEnd
 
                 $row++
                 $count++
