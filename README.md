@@ -23,21 +23,21 @@
 ```mermaid
 flowchart TD
     A["📄 PDF Drawing\n(Pdfium render → Bitmap)"]
-    B["🔍 YOLO Detection\n(YoloCadOnnxModel — ONNX)\nFind & locate dimension text zones"]
-    C["✂️ Region Crop\nEach zone cropped to image\nSorted in CAD reading order\ntop-to-bottom · left-to-right"]
-    E{"Confidence\ncheck"}
-    F["🔤 RapidOcrNet\n(ONNX — det + cls + rec)\nMain OCR engine"]
-    G["🪟 Windows OCR\n(WinRT API)\nFallback when confidence low"]
-    H["🧹 Post-processing\nParse nominal value\nExtract Tol− / Tol+\nMerge split fragments\nDuplicate detection"]
-    I["📊 Inspection Table\nStep · Nominal · Tol− · Tol+\nTool · Result · Dup flag"]
+    B["🔍 YOLO Detection\n(YoloCadOnnxModel — ONNX)\nLocate mechanical text zones"]
+    C["📦 Candidate Regions\nBounding boxes sorted\nCAD reading order"]
+    D["🪄 DBNet — Text Detection\n✨ AI Black Magic ✨\nPrecise crop inside each zone"]
+    F["🔤 RapidOcrNet\n(ONNX — det + cls + rec)"]
+    G["🪟 Windows OCR\n(WinRT — fallback)"]
+    H["🧹 Post-processing\nMerge · Parse nominal / tolerance · Dedup"]
+    I["📊 Inspection Table\nStep · Nominal · Tol− · Tol+ · Flag"]
     J["📁 Excel Export\n.xlsx · OK/NG formula"]
-    K["🎈 Balloon Marks\nNumbered overlays\non PDF drawing"]
+    K["🎈 Balloon Marks\nNumbered overlays on PDF"]
 
     A --> B
     B --> C
-    C --> E
-    E -- "High ✅" --> F
-    E -- "Low ⚠️" --> G
+    C --> D
+    D --> F
+    D --> G
     F --> H
     G --> H
     H --> I
