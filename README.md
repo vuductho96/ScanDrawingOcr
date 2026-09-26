@@ -88,13 +88,6 @@ Click **Scan** or go to **Advance → Auto Scan**:
 
 Press `T` to toggle text zone bounding box visibility.
 
-### Auto Map PDF
-
-1. Click **Auto Map PDF**.
-2. Drag Region 1, Region 2, … in the desired inspection order.
-3. Use **Text Zones**, **Clear Gray Box**, and **Delete BBox** to clean bad boxes.
-4. Check for duplicate warnings inside the selected regions.
-5. Click **Finish** to create MarkSteps in region order.
 
 ### Manual editing
 
@@ -102,23 +95,6 @@ Press `T` to toggle text zone bounding box visibility.
 - Drag bounding boxes on the drawing to adjust crop regions.
 - Press `Ctrl+Z` to undo a deleted step.
 
-### Bulk Google AI Recovery
-
-Use when OCR misreads several dimensions at once:
-
-1. Select the rows that need recovery.
-2. Open **Advance → Bulk Google AI Recovery**.
-3. Tick the steps to recover and review the crop previews.
-4. Click **Recover** — the app builds a single contact-sheet image and sends it to Google AI via Chrome.
-5. The returned values are parsed and written back into the table.
-
-Expected AI response format:
-
-```
-STEP=1 Nominal=7,003 Tol+=0,001 Tol-=0,000
-STEP=2 Nominal=1,490 Tol+=0,000 Tol-=0,000
-STEP=3 Nominal=2,002 Tol+=0,000 Tol-=0,000
-```
 
 ### Export to Excel
 
@@ -140,18 +116,12 @@ Click **Export Excel** to export the inspection table to `.xlsx` with OK/NG form
 | `E` | Keep hidden duplicate candidate as a new step |
 | `Enter` | Accept hidden text-zone suggestion |
 | `Esc` | Cancel current selection |
-| `Space` (hold) | Pan mode |
-| `Middle Mouse Drag` | Pan drawing |
-| `Mouse Wheel` | Zoom at cursor |
-| `Shift + Mouse Wheel` | Horizontal scroll |
+| `MiddleMouse` (hold) | Pan mode |
 | `Ctrl + B` | Toggle side panel |
-| `Ctrl + P` | Print marked drawing |
 | `Ctrl + Z` | Undo deleted step |
 | `Ctrl + C` | Copy selected mark |
 | `Ctrl + V` | Paste mark |
 | `Ctrl + D` | Duplicate selected text zone |
-| `Ctrl + 0` | Fit to screen |
-| `Ctrl + 1` | Actual size (100%) |
 | `+` / `-` | Increase / decrease balloon size |
 | `Delete` | Delete selected item |
 
@@ -165,12 +135,9 @@ RapidOcrProUpdateBundle/
 ├── RapidOcrProUpdate.ps1            # Main script — business logic
 ├── RapidOcrProUpdate.UI.ps1         # Windows Forms UI module
 ├── RapidOcrProUpdate.Training.ps1   # Training data collection module
-├── WindowsOcr_Helper.ps1            # Windows OCR helper (WinRT API)
 ├── RapidOcrStartupSplash.hta        # Startup splash screen
-│
 ├── Run-RapidOcrProUpdate-PS7.bat    # Launcher (visible console window)
 ├── Run-RapidOcrProUpdate-PS7.vbs    # Launcher (hidden, no console)
-│
 ├── PdfiumViewer.dll                 # .NET PDF rendering wrapper
 ├── pdfium.dll                       # Pdfium native library (x64)
 │
@@ -199,7 +166,6 @@ RapidOcrProUpdateBundle/
 │   ├── rapidocr_worker.ps1          # Parallel OCR worker process
 │   └── Capture2Text/
 │       └── Capture2Text_463/        # Capture2Text binary (OCR fallback)
-│
 ├── SecureBuild/                     # EXE wrapper build (encrypted script)
 │   ├── Loader/                      # C# loader — decrypts payload.dat in memory
 │   ├── EncryptTool/                 # Encrypts .ps1 → payload.dat
