@@ -2,8 +2,6 @@
 
 > **Công cụ OCR bản vẽ PDF cơ khí trên Windows** — trích xuất kích thước, dung sai, duyệt kết quả và xuất Excel kiểm tra.
 
-![Demo](docs/assets/dimensionocr-app.gif)
-
 ---
 
 ## Tính năng chính
@@ -11,16 +9,16 @@
 | Nhóm | Tính năng |
 |------|-----------|
 | **PDF** | Mở / kéo thả PDF bản vẽ cơ khí, render trang với Pdfium |
-| **OCR tự động** | YOLO11 ONNX phát hiện text-zone → RapidOcrNet / PaddleOCR / Windows OCR |
-| **Auto Scan** | Quét toàn trang tự động, sắp xếp theo thứ tự đọc CAD (top-to-bottom, left-to-right) |
+| **OCR tự động** | YOLO ONNX (C# wrapper) phát hiện text-zone → RapidOcrNet / Windows OCR |
+| **Auto Scan** | Quét toàn trang tự động bằng YOLO + RapidOCR, sắp xếp theo thứ tự đọc CAD |
 | **Manual crop** | Vẽ bounding box tay cho các vùng OCR khó |
 | **Auto Map PDF** | Chọn vùng theo thứ tự kiểm tra, tạo MarkStep theo vùng |
 | **Duyệt bảng** | Chỉnh sửa Nominal / Tol− / Tol+ / Tool / Result trực tiếp trên bảng |
 | **Duplicate detect** | Phát hiện và đánh dấu dimension trùng tự động |
-| **Balloon** | Vẽ số balloon trên bản vẽ, điều chỉnh kích thước, copy/paste |
-| **Google AI (Gemini)** | Recovery đơn lẻ hoặc Bulk (contact sheet → AI → parse kết quả) |
+| **Balloon** | Vẽ số balloon trên bản vẽ, điều chỉnh kích thước, copy/paste/duplicate |
+| **Bulk Google AI Recovery** | Gửi contact-sheet ảnh qua Chrome → Google AI → parse kết quả hàng loạt |
 | **Excel export** | Xuất bảng kiểm tra sang `.xlsx` (có formula OK/NG, định dạng chuẩn) |
-| **In ấn** | In bản vẽ đã đánh dấu trực tiếp từ app |
+| **In ấn** | In bản vẽ đã đánh dấu trực tiếp từ app (`Ctrl+P`) |
 | **Training pipeline** | Tự động thu thập dữ liệu training (OCR correction, YOLO annotation) trong nền |
 | **Session** | Lưu/khôi phục trạng thái làm việc theo file PDF |
 | **Tray icon** | Chạy ẩn hệ thống, hiện lại khi cần |
@@ -46,23 +44,22 @@
 | **OS** | Windows 10 / 11 (64-bit) |
 | **PowerShell** | PowerShell 7 (`pwsh`) — khuyến nghị; hoặc Windows PowerShell 5.1 |
 | **.NET Runtime** | .NET 8 (dùng bởi `RapidOcrNet.dll`, `YoloCadOnnxModel.dll`) |
-| **Python** | Python 3.9+ (tuỳ chọn — dùng bởi `autoscan_bridge.py`, `cad_ocr_pipeline.py`) |
-| **Google AI API key** | Cần thiết cho tính năng Gemini Vision recovery |
+| **Google Chrome** | Cần thiết cho tính năng Bulk Google AI Recovery (tự động hoá qua Chrome) |
 
 ---
 
-## Cài đặt nhanh (chạy từ source)
+## Cài đặt nhanh
 
 ```powershell
-# 1. Clone repo
+# Clone repo
 git clone https://github.com/vuductho96/ScanDrawingOcr.git
 cd ScanDrawingOcr
 
-# 2. Chạy app (PowerShell 7)
+# Chạy app
 .\Run-RapidOcrProUpdate-PS7.bat
 ```
 
-Hoặc chạy trực tiếp:
+Hoặc chạy trực tiếp bằng PowerShell:
 
 ```powershell
 pwsh -NoProfile -ExecutionPolicy Bypass -STA -File .\RapidOcrProUpdate.ps1
@@ -77,15 +74,15 @@ pwsh -NoProfile -ExecutionPolicy Bypass -STA -File .\RapidOcrProUpdate.ps1
 ### 1 · Mở bản vẽ
 
 - Click **Open PDF**, hoặc **kéo thả file PDF** vào cửa sổ.
-- Chọn trang cần xem trên thanh điều hướng.
+- Điều hướng trang bằng thanh ở góc trên.
 
-### 2 · Phát hiện kích thước tự động (YOLO)
+### 2 · Auto Scan (YOLO + RapidOCR)
 
-Nhấn **Auto YOLO** hoặc `Ctrl + Y`:
+Click **Auto Scan** hoặc vào **Advance → Auto Scan**:
 
-1. Chạy YOLO11 ONNX phát hiện text/dimension zones.
-2. Trích xuất Nominal, Tol−, Tol+ từ các zone.
-3. Sắp xếp theo thứ tự đọc CAD chuẩn.
+1. Chạy YOLO ONNX phát hiện text/dimension zones trên trang.
+2. Đọc OCR từng zone bằng RapidOcrNet.
+3. Sắp xếp theo thứ tự đọc CAD chuẩn (top-to-bottom, left-to-right).
 4. Tạo MarkStep có đánh số, đặt balloon lên bản vẽ.
 5. Điền tự động vào bảng (Step / Nominal / Tol− / Tol+).
 
@@ -110,9 +107,9 @@ Nhấn `T` để bật/tắt hiển thị bounding box text zone.
 Dùng khi OCR đọc sai nhiều dimension cùng lúc:
 
 1. Chọn các row cần recovery.
-2. Mở **Advance** → **Bulk Google AI Recovery**.
+2. Mở **Advance → Bulk Google AI Recovery**.
 3. Chọn các step cần phục hồi, xem preview crop.
-4. Click **Recover** — app gửi một contact-sheet image lên Gemini.
+4. Click **Recover** — app tạo một contact-sheet image và gửi lên Google AI qua Chrome.
 5. Kết quả tự động parse và điền vào bảng.
 
 **Định dạng kết quả AI:**
@@ -137,16 +134,18 @@ Click **Export Excel** để xuất bảng kết quả kiểm tra sang `.xlsx`:
 |------|-----------|
 | `T` | Bật/tắt hiển thị Text Zones |
 | `C` | Bật/tắt Copy View |
+| `B` | Bật/tắt Balloon View |
+| `R` | Xoay trang 90° (clockwise) |
+| `L` | Bật/tắt Leader Line |
+| `S` | Sắp xếp các step tăng dần |
+| `I` | Đánh dấu step là Important |
+| `E` | Giữ duplicate candidate ẩn làm step mới |
+| `Enter` | Chấp nhận gợi ý text-zone ẩn |
+| `Esc` | Huỷ selection |
 | `Space` (giữ) | Chế độ Pan |
 | `Middle Mouse Drag` | Pan bản vẽ |
 | `Mouse Wheel` | Zoom tại con trỏ |
 | `Shift + Mouse Wheel` | Cuộn ngang |
-| `Esc` | Huỷ selection |
-| `Enter` | Chấp nhận gợi ý text-zone ẩn |
-| `E` | Giữ duplicate candidate ẩn làm step mới |
-| `Ctrl + Y` | Auto YOLO Detect & Auto-Fill Table |
-| `Ctrl + S` | Google AI recovery cho step đang chọn |
-| `Ctrl + Shift + R` | Xoay trang 90° |
 | `Ctrl + B` | Bật/tắt side panel |
 | `Ctrl + P` | In bản vẽ đã đánh dấu |
 | `Ctrl + Z` | Undo xoá step |
@@ -182,29 +181,25 @@ RapidOcrProUpdateBundle/
 │   │   ├── RapidOcrNet/           # RapidOCR .NET (detect + recognize)
 │   │   │   ├── lib/net8.0/        # RapidOcrNet.dll
 │   │   │   └── models/v5/         # Model ONNX (det, rec, cls)
-│   │   ├── YoloCadOnnxModel/      # YOLO11 CAD detector
-│   │   │   ├── cache/best.onnx    # Model YOLO đã train (dùng trực tiếp)
+│   │   ├── YoloCadOnnxModel/      # YOLO CAD detector (C# wrapper)
+│   │   │   ├── cache/best.onnx    # Model YOLO đã train
 │   │   │   ├── lib/net8.0/        # YoloCadOnnxModel.dll
 │   │   │   └── src/               # Source C# wrapper
 │   │   ├── YoloCadDetector/       # Wrapper inference YOLO
-│   │   ├── Microsoft.ML.OnnxRuntime.*/  # ONNX Runtime (native + managed)
+│   │   ├── Microsoft.ML.OnnxRuntime.*/ # ONNX Runtime (native + managed)
 │   │   ├── SkiaSharp/             # Xử lý ảnh (managed)
-│   │   ├── SkiaSharp.NativeAssets.Win32/  # Native SkiaSharp
-│   │   ├── PaddleOCR.Onnx/        # PaddleOCR engine (fallback)
-│   │   ├── Emgu.CV/               # OpenCV wrapper (managed)
-│   │   ├── Emgu.CV.runtime.windows/ # OpenCV native
+│   │   ├── SkiaSharp.NativeAssets.Win32/ # Native SkiaSharp
 │   │   ├── Clipper2/              # Polygon clipping
-│   │   ├── clipper_standard/      # Clipper legacy
-│   │   └── System.Numerics.Tensors/  # Tensor math
+│   │   └── System.Numerics.Tensors/
 │   └── OpenCvSharp/
-│       ├── opencvsharp4/          # OpenCvSharp managed (.dll)
+│       ├── opencvsharp4/          # OpenCvSharp managed
 │       └── opencvsharp4.runtime.win/  # OpenCvSharpExtern.dll (native)
 │
 ├── tools/
 │   ├── autoscan_bridge.py         # Bridge Python cho Auto Scan
 │   ├── cad_ocr_pipeline.py        # Pipeline OCR toàn bộ bản vẽ CAD
 │   ├── cad_geometric_preprocessor.py  # Tiền xử lý hình học
-│   ├── rapidocr_worker.ps1        # Worker process OCR (chạy song song)
+│   ├── rapidocr_worker.ps1        # Worker process OCR song song
 │   └── Capture2Text/
 │       └── Capture2Text_463/      # Capture2Text binary (OCR fallback)
 │
@@ -223,40 +218,28 @@ RapidOcrProUpdateBundle/
 
 ## Build EXE (phân phối đã mã hoá)
 
-Nếu muốn phân phối dạng `.exe` thay vì `.ps1`:
-
 ```powershell
 cd SecureBuild
 
-# 1. Restore NuGet
+# Restore NuGet
 dotnet restore .\Loader\SecurePs1Loader.csproj
 dotnet restore .\EncryptTool\EncryptTool.csproj
 
-# 2. Publish loader
+# Publish
 dotnet publish .\Loader\SecurePs1Loader.csproj -c Release -r win-x64
-
-# 3. Publish encrypt tool
 dotnet publish .\EncryptTool\EncryptTool.csproj -c Release -r win-x64
 
-# 4. Mã hoá scripts thành payload.dat
+# Mã hoá scripts thành payload.dat
 .\EncryptTool\bin\Release\net8.0\win-x64\publish\EncryptTool.exe `
     ..\RapidOcrProUpdate.ps1 `
     .\Release-SimpleDrag\payload.dat
 
-# 5. Copy dependencies
+# Copy dependencies
 .\Copy-AppSupportFiles.ps1
 ```
 
-> Script `.ps1` không bao giờ được ghi ra disk bởi loader — chỉ giải mã trong bộ nhớ.  
+> Script `.ps1` không bao giờ được ghi ra disk — chỉ giải mã trong bộ nhớ.  
 > Xem chi tiết tại [`SecureBuild/README.md`](SecureBuild/README.md).
-
----
-
-## Cấu hình Google AI API
-
-1. Lấy API key tại [Google AI Studio](https://aistudio.google.com/apikey).
-2. Mở app → **Advance** → nhập API key vào ô **Gemini API Key**.
-3. Key được lưu trong session state, không cần nhập lại mỗi lần.
 
 ---
 
@@ -266,18 +249,10 @@ App tự động thu thập dữ liệu training trong nền khi người dùng 
 
 - **OCR corrections** → `training_dataset/ocr_corrections/` (ảnh crop + nhãn đúng)
 - **YOLO annotations** → `training_dataset/yolo_detection/` (ảnh + YOLO label)
-- **Training metrics** → hiển thị trên UI (số mẫu, độ sẵn sàng)
-
-Dữ liệu được dùng để fine-tune lại model tăng độ chính xác theo từng loại bản vẽ.
+- Trạng thái sẵn sàng training được hiển thị trên UI.
 
 ---
 
 ## Trạng thái dự án
 
 **Đang phát triển tích cực.**
-
----
-
-## Licence
-
-Dự án nội bộ — chưa có licence công khai.
