@@ -18,6 +18,37 @@
 
 ---
 
+## OCR Pipeline
+
+```mermaid
+flowchart TD
+    A["📄 PDF Drawing\n(Pdfium render → Bitmap)"]
+    B["🔍 YOLO Detection\n(YoloCadOnnxModel — ONNX)\nLocate mechanical text zones"]
+    C["📦 Candidate Regions\n(Bounding boxes sorted\nCAD reading order)"]
+    D["📝 DB Net — Text Detection\n(7749 Algorithm)\nPrecise text boundary detection\ninside each YOLO zone"]
+    E{"Text layer\navailable?"}
+    F["🔤 RapidOcrNet\n(ONNX — det + cls + rec)\nCharacter recognition"]
+    G["🪟 Windows OCR\n(WinRT API — fallback)"]
+    H["🧹 Post-processing\nMerge fragments · Parse nominal\nExtract Tol− / Tol+\nDuplicate detection"]
+    I["📊 Inspection Table\nStep · Nominal · Tol− · Tol+\nTool · Result · Flag"]
+    J["📁 Excel Export\n(.xlsx · OK/NG formula)"]
+    K["🎈 Balloon Marks\nNumbered overlays\non PDF drawing"]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E -- "Yes" --> F
+    E -- "No / Low confidence" --> G
+    F --> H
+    G --> H
+    H --> I
+    I --> J
+    I --> K
+```
+
+---
+
 ## Features
 
 | Category | Feature |
@@ -208,14 +239,59 @@ dotnet publish .\EncryptTool\EncryptTool.csproj -c Release -r win-x64
 
 ---
 
-## Training Pipeline
+## Self-Improving Training Pipeline
 
-The app silently collects training data in the background as the operator corrects OCR results:
+The app **automatically collects its own training data** while operators use it — no manual labeling required.
+Every OCR correction and every confirmed text zone is silently saved as a training sample in the background.
+This data is then used to fine-tune both the YOLO detection model and the OCR recognition model via **Google Colab**,
+so the system gets more accurate over time for each specific drawing style.
 
-- **OCR corrections** → `training_dataset/ocr_corrections/` (cropped images + correct labels)
-- **YOLO annotations** → `training_dataset/yolo_detection/` (images + YOLO label files)
+```mermaid
+flowchart LR
+    subgraph APP ["🖥️  DimensionOCR App  (Windows)"]
+        A["Operator opens PDF\nand reviews OCR results"]
+        B["Operator corrects\nnominal / tolerance values"]
+        C["App silently crops\nthe corrected region"]
+        D[("training_dataset/\nocr_corrections/\nyolo_detection/")]
+    end
 
-This data can be used to fine-tune the YOLO and OCR models for specific drawing styles.
+    subgraph COLAB ["☁️  Google Colab  (Fine-tuning)"]
+        E["Upload dataset\nfrom local folder"]
+        F["Fine-tune YOLO model\n(YOLOv11 — new best.onnx)"]
+        G["Fine-tune OCR model\n(RapidOcrNet / PaddleOCR rec)"]
+        H["Download updated\n.onnx model files"]
+    end
+
+    subgraph DEPLOY ["🔄  Deploy back to App"]
+        I["Replace\nlib/OcrAi/YoloCadOnnxModel\n/cache/best.onnx"]
+        J["Replace\nlib/OcrAi/RapidOcrNet\n/models/v5/"]
+        K["✅ Higher accuracy\non same drawing types"]
+    end
+
+    A --> B --> C --> D
+    D -- "Export dataset\n(zip / Google Drive)" --> E
+    E --> F --> H
+    E --> G --> H
+    H --> I --> K
+    H --> J --> K
+    K -- "Continuous\nimprovement loop" --> A
+```
+
+### What gets collected automatically
+
+| Dataset folder | Content | Used to train |
+|----------------|---------|--------------|
+| `training_dataset/ocr_corrections/` | Cropped zone images + corrected text labels | OCR recognition model (RapidOcrNet) |
+| `training_dataset/yolo_detection/` | Full page images + YOLO bounding box annotations | YOLO detection model |
+
+### Fine-tuning on Google Colab
+
+1. Export the `training_dataset/` folder (zip or sync to Google Drive).
+2. Open the provided Colab notebooks.
+3. Run training — Colab GPU handles the heavy compute.
+4. Download the new `best.onnx` files.
+5. Replace the model files in `lib/OcrAi/YoloCadOnnxModel/cache/` and `lib/OcrAi/RapidOcrNet/models/v5/`.
+6. The app picks up the new models on next launch — no rebuild required.
 
 ---
 
