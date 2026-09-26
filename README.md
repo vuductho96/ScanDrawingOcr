@@ -1,118 +1,120 @@
-# RapidOCR PDF Scan Tool — DimensionOCR
+# DimensionOCR — RapidOCR PDF Scan Tool
 
-> **Công cụ OCR bản vẽ PDF cơ khí trên Windows** — trích xuất kích thước, dung sai, duyệt kết quả và xuất Excel kiểm tra.
-
----
-
-## Tính năng chính
-
-| Nhóm | Tính năng |
-|------|-----------|
-| **PDF** | Mở / kéo thả PDF bản vẽ cơ khí, render trang với Pdfium |
-| **OCR tự động** | YOLO ONNX (C# wrapper) phát hiện text-zone → RapidOcrNet / Windows OCR |
-| **Auto Scan** | Quét toàn trang tự động bằng YOLO + RapidOCR, sắp xếp theo thứ tự đọc CAD |
-| **Manual crop** | Vẽ bounding box tay cho các vùng OCR khó |
-| **Auto Map PDF** | Chọn vùng theo thứ tự kiểm tra, tạo MarkStep theo vùng |
-| **Duyệt bảng** | Chỉnh sửa Nominal / Tol− / Tol+ / Tool / Result trực tiếp trên bảng |
-| **Duplicate detect** | Phát hiện và đánh dấu dimension trùng tự động |
-| **Balloon** | Vẽ số balloon trên bản vẽ, điều chỉnh kích thước, copy/paste/duplicate |
-| **Bulk Google AI Recovery** | Gửi contact-sheet ảnh qua Chrome → Google AI → parse kết quả hàng loạt |
-| **Excel export** | Xuất bảng kiểm tra sang `.xlsx` (có formula OK/NG, định dạng chuẩn) |
-| **In ấn** | In bản vẽ đã đánh dấu trực tiếp từ app (`Ctrl+P`) |
-| **Training pipeline** | Tự động thu thập dữ liệu training (OCR correction, YOLO annotation) trong nền |
-| **Session** | Lưu/khôi phục trạng thái làm việc theo file PDF |
-| **Tray icon** | Chạy ẩn hệ thống, hiện lại khi cần |
+**A Windows desktop tool for extracting mechanical dimensions from PDF drawings, reviewing OCR results, correcting tolerances, and exporting inspection data to Excel.**
 
 ---
 
-## Ảnh chụp màn hình
+## Screenshots
 
-| Workspace chính | Bulk Recovery |
-|---|---|
-| ![Main workspace](docs/assets/dimensionocr-app.png) | ![Bulk recovery](docs/assets/bulk-recovery-dialog.png) |
+**Main workspace — balloon marks & dimension table**
 
-| Contact sheet gửi AI | Kết quả trả về từ Google AI |
-|---|---|
-| ![Contact sheet](docs/assets/bulk-contact-sheet.png) | ![Google AI result](docs/assets/google-ai-result.png) |
+![Main workspace](docs/assets/screenshot-main.png)
+
+**Auto Scan result — YOLO detection with numbered balloons**
+
+![Auto scan result](docs/assets/screenshot-scan-result.png)
+
+**Bulk Google AI Recovery — contact sheet preview**
+
+![Bulk AI recovery](docs/assets/screenshot-bulk-recovery.png)
 
 ---
 
-## Yêu cầu hệ thống
+## Features
 
-| Thành phần | Yêu cầu |
-|------------|---------|
+| Category | Feature |
+|----------|---------|
+| **PDF** | Open / drag-drop mechanical PDF drawings, rendered via Pdfium |
+| **Auto Scan** | YOLO ONNX detects text zones → RapidOcrNet reads dimensions, sorted in CAD reading order |
+| **Manual crop** | Draw bounding boxes manually for difficult callouts |
+| **Auto Map PDF** | Select inspection regions in order, generate MarkSteps per region |
+| **Table editing** | Edit Nominal / Tol− / Tol+ / Tool / Result directly in the grid |
+| **Duplicate detection** | Automatically flags duplicate dimension marks |
+| **Balloon marks** | Numbered balloons drawn on the PDF, resizable, copy/paste/duplicate |
+| **Bulk Google AI Recovery** | Sends a crop contact-sheet image to Google AI via Chrome → parses results back into the table |
+| **Excel export** | Export inspection table to `.xlsx` with OK/NG formulas |
+| **Print** | Print the marked drawing directly from the app (`Ctrl+P`) |
+| **Training pipeline** | Silently collects OCR corrections and YOLO annotations for model retraining |
+| **Session save/restore** | State is saved and restored per PDF file |
+| **System tray** | Minimize to tray, restore on demand |
+
+---
+
+## Requirements
+
+| Component | Requirement |
+|-----------|------------|
 | **OS** | Windows 10 / 11 (64-bit) |
-| **PowerShell** | PowerShell 7 (`pwsh`) — khuyến nghị; hoặc Windows PowerShell 5.1 |
-| **.NET Runtime** | .NET 8 (dùng bởi `RapidOcrNet.dll`, `YoloCadOnnxModel.dll`) |
-| **Google Chrome** | Cần thiết cho tính năng Bulk Google AI Recovery (tự động hoá qua Chrome) |
+| **PowerShell** | PowerShell 7 (`pwsh`) — recommended; Windows PowerShell 5.1 also works |
+| **.NET Runtime** | .NET 8 (used by `RapidOcrNet.dll`, `YoloCadOnnxModel.dll`) |
+| **Google Chrome** | Required for Bulk Google AI Recovery (Chrome automation) |
 
 ---
 
-## Cài đặt nhanh
+## Quick Start
 
 ```powershell
-# Clone repo
+# Clone
 git clone https://github.com/vuductho96/ScanDrawingOcr.git
 cd ScanDrawingOcr
 
-# Chạy app
+# Run
 .\Run-RapidOcrProUpdate-PS7.bat
 ```
 
-Hoặc chạy trực tiếp bằng PowerShell:
+Or launch directly:
 
 ```powershell
 pwsh -NoProfile -ExecutionPolicy Bypass -STA -File .\RapidOcrProUpdate.ps1
 ```
 
-> **Lưu ý:** App cần chạy với `-STA` (Single-Threaded Apartment) để WinForms hoạt động đúng.
+> The `-STA` flag is required for WinForms to function correctly.
 
 ---
 
-## Hướng dẫn sử dụng
+## Usage
 
-### 1 · Mở bản vẽ
+### Open a drawing
 
-- Click **Open PDF**, hoặc **kéo thả file PDF** vào cửa sổ.
-- Điều hướng trang bằng thanh ở góc trên.
+Click **Open PDF** or drag a PDF file into the window. Navigate pages using the top bar.
 
-### 2 · Auto Scan (YOLO + RapidOCR)
+### Auto Scan (YOLO + RapidOCR)
 
-Click **Auto Scan** hoặc vào **Advance → Auto Scan**:
+Click **Scan** or go to **Advance → Auto Scan**:
 
-1. Chạy YOLO ONNX phát hiện text/dimension zones trên trang.
-2. Đọc OCR từng zone bằng RapidOcrNet.
-3. Sắp xếp theo thứ tự đọc CAD chuẩn (top-to-bottom, left-to-right).
-4. Tạo MarkStep có đánh số, đặt balloon lên bản vẽ.
-5. Điền tự động vào bảng (Step / Nominal / Tol− / Tol+).
+1. YOLO ONNX detects mechanical text and dimension zones.
+2. RapidOcrNet reads each zone.
+3. Results are sorted in standard CAD reading order (top-to-bottom bands, left-to-right).
+4. Numbered MarkSteps are created and balloons are placed on the drawing.
+5. The table is filled automatically (Step / Nominal / Tol− / Tol+).
 
-Nhấn `T` để bật/tắt hiển thị bounding box text zone.
+Press `T` to toggle text zone bounding box visibility.
 
-### 3 · Auto Map PDF theo vùng
+### Auto Map PDF
 
 1. Click **Auto Map PDF**.
-2. Kéo vùng Region 1, Region 2, … theo thứ tự kiểm tra.
-3. Dùng **Text Zones**, **Clear Gray Box**, **Delete BBox** để làm sạch box xấu.
-4. Kiểm tra cảnh báo duplicate trong vùng đã chọn.
-5. Click **Finish** để tạo MarkStep theo thứ tự vùng.
+2. Drag Region 1, Region 2, … in the desired inspection order.
+3. Use **Text Zones**, **Clear Gray Box**, and **Delete BBox** to clean bad boxes.
+4. Check for duplicate warnings inside the selected regions.
+5. Click **Finish** to create MarkSteps in region order.
 
-### 4 · Sửa thủ công
+### Manual editing
 
-- Click vào ô bảng để sửa trực tiếp Nominal / Tol− / Tol+ / Tool / Result.
-- Kéo bounding box trên bản vẽ để điều chỉnh vùng crop.
-- Dùng `Ctrl + Z` để undo xoá step.
+- Click any cell to edit Nominal / Tol− / Tol+ / Tool / Result directly.
+- Drag bounding boxes on the drawing to adjust crop regions.
+- Press `Ctrl+Z` to undo a deleted step.
 
-### 5 · Bulk Google AI Recovery
+### Bulk Google AI Recovery
 
-Dùng khi OCR đọc sai nhiều dimension cùng lúc:
+Use when OCR misreads several dimensions at once:
 
-1. Chọn các row cần recovery.
-2. Mở **Advance → Bulk Google AI Recovery**.
-3. Chọn các step cần phục hồi, xem preview crop.
-4. Click **Recover** — app tạo một contact-sheet image và gửi lên Google AI qua Chrome.
-5. Kết quả tự động parse và điền vào bảng.
+1. Select the rows that need recovery.
+2. Open **Advance → Bulk Google AI Recovery**.
+3. Tick the steps to recover and review the crop previews.
+4. Click **Recover** — the app builds a single contact-sheet image and sends it to Google AI via Chrome.
+5. The returned values are parsed and written back into the table.
 
-**Định dạng kết quả AI:**
+Expected AI response format:
 
 ```
 STEP=1 Nominal=7,003 Tol+=0,001 Tol-=0,000
@@ -120,139 +122,139 @@ STEP=2 Nominal=1,490 Tol+=0,000 Tol-=0,000
 STEP=3 Nominal=2,002 Tol+=0,000 Tol-=0,000
 ```
 
-### 6 · Xuất Excel
+### Export to Excel
 
-Click **Export Excel** để xuất bảng kết quả kiểm tra sang `.xlsx`:
-- Có công thức OK/NG tự động.
-- Định dạng tolerance chuẩn cơ khí.
+Click **Export Excel** to export the inspection table to `.xlsx` with OK/NG formulas and standard mechanical tolerance formatting.
 
 ---
 
-## Phím tắt
+## Keyboard Shortcuts
 
-| Phím | Chức năng |
-|------|-----------|
-| `T` | Bật/tắt hiển thị Text Zones |
-| `C` | Bật/tắt Copy View |
-| `B` | Bật/tắt Balloon View |
-| `R` | Xoay trang 90° (clockwise) |
-| `L` | Bật/tắt Leader Line |
-| `S` | Sắp xếp các step tăng dần |
-| `I` | Đánh dấu step là Important |
-| `E` | Giữ duplicate candidate ẩn làm step mới |
-| `Enter` | Chấp nhận gợi ý text-zone ẩn |
-| `Esc` | Huỷ selection |
-| `Space` (giữ) | Chế độ Pan |
-| `Middle Mouse Drag` | Pan bản vẽ |
-| `Mouse Wheel` | Zoom tại con trỏ |
-| `Shift + Mouse Wheel` | Cuộn ngang |
-| `Ctrl + B` | Bật/tắt side panel |
-| `Ctrl + P` | In bản vẽ đã đánh dấu |
-| `Ctrl + Z` | Undo xoá step |
-| `Ctrl + C` | Copy mark đang chọn |
+| Key | Action |
+|-----|--------|
+| `T` | Toggle text zone bounding boxes |
+| `C` | Toggle copy view |
+| `B` | Toggle balloon view |
+| `R` | Rotate page 90° clockwise |
+| `L` | Toggle leader lines |
+| `S` | Sort steps ascending |
+| `I` | Mark selected step as Important |
+| `E` | Keep hidden duplicate candidate as a new step |
+| `Enter` | Accept hidden text-zone suggestion |
+| `Esc` | Cancel current selection |
+| `Space` (hold) | Pan mode |
+| `Middle Mouse Drag` | Pan drawing |
+| `Mouse Wheel` | Zoom at cursor |
+| `Shift + Mouse Wheel` | Horizontal scroll |
+| `Ctrl + B` | Toggle side panel |
+| `Ctrl + P` | Print marked drawing |
+| `Ctrl + Z` | Undo deleted step |
+| `Ctrl + C` | Copy selected mark |
 | `Ctrl + V` | Paste mark |
-| `Ctrl + D` | Duplicate text zone |
-| `Ctrl + 0` | Fit screen |
-| `Ctrl + 1` | Kích thước thực (100%) |
-| `+` / `-` | Tăng / giảm kích thước balloon |
-| `Delete` | Xoá item đang chọn |
+| `Ctrl + D` | Duplicate selected text zone |
+| `Ctrl + 0` | Fit to screen |
+| `Ctrl + 1` | Actual size (100%) |
+| `+` / `-` | Increase / decrease balloon size |
+| `Delete` | Delete selected item |
 
 ---
 
-## Cấu trúc dự án
+## Project Structure
 
 ```
 RapidOcrProUpdateBundle/
 │
-├── RapidOcrProUpdate.ps1          # Script chính — logic nghiệp vụ
-├── RapidOcrProUpdate.UI.ps1       # Module giao diện Windows Forms
-├── RapidOcrProUpdate.Training.ps1 # Module thu thập dữ liệu training
-├── WindowsOcr_Helper.ps1          # Helper Windows OCR (WinRT API)
-├── RapidOcrStartupSplash.hta      # Màn hình splash khi khởi động
+├── RapidOcrProUpdate.ps1            # Main script — business logic
+├── RapidOcrProUpdate.UI.ps1         # Windows Forms UI module
+├── RapidOcrProUpdate.Training.ps1   # Training data collection module
+├── WindowsOcr_Helper.ps1            # Windows OCR helper (WinRT API)
+├── RapidOcrStartupSplash.hta        # Startup splash screen
 │
-├── Run-RapidOcrProUpdate-PS7.bat  # Launcher (BAT — hiện cửa sổ)
-├── Run-RapidOcrProUpdate-PS7.vbs  # Launcher (VBS — chạy ẩn)
+├── Run-RapidOcrProUpdate-PS7.bat    # Launcher (visible console window)
+├── Run-RapidOcrProUpdate-PS7.vbs    # Launcher (hidden, no console)
 │
-├── PdfiumViewer.dll               # .NET wrapper render PDF
-├── pdfium.dll                     # Pdfium native (x64)
+├── PdfiumViewer.dll                 # .NET PDF rendering wrapper
+├── pdfium.dll                       # Pdfium native library (x64)
 │
 ├── lib/
 │   ├── OcrAi/
-│   │   ├── RapidOcrNet/           # RapidOCR .NET (detect + recognize)
-│   │   │   ├── lib/net8.0/        # RapidOcrNet.dll
-│   │   │   └── models/v5/         # Model ONNX (det, rec, cls)
-│   │   ├── YoloCadOnnxModel/      # YOLO CAD detector (C# wrapper)
-│   │   │   ├── cache/best.onnx    # Model YOLO đã train
-│   │   │   ├── lib/net8.0/        # YoloCadOnnxModel.dll
-│   │   │   └── src/               # Source C# wrapper
-│   │   ├── YoloCadDetector/       # Wrapper inference YOLO
-│   │   ├── Microsoft.ML.OnnxRuntime.*/ # ONNX Runtime (native + managed)
-│   │   ├── SkiaSharp/             # Xử lý ảnh (managed)
-│   │   ├── SkiaSharp.NativeAssets.Win32/ # Native SkiaSharp
-│   │   ├── Clipper2/              # Polygon clipping
+│   │   ├── RapidOcrNet/             # RapidOCR .NET engine
+│   │   │   ├── lib/net8.0/          # RapidOcrNet.dll
+│   │   │   └── models/v5/           # ONNX models (det, rec, cls)
+│   │   ├── YoloCadOnnxModel/        # YOLO CAD detector (C# wrapper)
+│   │   │   ├── cache/best.onnx      # Trained YOLO model
+│   │   │   └── lib/net8.0/          # YoloCadOnnxModel.dll
+│   │   ├── YoloCadDetector/         # YOLO inference wrapper
+│   │   ├── Microsoft.ML.OnnxRuntime.*/ # ONNX Runtime
+│   │   ├── SkiaSharp/               # Image processing (managed)
+│   │   ├── SkiaSharp.NativeAssets.Win32/ # SkiaSharp native
+│   │   ├── Clipper2/                # Polygon clipping
 │   │   └── System.Numerics.Tensors/
 │   └── OpenCvSharp/
-│       ├── opencvsharp4/          # OpenCvSharp managed
+│       ├── opencvsharp4/            # OpenCvSharp managed DLL
 │       └── opencvsharp4.runtime.win/  # OpenCvSharpExtern.dll (native)
 │
 ├── tools/
-│   ├── autoscan_bridge.py         # Bridge Python cho Auto Scan
-│   ├── cad_ocr_pipeline.py        # Pipeline OCR toàn bộ bản vẽ CAD
-│   ├── cad_geometric_preprocessor.py  # Tiền xử lý hình học
-│   ├── rapidocr_worker.ps1        # Worker process OCR song song
+│   ├── autoscan_bridge.py           # Python bridge for Auto Scan
+│   ├── cad_ocr_pipeline.py          # Full-page CAD OCR pipeline
+│   ├── cad_geometric_preprocessor.py # Geometric pre-processing
+│   ├── rapidocr_worker.ps1          # Parallel OCR worker process
 │   └── Capture2Text/
-│       └── Capture2Text_463/      # Capture2Text binary (OCR fallback)
+│       └── Capture2Text_463/        # Capture2Text binary (OCR fallback)
 │
-├── SecureBuild/                   # Build wrapper EXE (mã hoá script)
-│   ├── Loader/                    # C# loader giải mã payload.dat
-│   ├── EncryptTool/               # Tool mã hoá .ps1 → payload.dat
-│   └── README.md                  # Hướng dẫn build EXE
+├── SecureBuild/                     # EXE wrapper build (encrypted script)
+│   ├── Loader/                      # C# loader — decrypts payload.dat in memory
+│   ├── EncryptTool/                 # Encrypts .ps1 → payload.dat
+│   └── README.md                    # Build instructions
 │
 ├── docs/
-│   └── assets/                    # Ảnh cho README
+│   └── assets/                      # README screenshots
 │
 └── .gitignore
 ```
 
 ---
 
-## Build EXE (phân phối đã mã hoá)
+## Building the EXE Distribution
+
+To distribute as a standalone `.exe` with the PowerShell source encrypted:
 
 ```powershell
 cd SecureBuild
 
-# Restore NuGet
+# Restore NuGet packages
 dotnet restore .\Loader\SecurePs1Loader.csproj
 dotnet restore .\EncryptTool\EncryptTool.csproj
 
-# Publish
+# Publish both projects
 dotnet publish .\Loader\SecurePs1Loader.csproj -c Release -r win-x64
 dotnet publish .\EncryptTool\EncryptTool.csproj -c Release -r win-x64
 
-# Mã hoá scripts thành payload.dat
+# Encrypt scripts into payload.dat
 .\EncryptTool\bin\Release\net8.0\win-x64\publish\EncryptTool.exe `
     ..\RapidOcrProUpdate.ps1 `
     .\Release-SimpleDrag\payload.dat
 
-# Copy dependencies
+# Copy runtime dependencies
 .\Copy-AppSupportFiles.ps1
 ```
 
-> Script `.ps1` không bao giờ được ghi ra disk — chỉ giải mã trong bộ nhớ.  
-> Xem chi tiết tại [`SecureBuild/README.md`](SecureBuild/README.md).
+> The loader never writes the decrypted script to disk — it runs entirely in memory.  
+> See [`SecureBuild/README.md`](SecureBuild/README.md) for full details.
 
 ---
 
-## Training pipeline
+## Training Pipeline
 
-App tự động thu thập dữ liệu training trong nền khi người dùng sửa OCR:
+The app silently collects training data in the background as the operator corrects OCR results:
 
-- **OCR corrections** → `training_dataset/ocr_corrections/` (ảnh crop + nhãn đúng)
-- **YOLO annotations** → `training_dataset/yolo_detection/` (ảnh + YOLO label)
-- Trạng thái sẵn sàng training được hiển thị trên UI.
+- **OCR corrections** → `training_dataset/ocr_corrections/` (cropped images + correct labels)
+- **YOLO annotations** → `training_dataset/yolo_detection/` (images + YOLO label files)
+
+This data can be used to fine-tune the YOLO and OCR models for specific drawing styles.
 
 ---
 
-## Trạng thái dự án
+## Status
 
-**Đang phát triển tích cực.**
+**Active development.**
