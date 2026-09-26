@@ -23,23 +23,21 @@
 ```mermaid
 flowchart TD
     A["📄 PDF Drawing\n(Pdfium render → Bitmap)"]
-    B["🔍 YOLO Detection\n(YoloCadOnnxModel — ONNX)\nLocate mechanical text zones"]
-    C["📦 Candidate Regions\n(Bounding boxes sorted\nCAD reading order)"]
-    D["📝 DB Net — Text Detection\n(7749 Algorithm)\nPrecise text boundary detection\ninside each YOLO zone"]
-    E{"Text layer\navailable?"}
-    F["🔤 RapidOcrNet\n(ONNX — det + cls + rec)\nCharacter recognition"]
-    G["🪟 Windows OCR\n(WinRT API — fallback)"]
-    H["🧹 Post-processing\nMerge fragments · Parse nominal\nExtract Tol− / Tol+\nDuplicate detection"]
-    I["📊 Inspection Table\nStep · Nominal · Tol− · Tol+\nTool · Result · Flag"]
-    J["📁 Excel Export\n(.xlsx · OK/NG formula)"]
+    B["🔍 YOLO Detection\n(YoloCadOnnxModel — ONNX)\nFind & locate dimension text zones"]
+    C["✂️ Region Crop\nEach zone cropped to image\nSorted in CAD reading order\ntop-to-bottom · left-to-right"]
+    E{"Confidence\ncheck"}
+    F["🔤 RapidOcrNet\n(ONNX — det + cls + rec)\nMain OCR engine"]
+    G["🪟 Windows OCR\n(WinRT API)\nFallback when confidence low"]
+    H["🧹 Post-processing\nParse nominal value\nExtract Tol− / Tol+\nMerge split fragments\nDuplicate detection"]
+    I["📊 Inspection Table\nStep · Nominal · Tol− · Tol+\nTool · Result · Dup flag"]
+    J["📁 Excel Export\n.xlsx · OK/NG formula"]
     K["🎈 Balloon Marks\nNumbered overlays\non PDF drawing"]
 
     A --> B
     B --> C
-    C --> D
-    D --> E
-    E -- "Yes" --> F
-    E -- "No / Low confidence" --> G
+    C --> E
+    E -- "High ✅" --> F
+    E -- "Low ⚠️" --> G
     F --> H
     G --> H
     H --> I
