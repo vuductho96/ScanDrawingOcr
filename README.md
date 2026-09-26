@@ -14,8 +14,6 @@
 
 ![Auto scan result](docs/assets/screenshot-scan-result.png)
 
-**Bulk Google AI Recovery — contact sheet preview**
-
 ![Bulk AI recovery](docs/assets/screenshot-bulk-recovery.png)
 
 ---
