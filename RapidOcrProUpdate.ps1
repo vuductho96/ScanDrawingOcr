@@ -768,13 +768,13 @@ function Apply-TableSearchFilter{
 function Set-DrawSidePanelControlsVisible($visible){
     $visibleFlag = [bool]$visible
     foreach($control in @(
-        $btnLoad,$btnExcel,$btnAdvance,$btnAutoScan,$grpOcrDebug,$lblTableSearch,$txtTableSearch,
+        $btnLoad,$btnExcel,$btnAdvance,$btnAutoScan,$lblTableSearch,$txtTableSearch,
         $btnResultsView,$table,$lblPreviewTitle,$preview,$grpDefaultTol,$grpPreset,
         $grpTolMode
     )){
         try{
             if($control -and $control -ne $btnToggleSidePanel){
-                $control.Visible = $visibleFlag
+                $control.Visible = $visibleFlag -and ($control -ne $grpDefaultTol -or $script:DefaultToleranceEnabled)
             }
         }
         catch{}
@@ -937,13 +937,14 @@ function Update-UiLayout{
     }
 
     $sidebarAvailableHeight = [Math]::Max(420,($tabDraw.ClientSize.Height - $infoRowTop - $margin))
-    $debugTopHeight = 42
+    $debugTopHeight = 0
+    $grpOcrDebug.Visible = $false
     $grpOcrDebug.Location = New-Object Drawing.Point($drawSidebarX,$infoRowTop)
     $grpOcrDebug.Size = New-Object Drawing.Size($drawSidebarWidth,$debugTopHeight)
     $txtOcrDebug.Location = New-Object Drawing.Point(8,18)
     $txtOcrDebug.Size = New-Object Drawing.Size([Math]::Max(100,($grpOcrDebug.ClientSize.Width - 16)),18)
 
-    $searchRowTop = $grpOcrDebug.Bottom + 6
+    $searchRowTop = $infoRowTop
     $searchLabelWidth = [Math]::Max(74,($lblTableSearch.PreferredWidth + 4))
     $lblTableSearch.Location = New-Object Drawing.Point($drawSidebarX,($searchRowTop + 4))
     $txtTableSearch.Location = New-Object Drawing.Point(($lblTableSearch.Right + 6),$searchRowTop)
@@ -1010,6 +1011,8 @@ function Update-UiLayout{
 
     $grpPreset.Location = New-Object Drawing.Point($drawSidebarX,$debugRowTop)
     $grpPreset.Size = New-Object Drawing.Size($presetWidth,$presetHeight)
+    $chkPresetEdit.Location = New-Object Drawing.Point(($grpPreset.ClientSize.Width - 84),0)
+    if($script:PresetEditor){ Close-PresetEditor $false }
 
     $presetButtons = @(
         @($grpPreset.Controls | Where-Object { $_ -is [System.Windows.Forms.Button] })
@@ -1507,6 +1510,7 @@ $form.Add_FormClosing({
         }
     }
     catch{}
+    Stop-RapidOcrWorker
     Dispose-DocumentPages
 })
 # =========================
@@ -1534,6 +1538,8 @@ $script:draggingMarkKind = $null
 $script:UiCopiedMarks = @()
 $script:NextUiCopiedMarkId = 1
 $script:CopyViewOnly = $false
+$script:ShowBalloons = $true
+$script:DefaultToleranceEnabled = $true
 $script:BalloonColorPreset = "White"
 $script:LeaderLineEnabled = $true
 $script:TrainingSaveExportEnabled = $false
@@ -1851,6 +1857,7 @@ function Get-MarkLayoutMetrics($renderScale){
 
 function Get-MarkAtPoint($mouseX,$mouseY){
 
+    if(-not $script:ShowBalloons){ return $null }
     foreach($m in $script:marks){
         if(!$m){ continue }
 
@@ -1880,6 +1887,7 @@ function Get-UiCopiedMarkById($copyId){
 
 function Get-UiCopiedMarkAtPoint($mouseX,$mouseY){
 
+    if(-not $script:ShowBalloons){ return $null }
     for($i = $script:UiCopiedMarks.Count - 1; $i -ge 0; $i--){
         $m = $script:UiCopiedMarks[$i]
         if(!$m){ continue }
@@ -2015,6 +2023,20 @@ function Update-CopyViewButton{
     }
 }
 
+function Update-BalloonViewMenuState{
+    if($miOptionBalloon){
+        $miOptionBalloon.Checked = [bool]$script:ShowBalloons
+        $miOptionBalloon.Text = "Balloon (B)"
+    }
+}
+
+function Toggle-BalloonView{
+    $script:ShowBalloons = -not [bool]$script:ShowBalloons
+    Update-BalloonViewMenuState
+    Request-CanvasRedraw
+    Save-SessionState
+}
+
 function Update-AdvancePanelButton{
 
     if(!$btnAdvance){ return }
@@ -2044,6 +2066,22 @@ function Update-PdfTextZonesButton{
             $miAdvancePdfTextZones.Checked = $false
         }
     }
+}
+
+function Update-DefaultTolMenuState{
+    if($miOptionDefaultTol -and $grpDefaultTol){
+        $miOptionDefaultTol.Checked = [bool]$script:DefaultToleranceEnabled
+        $miOptionDefaultTol.Text = "Default Tol"
+    }
+}
+
+function Toggle-DefaultTolView{
+    if(!$grpDefaultTol){ return }
+    $script:DefaultToleranceEnabled = -not $script:DefaultToleranceEnabled
+    $grpDefaultTol.Visible = $script:DefaultToleranceEnabled -and -not $script:IsDrawSidePanelCollapsed
+    Update-DefaultTolMenuState
+    Update-UiLayout
+    Save-SessionState
 }
 
 function Update-InspectionSampleAutoFillButton{
@@ -4224,20 +4262,55 @@ function Reset-PageMarkupState($page){
     $page | Add-Member -NotePropertyName PdfTextLayerBlockCount -NotePropertyValue 0 -Force
 }
 
+function Rotate-MarkupRectClockwise($rect,$height){
+    return [Drawing.Rectangle]::new(($height - $rect.Bottom),$rect.X,$rect.Height,$rect.Width)
+}
+
+function Rotate-PageMarkupClockwise($page,$height){
+    foreach($entry in @($page.Entries) + @($page.DeletedEntries)){
+        if(!$entry){ continue }
+        if($entry.Rect){ $entry.Rect = Rotate-MarkupRectClockwise $entry.Rect $height }
+        if($entry.Mark){
+            $x = $entry.Mark.X
+            $entry.Mark.X = $height - $entry.Mark.Y
+            $entry.Mark.Y = $x
+        }
+    }
+    foreach($mark in @($page.UiCopiedMarks)){
+        if(!$mark){ continue }
+        $x = $mark.X
+        $mark.X = $height - $mark.Y
+        $mark.Y = $x
+    }
+    foreach($name in @('DuplicateDeclinedRects','SuppressedTextZoneRects')){
+        $page.$name = @(foreach($rect in @($page.$name)){ if($rect){ Rotate-MarkupRectClockwise $rect $height } })
+    }
+    foreach($stroke in @($page.HighlightStrokes)){
+        if(!$stroke){ continue }
+        $stroke.Points = @(foreach($point in @($stroke.Points)){ [Drawing.PointF]::new(($height - $point.Y),$point.X) })
+    }
+    # Text-zone proposals are regenerated; measured steps remain authoritative.
+    $page.PdfTextLayerZones = @()
+    $page.TextZoneCacheKey = $null
+    $page | Add-Member -NotePropertyName TextZoneCacheResolved -NotePropertyValue $false -Force
+}
+
 function Rotate-CurrentPageClockwise{
 
     $page = Get-CurrentDocumentPage
     if(!$page -or !$page.Bitmap){ return $false }
 
+    if($table){ $null = $table.EndEdit() }
+    Save-CurrentPageState
     $rotatedBitmap = $null
     try{
         $rotatedBitmap = Rotate-Bitmap $page.Bitmap 90
         if(!$rotatedBitmap){ return $false }
 
         $oldBitmap = $page.Bitmap
+        Rotate-PageMarkupClockwise $page $oldBitmap.Height
         $page.Bitmap = $rotatedBitmap
         $page.RotationDegrees = Get-NormalizedRotationDegrees ((Get-StatePropertyValue $page "RotationDegrees") + 90)
-        Reset-PageMarkupState $page
 
         if($oldBitmap){ $oldBitmap.Dispose() }
         $rotatedBitmap = $null
@@ -4248,6 +4321,7 @@ function Rotate-CurrentPageClockwise{
         Clear-PreviewImage
         Clear-HiddenTextZoneHover
         Set-ViewMode "FitScreen"
+        Restore-PageTextZoneCache $page
         Apply-PageState $page
         Refresh-DuplicateState
         Update-CanvasCursor
@@ -4439,11 +4513,11 @@ function Show-PdfTextLayerAvailabilityHint{
         $txtOcrDebug.Text = (
             "PDF text layer detected" + [Environment]::NewLine +
             ("Text blocks: {0}" -f [int]$availability.BlockCount) + [Environment]::NewLine +
-            "Use: Text Zones / Auto Map PDF"
+            "PDF text-layer tools are disabled in this build."
         )
     }
     else{
-        $txtOcrDebug.Text = "No PDF text layer detected. Text Zones / Auto Map PDF require embedded PDF text layer."
+        $txtOcrDebug.Text = "No PDF text layer detected."
     }
 }
 
@@ -6334,6 +6408,75 @@ function Get-WritablePdfOutputPath($requestedPdfPath){
     throw ("Unable to create PDF output. Files are locked starting from: " + $requestedPdfPath)
 }
 
+function Invoke-TolerancePreset([string]$value){
+    $number = 0.0
+    if([double]::TryParse($value,[Globalization.NumberStyles]::Float,[Globalization.CultureInfo]::InvariantCulture,[ref]$number) -and -not [double]::IsNaN($number) -and -not [double]::IsInfinity($number)){
+        Apply-Tolerance ([Math]::Abs($number))
+        return
+    }
+    switch($value){
+        "°" { Apply-NominalDecoration "DEGREE"; return }
+        "Ø" { Apply-NominalDecoration "D_PREFIX"; return }
+        "R" { Apply-NominalDecoration "R_PREFIX"; return }
+        "C" { Apply-NominalDecoration "C_PREFIX"; return }
+    }
+    if([string]::IsNullOrWhiteSpace($value)){ return }
+    foreach($row in $table.SelectedRows){
+        $nominal = [string]$row.Cells[1].Value
+        if(-not $nominal.StartsWith($value,[StringComparison]::Ordinal)){
+            $row.Cells[1].Value = $value + $nominal
+        }
+    }
+    Sync-MarkStepTextZonesFromTable
+    Refresh-DuplicateState
+    Save-CurrentPageState
+    Save-SessionState
+    Request-CanvasRedraw
+}
+
+function Close-PresetEditor([bool]$save){
+    $editor = $script:PresetEditor
+    if(!$editor){ return }
+    $button = $script:PresetEditorButton
+    $script:PresetEditor = $null
+    $script:PresetEditorButton = $null
+    if($save -and $button -and -not [string]::IsNullOrWhiteSpace($editor.Text)){
+        $button.Text = $editor.Text.Trim()
+        $button.Tag = $button.Text
+        $script:bandFirst = $null
+        Save-SessionState
+    }
+    $editor.Dispose()
+}
+
+function Invoke-PresetButtonClick($button){
+    if(!$chkPresetEdit.Checked){ Invoke-TolerancePreset $button.Text; return }
+    Close-PresetEditor $false
+    $editor = New-Object Windows.Forms.TextBox
+    $editor.AutoSize = $false
+    $editor.Bounds = $button.Bounds
+    $editor.Font = $button.Font
+    $editor.TextAlign = [Windows.Forms.HorizontalAlignment]::Center
+    $editor.Text = $button.Text
+    $script:PresetEditor = $editor
+    $script:PresetEditorButton = $button
+    $grpPreset.Controls.Add($editor)
+    $editor.BringToFront()
+    $editor.Add_KeyDown({
+        if($_.KeyCode -eq [Windows.Forms.Keys]::Enter){
+            $_.SuppressKeyPress = $true
+            Close-PresetEditor $true
+        }
+        elseif($_.KeyCode -eq [Windows.Forms.Keys]::Escape){
+            $_.SuppressKeyPress = $true
+            Close-PresetEditor $false
+        }
+    })
+    $editor.Add_LostFocus({ Close-PresetEditor $false })
+    $editor.SelectAll()
+    $null = $editor.Focus()
+}
+
 function Apply-Tolerance($value){
 
     if(!$table.SelectedRows.Count){ return }
@@ -7739,6 +7882,9 @@ function Get-CurrentSessionState{
         PartUser = $script:PartUser
         InspectionDate = $script:InspectionDate
         BalloonColorPreset = $script:BalloonColorPreset
+        ShowBalloons = [bool]$script:ShowBalloons
+        DefaultToleranceEnabled = [bool]$script:DefaultToleranceEnabled
+        TolerancePresets = @($grpPreset.Controls | Where-Object { $_ -is [Windows.Forms.Button] } | ForEach-Object { $_.Text })
         LeaderLineEnabled = [bool]$script:LeaderLineEnabled
         MeasurementResults = @(
             foreach($stepKey in @($script:MeasurementResults.Keys)){
@@ -7891,6 +8037,21 @@ function Apply-SessionStateObject($state){
         Update-JudgeOkMenuItem
 
         $stateDefaultTolerance = Get-StatePropertyValue $state "DefaultTolerance"
+        $enabled = Get-StatePropertyValue $state "DefaultToleranceEnabled"
+        $script:DefaultToleranceEnabled = if($null -eq $enabled){ $true } else { [bool]$enabled }
+        $grpDefaultTol.Visible = $script:DefaultToleranceEnabled
+        Update-DefaultTolMenuState
+        $balloons = Get-StatePropertyValue $state "ShowBalloons"
+        $script:ShowBalloons = if($null -eq $balloons){ $true } else { [bool]$balloons }
+        Update-BalloonViewMenuState
+        $savedPresets = @(Get-StatePropertyValue $state "TolerancePresets")
+        $presetButtons = @($grpPreset.Controls | Where-Object { $_ -is [Windows.Forms.Button] })
+        for($i = 0; $i -lt [Math]::Min($savedPresets.Count,$presetButtons.Count); $i++){
+            if(-not [string]::IsNullOrWhiteSpace([string]$savedPresets[$i])){
+                $presetButtons[$i].Text = [string]$savedPresets[$i]
+                $presetButtons[$i].Tag = [string]$savedPresets[$i]
+            }
+        }
         if($stateDefaultTolerance){
             if((Get-StatePropertyValue $stateDefaultTolerance "Tol0") -ne $null){ $txtTol0.Text = [string](Get-StatePropertyValue $stateDefaultTolerance "Tol0") }
             if((Get-StatePropertyValue $stateDefaultTolerance "Tol1") -ne $null){ $txtTol1.Text = [string](Get-StatePropertyValue $stateDefaultTolerance "Tol1") }
@@ -9890,10 +10051,12 @@ $btnAdvance.Add_Click({
     if($advanceMenu){
         Update-CopyViewButton
         Update-PdfTextZonesButton
+        Update-BalloonViewMenuState
         Update-InspectionSampleAutoFillButton
         Update-BalloonColorMenuState
         Update-LeaderLineMenuState
         Update-TrainingSaveExportMenuState
+        Update-DefaultTolMenuState
         Update-SidePanelToggleUi
         $advanceMenu.Show($btnAdvance,0,$btnAdvance.Height)
     }
@@ -9903,7 +10066,7 @@ if($btnToggleSidePanel){
     $btnToggleSidePanel.Add_Click({ Toggle-DrawSidePanel })
 }
 
-$miAdvanceRotatePage = $null
+if(-not $miAdvanceRotatePage){ $miAdvanceRotatePage = $null }
 $miAdvanceSampleAutoFill = $null
 $miAdvanceBulkAiRecovery = $null
 $miAdvanceCapturePromptArea = $null
@@ -9911,16 +10074,6 @@ if($advanceMenu){
     $miAdvanceSampleAutoFill = New-Object System.Windows.Forms.ToolStripMenuItem("Sample Auto Fill On")
     if($miAdvanceOcrMenu){ [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceSampleAutoFill) }
     else{ [void]$advanceMenu.Items.Add($miAdvanceSampleAutoFill) }
-    $miAdvanceBulkAiRecovery = New-Object System.Windows.Forms.ToolStripMenuItem("Bulk Google AI Recovery")
-    if($miAdvanceOcrMenu){ [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceBulkAiRecovery) }
-    else{ [void]$advanceMenu.Items.Add($miAdvanceBulkAiRecovery) }
-    $miAdvanceCapturePromptArea = New-Object System.Windows.Forms.ToolStripMenuItem("Capture Google AI Prompt Area")
-    if($miAdvanceOcrMenu){ [void]$miAdvanceOcrMenu.DropDownItems.Add($miAdvanceCapturePromptArea) }
-    else{ [void]$advanceMenu.Items.Add($miAdvanceCapturePromptArea) }
-    $miAdvanceRotatePage = New-Object System.Windows.Forms.ToolStripMenuItem("Rotate Drawing 90°")
-    $miAdvanceRotatePage.ShortcutKeyDisplayString = "Ctrl+Shift+R"
-    if($miAdvanceViewMenu){ [void]$miAdvanceViewMenu.DropDownItems.Add($miAdvanceRotatePage) }
-    else{ [void]$advanceMenu.Items.Add($miAdvanceRotatePage) }
     $miAdvanceDeleteCurrentSession = New-Object System.Windows.Forms.ToolStripMenuItem("Delete Current Session")
     $miAdvanceDeleteCurrentSession.ForeColor = [System.Drawing.Color]::FromArgb(192,32,32)
     if($miAdvanceDangerMenu){ [void]$miAdvanceDangerMenu.DropDownItems.Add($miAdvanceDeleteCurrentSession) }
@@ -10012,14 +10165,9 @@ function Update-AutoMapRegionToolButtons{
 }
 
 function Toggle-QuickTextZoneView{
-    if($btnPdfTextZones){
-        $btnPdfTextZones.PerformClick()
-    }
-    else{
-        $script:ShowPdfTextZones = -not $script:ShowPdfTextZones
-        Update-PdfTextZonesButton
-        Request-CanvasRedraw
-    }
+    $script:ShowPdfTextZones = -not $script:ShowPdfTextZones
+    Update-PdfTextZonesButton
+    Request-CanvasRedraw
     if($script:AutoMapRegionMode){
         Refresh-AutoMapPreparedCandidatesFromCurrentZones
     }
@@ -10054,11 +10202,17 @@ if($miAdvanceEditSteps){
 if($miAdvanceSortSteps){
     $miAdvanceSortSteps.Add_Click({ $btnSortStepAsc.PerformClick() })
 }
+if($miOptionBalloon){
+    $miOptionBalloon.Add_Click({ Toggle-BalloonView })
+}
 if($miAdvanceCopyView){
     $miAdvanceCopyView.Add_Click({ $btnCopyView.PerformClick() })
 }
+if($miOptionDefaultTol){
+    $miOptionDefaultTol.Add_Click({ Toggle-DefaultTolView })
+}
 if($miAdvancePdfTextZones){
-    $miAdvancePdfTextZones.Add_Click({ $btnPdfTextZones.PerformClick() })
+    $miAdvancePdfTextZones.Add_Click({ Toggle-QuickTextZoneView })
 }
 if($miAdvanceToggleSidePanel){
     $miAdvanceToggleSidePanel.Add_Click({ Toggle-DrawSidePanel })
@@ -10070,7 +10224,7 @@ if($miAdvanceAutoScan){
 }
 
 # --- OCR Model radio-style submenu ---
-$script:AutoScanSelectedModel = "PP-OCRv4 CAD (Fine-Tuned)"
+$script:AutoScanSelectedModel = "RapidOCR Current"
 $script:OcrModelMenuItems = @($miOcrModelV4,$miOcrModelV6,$miOcrModelHybrid,$miOcrModelBuiltin)
 
 function Set-OcrModelSelection($selectedItem){
@@ -10123,10 +10277,10 @@ if($miAdvanceCapturePromptArea){
 }
 if($miAdvanceRotatePage){
     $miAdvanceRotatePage.Add_Click({
-        if(Rotate-CurrentPageClockwise){
-            if($txtOcrDebug){
-                $txtOcrDebug.Text = "Drawing rotated 90 degrees."
-            }
+            if(Rotate-CurrentPageClockwise){
+                if($txtOcrDebug){
+                    $txtOcrDebug.Text = "PDF rotated 90 degrees."
+                }
         }
     })
 }
@@ -10136,23 +10290,34 @@ if($miAdvanceDeleteCurrentSession){
     })
 }
 $btnDegreeSymbol.Add_Click({
-    Apply-NominalDecoration "DEGREE"
+    Invoke-PresetButtonClick $this
 })
 
 $btnDiameterSymbol.Add_Click({
-    Apply-NominalDecoration "D_PREFIX"
+    Invoke-PresetButtonClick $this
 })
 
 $btnRadiusSymbol.Add_Click({
-    Apply-NominalDecoration "R_PREFIX"
+    Invoke-PresetButtonClick $this
 })
 
 $btnChamferSymbol.Add_Click({
-    Apply-NominalDecoration "C_PREFIX"
+    Invoke-PresetButtonClick $this
 })
+
+$chkPresetEdit.Add_CheckedChanged({
+    Close-PresetEditor $false
+    foreach($button in @($grpPreset.Controls | Where-Object { $_ -is [Windows.Forms.Button] })){
+        $button.BackColor = if($chkPresetEdit.Checked){ [Drawing.Color]::LightYellow } else { [Drawing.SystemColors]::Control }
+    }
+})
+foreach($presetButton in @($grpPreset.Controls | Where-Object { $_ -is [Windows.Forms.Button] })){
+    $presetButton.AutoEllipsis = $true
+}
 
 $form.Add_KeyDown({
 
+    if($script:PresetEditor -and $script:PresetEditor.ContainsFocus){ return }
     if($_.KeyCode -eq [System.Windows.Forms.Keys]::Space){
         if(-not $script:isSpacePressed){
             $script:isSpacePressed = $true
@@ -10202,10 +10367,22 @@ $form.Add_KeyDown({
         return
     }
 
-    if($_.Control -and $_.Shift -and $_.KeyCode -eq [System.Windows.Forms.Keys]::R){
+    if((-not (Test-TextInputActive)) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::S){
+        if($btnSortStepAsc){ $btnSortStepAsc.PerformClick() } else { Sort-VisibleSteps }
+        $_.SuppressKeyPress = $true
+        return
+    }
+
+    if((-not (Test-TextInputActive)) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::T){
+        Toggle-QuickTextZoneView
+        $_.SuppressKeyPress = $true
+        return
+    }
+
+    if((-not (Test-TextInputActive)) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::R){
         if(Rotate-CurrentPageClockwise){
             if($txtOcrDebug){
-                $txtOcrDebug.Text = "Drawing rotated 90 degrees."
+                $txtOcrDebug.Text = "PDF rotated 90 degrees."
             }
             $_.SuppressKeyPress = $true
             return
@@ -10216,14 +10393,6 @@ $form.Add_KeyDown({
         Toggle-DrawSidePanel
         $_.SuppressKeyPress = $true
         return
-    }
-
-    if((-not (Test-TextInputActive)) -and $_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::S){
-        if((Get-SelectedStepRowIndex) -ge 0){
-            Invoke-AiRecoveryModeForSelectedStep
-            $_.SuppressKeyPress = $true
-            return
-        }
     }
 
     if((-not (Test-TextInputActive)) -and $_.Control -and $_.KeyCode -eq [System.Windows.Forms.Keys]::P){
@@ -10283,12 +10452,6 @@ $form.Add_KeyDown({
         }
     }
 
-    if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::T){
-        Toggle-QuickTextZoneView
-        $_.SuppressKeyPress = $true
-        return
-    }
-
     if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt -and $_.KeyCode -eq [System.Windows.Forms.Keys]::C){
         Toggle-QuickCopyView
         $_.SuppressKeyPress = $true
@@ -10297,10 +10460,9 @@ $form.Add_KeyDown({
 
     if(-not (Test-TextInputActive) -and -not $_.Control -and -not $_.Alt){
         if($_.KeyCode -eq [System.Windows.Forms.Keys]::B){
-            if(Set-SelectedStepToolState "B"){
-                $_.SuppressKeyPress = $true
-                return
-            }
+            Toggle-BalloonView
+            $_.SuppressKeyPress = $true
+            return
         }
         if($_.KeyCode -eq [System.Windows.Forms.Keys]::I){
             if(Set-SelectedStepToolState "I"){
@@ -11053,7 +11215,7 @@ function Get-DetachedToleranceFromStuckNominal($text,$nominal){
 
 function Get-GeneralToleranceForNominal($nominalText){
 
-    if([string]::IsNullOrWhiteSpace([string]$nominalText)){
+    if(-not $script:DefaultToleranceEnabled -or [string]::IsNullOrWhiteSpace([string]$nominalText)){
         return [PSCustomObject]@{
             TolMinus = ""
             TolPlus = ""
@@ -11569,9 +11731,163 @@ function Extract-ToleranceFromRegion($image, $x, $y, $w, $h, $nominalText = ""){
 # OCR FUNCTION
 # =========================
 
+function Get-CurrentPowerShellExePath{
+    try{
+        $currentProc = Get-Process -Id $PID -ErrorAction Stop
+        if($currentProc -and (Test-Path -LiteralPath $currentProc.Path)){
+            return [string]$currentProc.Path
+        }
+    }
+    catch{}
+    return "pwsh.exe"
+}
+
+function Wait-RapidOcrWorkerReady($timeoutSeconds = 30){
+    if(!$script:RapidOcrWorkerProcess -or $script:RapidOcrWorkerProcess.HasExited){ return $false }
+    if(!$script:RapidOcrWorkerReadyTask){ return $true }
+
+    $deadline = [DateTime]::UtcNow.AddSeconds([double]$timeoutSeconds)
+    while([DateTime]::UtcNow -lt $deadline){
+        [System.Windows.Forms.Application]::DoEvents()
+        if($script:RapidOcrWorkerReadyTask.IsCompleted){
+            try{
+                $line = [string]$script:RapidOcrWorkerReadyTask.Result
+                $script:RapidOcrWorkerReadyTask = $null
+                $msg = $line | ConvertFrom-Json
+                if([string]$msg.type -eq "ready" -and [bool]$msg.ok){ return $true }
+            }
+            catch{
+                $script:RapidOcrWorkerReadyTask = $null
+            }
+            return $false
+        }
+        if($script:RapidOcrWorkerProcess.HasExited){ break }
+        Start-Sleep -Milliseconds 60
+    }
+
+    return $false
+}
+
+function Start-RapidOcrWorker([switch]$NoWait){
+    if($script:RapidOcrWorkerProcess -and -not $script:RapidOcrWorkerProcess.HasExited){
+        if($NoWait){ return $true }
+        return (Wait-RapidOcrWorkerReady 30)
+    }
+    if($script:RapidOcrWorkerUnavailable){ return $false }
+
+    $workerScript = Join-Path $script:AppRoot "tools\rapidocr_worker.ps1"
+    if(!(Test-Path -LiteralPath $workerScript)){
+        $script:RapidOcrWorkerUnavailable = $true
+        return $false
+    }
+
+    try{
+        $psi = [System.Diagnostics.ProcessStartInfo]::new()
+        $psi.FileName = Get-CurrentPowerShellExePath
+        $psi.UseShellExecute = $false
+        $psi.CreateNoWindow = $true
+        $psi.RedirectStandardInput = $true
+        $psi.RedirectStandardOutput = $true
+        $psi.RedirectStandardError = $true
+        foreach($arg in @(
+            "-NoLogo",
+            "-NoProfile",
+            "-ExecutionPolicy", "Bypass",
+            "-File", $workerScript,
+            "-AppRoot", $script:AppRoot
+        )){
+            [void]$psi.ArgumentList.Add([string]$arg)
+        }
+
+        $proc = [System.Diagnostics.Process]::new()
+        $proc.StartInfo = $psi
+        [void]$proc.Start()
+        $script:RapidOcrWorkerProcess = $proc
+        $script:RapidOcrWorkerReadyTask = $proc.StandardOutput.ReadLineAsync()
+
+        if($NoWait){ return $true }
+        if(Wait-RapidOcrWorkerReady 30){ return $true }
+    }
+    catch{}
+
+    Stop-RapidOcrWorker
+    $script:RapidOcrWorkerUnavailable = $true
+    return $false
+}
+
+function Invoke-RapidOcrWorkerText($imagePath){
+    if(!$script:RapidOcrWorkerProcess -or $script:RapidOcrWorkerProcess.HasExited){ return $null }
+
+    $requestId = [guid]::NewGuid().ToString("N")
+    $payload = [ordered]@{
+        type = "ocr"
+        id = $requestId
+        image = [string](Resolve-Path -LiteralPath $imagePath)
+    }
+    $json = $payload | ConvertTo-Json -Compress -Depth 6
+
+    try{
+        $script:RapidOcrWorkerProcess.StandardInput.WriteLine($json)
+        $script:RapidOcrWorkerProcess.StandardInput.Flush()
+    }
+    catch{
+        Stop-RapidOcrWorker
+        return $null
+    }
+
+    $responseTask = $script:RapidOcrWorkerProcess.StandardOutput.ReadLineAsync()
+    $deadline = [DateTime]::UtcNow.AddSeconds(20)
+    while([DateTime]::UtcNow -lt $deadline){
+        [System.Windows.Forms.Application]::DoEvents()
+        if(-not $responseTask.IsCompleted){
+            if($script:RapidOcrWorkerProcess.HasExited){ break }
+            Start-Sleep -Milliseconds 20
+            continue
+        }
+
+        $line = [string]$responseTask.Result
+        try{
+            $msg = $line | ConvertFrom-Json
+            if([string]$msg.id -eq $requestId){
+                if([bool]$msg.ok){ return ([string]$msg.text).Trim() }
+                return $null
+            }
+        }
+        catch{}
+
+        return $null
+    }
+
+    return $null
+}
+
+function Stop-RapidOcrWorker{
+    if($script:RapidOcrWorkerProcess){
+        try{
+            if(-not $script:RapidOcrWorkerProcess.HasExited){
+                $stopPayload = @{ type = "stop" } | ConvertTo-Json -Compress
+                $script:RapidOcrWorkerProcess.StandardInput.WriteLine($stopPayload)
+                $script:RapidOcrWorkerProcess.StandardInput.Flush()
+                if(-not $script:RapidOcrWorkerProcess.WaitForExit(800)){
+                    $script:RapidOcrWorkerProcess.Kill()
+                }
+            }
+        }
+        catch{}
+        try{ $script:RapidOcrWorkerProcess.Dispose() } catch{}
+    }
+    $script:RapidOcrWorkerProcess = $null
+    $script:RapidOcrWorkerReadyTask = $null
+}
+
 function Run-RapidOcrTextFromImagePath($imagePath){
 
     if([string]::IsNullOrWhiteSpace([string]$imagePath) -or !(Test-Path $imagePath)){ return "" }
+    if(Start-RapidOcrWorker){
+        $workerText = Invoke-RapidOcrWorkerText $imagePath
+        if($null -ne $workerText){ return [string]$workerText }
+    }
+
     if(-not (Initialize-RapidOcrNetForAutoOcr)){ return "" }
 
     try{
@@ -13531,6 +13847,291 @@ function Get-DetectedTextZonesFromPaddleOcr($baseRect){
     return @($zones)
 }
 
+function Get-YoloCadDetectorModelPath{
+    $embeddedModelDll = Join-Path $script:AppRoot "lib\OcrAi\YoloCadOnnxModel\lib\net8.0\YoloCadOnnxModel.dll"
+    if(Test-Path -LiteralPath $embeddedModelDll){
+        try{
+            Add-Type -Path $embeddedModelDll -ErrorAction Stop
+            $embeddedPath = [RapidOcrPro.Ai.YoloCadOnnxModel]::GetModelPath([string]$script:AppRoot)
+            if(-not [string]::IsNullOrWhiteSpace([string]$embeddedPath) -and (Test-Path -LiteralPath $embeddedPath)){
+                return [string]$embeddedPath
+            }
+        }
+        catch{}
+    }
+
+    $modelCandidates = @(
+        (Join-Path $script:AppRoot "lib\OcrAi\YoloCadOnnxModel\cache\best.onnx"),
+        (Join-Path $script:AppRoot "lib\OcrAi\RapidOcrNet\models\v5\yolo11_cad_det.onnx"),
+        (Join-Path $script:AppRoot "CustomTrainonx\AutoScan_YOLO_Trained_Model\best.onnx"),
+        "C:\Users\IRS03-415\Desktop\AutoScanText\AutoScan_YOLO_Trained_Model\best.onnx"
+    )
+    return @($modelCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1)[0]
+}
+
+function Initialize-YoloCadDetectorForAutoScan{
+    if($script:YoloCadDetectorLoaded -and $script:YoloCadDetector){ return $true }
+    if($script:YoloCadDetectorUnavailable){ return $false }
+    if($PSVersionTable.PSEdition -ne "Core"){
+        $script:YoloCadDetectorUnavailable = $true
+        return $false
+    }
+
+    try{
+        $ocrRoot = Join-Path $script:AppRoot "lib\OcrAi"
+        $nativeRoot = Join-Path $ocrRoot "Microsoft.ML.OnnxRuntime.1.24.3\runtimes\win-x64\native"
+        $managedRuntime = Join-Path $ocrRoot "Microsoft.ML.OnnxRuntime.Managed\lib\net8.0\Microsoft.ML.OnnxRuntime.dll"
+        $tensorDll = Join-Path $ocrRoot "System.Numerics.Tensors\lib\net9.0\System.Numerics.Tensors.dll"
+        $detectorDll = Join-Path $ocrRoot "YoloCadDetector\lib\net8.0\YoloCadDetector.dll"
+        $modelPath = Get-YoloCadDetectorModelPath
+
+        foreach($file in @(
+            (Join-Path $nativeRoot "onnxruntime.dll"),
+            (Join-Path $nativeRoot "onnxruntime_providers_shared.dll"),
+            $managedRuntime,
+            $tensorDll,
+            $detectorDll,
+            $modelPath
+        )){
+            if([string]::IsNullOrWhiteSpace([string]$file) -or !(Test-Path -LiteralPath $file)){
+                $script:YoloCadDetectorUnavailable = $true
+                return $false
+            }
+        }
+
+        if((";" + [string]$env:PATH + ";") -notlike ("*;" + [string]$nativeRoot + ";*")){
+            $env:PATH = [string]$nativeRoot + ";" + [string]$env:PATH
+        }
+
+        [System.Runtime.InteropServices.NativeLibrary]::Load((Join-Path $nativeRoot "onnxruntime_providers_shared.dll")) | Out-Null
+        [System.Runtime.InteropServices.NativeLibrary]::Load((Join-Path $nativeRoot "onnxruntime.dll")) | Out-Null
+
+        foreach($assemblyPath in @($tensorDll,$managedRuntime,$detectorDll)){
+            Add-Type -Path $assemblyPath -ErrorAction Stop
+        }
+
+        $script:YoloCadDetector = [RapidOcrPro.Ai.YoloCadDetector]::GetOrCreate([string]$modelPath)
+        $script:YoloCadDetectorLoaded = $true
+        return $true
+    }
+    catch{
+        $script:YoloCadDetector = $null
+        $script:YoloCadDetectorUnavailable = $true
+        return $false
+    }
+}
+
+function Get-YoloCadDetectorBoxes($bitmap,$mapRect = $null){
+    $results = @()
+    if(!$bitmap){ return @($results) }
+    if(-not (Initialize-YoloCadDetectorForAutoScan)){ return @($results) }
+
+    try{
+        $detectedBoxes = @($script:YoloCadDetector.Detect($bitmap,[single]0.28,[single]0.45,1024))
+        foreach($box in $detectedBoxes){
+            if(!$box){ continue }
+            $rect = New-Object Drawing.Rectangle([int]$box.X,[int]$box.Y,[int]$box.Width,[int]$box.Height)
+            if($rect.Width -le 0 -or $rect.Height -le 0){ continue }
+            if($mapRect){
+                $intersection = [Drawing.Rectangle]::Intersect($rect,$mapRect)
+                if($intersection.Width -le 0 -or $intersection.Height -le 0){ continue }
+            }
+            $results += [PSCustomObject]@{
+                Rect = $rect
+                Confidence = [double]$box.Confidence
+            }
+        }
+    }
+    catch{
+        return @()
+    }
+
+    return @($results | Sort-Object @{ Expression = { $_.Rect.Y }; Descending = $false }, @{ Expression = { $_.Rect.X }; Descending = $false })
+}
+
+function Get-YoloCadDetectorScanItems($bitmap){
+    $items = @()
+    foreach($item in @(Get-YoloCadDetectorBoxes $bitmap)){
+        $rect = $item.Rect
+        $items += [PSCustomObject]@{
+            x = [int]$rect.X
+            y = [int]$rect.Y
+            w = [int]$rect.Width
+            h = [int]$rect.Height
+            nominal = ""
+            raw_text = ""
+            tol_plus = ""
+            tol_minus = ""
+            confidence = [double]$item.Confidence
+        }
+    }
+    return @($items)
+}
+
+function Get-DetectedTextZonesFromYoloCadDetector($baseRect){
+    $zones = @()
+    if(!$script:sourceBitmap -or !$baseRect){ return @($zones) }
+
+    foreach($item in @(Get-YoloCadDetectorBoxes $script:sourceBitmap $baseRect)){
+        $rect = $item.Rect
+        $zones += [PSCustomObject]@{
+            Rect = $rect
+            Text = ""
+            RawText = ""
+            IsDimension = $true
+            Source = "YoloCadDetector"
+            DetectorConfidence = [double]$item.Confidence
+            DuplicateCheckPassed = $true
+            Tolerance = [PSCustomObject]@{
+                Detected = $false
+                TolMinus = ""
+                TolPlus = ""
+            }
+        }
+    }
+
+    return @($zones)
+}
+
+function Get-AutoScanPythonBridgePath{
+    $bridgeCandidates = @(
+        (Join-Path $script:AppRoot "tools\autoscan_bridge.py"),
+        "C:\Users\IRS03-415\Desktop\AutoScanText\autoscan_bridge.py"
+    )
+    return @($bridgeCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1)[0]
+}
+
+function Get-AutoScanPythonYoloModelPath{
+    $embeddedModelDll = Join-Path $script:AppRoot "lib\OcrAi\YoloCadOnnxModel\lib\net8.0\YoloCadOnnxModel.dll"
+    if(Test-Path -LiteralPath $embeddedModelDll){
+        Add-Type -Path $embeddedModelDll -ErrorAction Stop
+        return [RapidOcrPro.Ai.YoloCadOnnxModel]::GetModelPath([string]$script:AppRoot)
+    }
+    $modelCandidates = @(
+        "C:\Users\IRS03-415\Desktop\AutoScanText\AutoScan_YOLO_Trained_Model\best.onnx",
+        "C:\Users\IRS03-415\Desktop\AutoScanText\AutoScan_YOLO_Trained_Model\best.onx"
+    )
+    return @($modelCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1)[0]
+}
+
+function Get-AutoScanPythonExePath{
+    $pyCandidates = @(
+        "C:\Users\IRS03-415\AppData\Local\Programs\Python\Python312\python.exe",
+        "C:\Users\IRS03-415\AppData\Local\Programs\Python\Python311\python.exe",
+        "C:\Python312\python.exe",
+        "C:\Python311\python.exe"
+    )
+    return @($pyCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1)[0]
+}
+
+function Get-PythonBridgeYoloScanItems($bitmap){
+    if(!$bitmap){ return @() }
+
+    $bridgeScript = Get-AutoScanPythonBridgePath
+    if([string]::IsNullOrWhiteSpace([string]$bridgeScript)){
+        throw "Không tìm thấy autoscan_bridge.py."
+    }
+
+    $yoloModel = Get-AutoScanPythonYoloModelPath
+    if([string]::IsNullOrWhiteSpace([string]$yoloModel)){
+        throw "Không tìm thấy YOLO ONNX model: C:\Users\IRS03-415\Desktop\AutoScanText\AutoScan_YOLO_Trained_Model\best.onnx"
+    }
+
+    $pythonExe = Get-AutoScanPythonExePath
+    if([string]::IsNullOrWhiteSpace([string]$pythonExe)){
+        $pythonExe = "python.exe"
+    }
+
+    $tempImgPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".png"))
+    $tempJsonPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".json"))
+    $tempOutLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_out_" + [System.Guid]::NewGuid().ToString("N") + ".log"))
+    $tempErrLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_err_" + [System.Guid]::NewGuid().ToString("N") + ".log"))
+
+    try{
+        $bitmap.Save($tempImgPath, [System.Drawing.Imaging.ImageFormat]::Png)
+        $psi = [System.Diagnostics.ProcessStartInfo]::new()
+        $psi.FileName = $pythonExe
+        $psi.UseShellExecute = $false
+        $psi.CreateNoWindow = $true
+        $psi.RedirectStandardOutput = $true
+        $psi.RedirectStandardError = $true
+        foreach($arg in @(
+            "-X", "utf8",
+            $bridgeScript,
+            "--image", $tempImgPath,
+            "--out", $tempJsonPath,
+            "--model", "boxes_only",
+            "--yolo-model", $yoloModel
+        )){
+            [void]$psi.ArgumentList.Add([string]$arg)
+        }
+
+        $proc = [System.Diagnostics.Process]::new()
+        $proc.StartInfo = $psi
+        [void]$proc.Start()
+        $stdoutTask = $proc.StandardOutput.ReadToEndAsync()
+        $stderrTask = $proc.StandardError.ReadToEndAsync()
+
+        while(-not $proc.HasExited){
+            [System.Windows.Forms.Application]::DoEvents()
+            Start-Sleep -Milliseconds 120
+        }
+        $proc.WaitForExit()
+        [System.IO.File]::WriteAllText($tempOutLog, $stdoutTask.GetAwaiter().GetResult(), [System.Text.Encoding]::UTF8)
+        [System.IO.File]::WriteAllText($tempErrLog, $stderrTask.GetAwaiter().GetResult(), [System.Text.Encoding]::UTF8)
+
+        if($proc.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $tempJsonPath)){
+            $errDetail = ""
+            if(Test-Path -LiteralPath $tempErrLog){
+                try{ $errDetail = [System.IO.File]::ReadAllText($tempErrLog, [System.Text.Encoding]::UTF8).Trim() } catch{}
+            }
+            if([string]::IsNullOrWhiteSpace($errDetail) -and (Test-Path -LiteralPath $tempOutLog)){
+                try{ $errDetail = [System.IO.File]::ReadAllText($tempOutLog, [System.Text.Encoding]::UTF8).Trim() } catch{}
+            }
+            throw "Python YOLO bridge lỗi (mã $($proc.ExitCode)): $errDetail"
+        }
+
+        $jsonRaw = [System.IO.File]::ReadAllText($tempJsonPath, [System.Text.Encoding]::UTF8)
+        if([string]::IsNullOrWhiteSpace($jsonRaw)){ return @() }
+        return @($jsonRaw | ConvertFrom-Json)
+    }
+    finally{
+        try{ if($tempImgPath -and (Test-Path -LiteralPath $tempImgPath)){ Remove-Item -LiteralPath $tempImgPath -Force -ErrorAction SilentlyContinue } } catch{}
+        try{ if($tempJsonPath -and (Test-Path -LiteralPath $tempJsonPath)){ Remove-Item -LiteralPath $tempJsonPath -Force -ErrorAction SilentlyContinue } } catch{}
+        try{ if($tempOutLog -and (Test-Path -LiteralPath $tempOutLog)){ Remove-Item -LiteralPath $tempOutLog -Force -ErrorAction SilentlyContinue } } catch{}
+        try{ if($tempErrLog -and (Test-Path -LiteralPath $tempErrLog)){ Remove-Item -LiteralPath $tempErrLog -Force -ErrorAction SilentlyContinue } } catch{}
+    }
+}
+
+function Get-DetectedTextZonesFromPythonBridgeYolo($baseRect){
+    $zones = @()
+    if(!$script:sourceBitmap -or !$baseRect){ return @($zones) }
+
+    foreach($item in @(Get-PythonBridgeYoloScanItems $script:sourceBitmap)){
+        $rect = New-Object Drawing.Rectangle([int]$item.x,[int]$item.y,[int]$item.w,[int]$item.h)
+        if($rect.Width -le 0 -or $rect.Height -le 0){ continue }
+        $intersection = [Drawing.Rectangle]::Intersect($rect,$baseRect)
+        if($intersection.Width -le 0 -or $intersection.Height -le 0){ continue }
+
+        $zones += [PSCustomObject]@{
+            Rect = $rect
+            Text = ""
+            RawText = ""
+            IsDimension = $true
+            Source = "PythonBridgeYoloOnnx"
+            DetectorConfidence = [double]$item.confidence
+            DuplicateCheckPassed = $true
+            Tolerance = [PSCustomObject]@{
+                Detected = $false
+                TolMinus = ""
+                TolPlus = ""
+            }
+        }
+    }
+
+    return @($zones)
+}
+
 function Initialize-OpenCvSharpForAutoOcr{
 
     if($script:OpenCvSharpAutoOcrLoaded){ return $true }
@@ -13919,6 +14520,10 @@ function Get-OcrFallbackTextZones($mapRect,[switch]$ForceFresh){
     $dimensionZones = @($script:ImageOcrAutoZones)
     if($dimensionZones.Count -le 0 -and $dimensionCandidates.Count -gt 0){
         $dimensionZones = @(Convert-ImageOcrCandidatesToZones $dimensionCandidates)
+    }
+    $yoloDimensionZones = @(Get-DetectedTextZonesFromPythonBridgeYolo $mapRect)
+    if($yoloDimensionZones.Count -gt 0){
+        $dimensionZones = @($yoloDimensionZones + $dimensionZones)
     }
 
     $rawZones = @()
@@ -17654,7 +18259,7 @@ function Invoke-AutoScanYoloPpOcr{
     if(!$script:sourceBitmap){
         [System.Windows.Forms.MessageBox]::Show(
             "Vui lòng mở file bản vẽ PDF hoặc hình ảnh trước khi sử dụng Auto-Scan.",
-            "Auto-Scan (YOLO + PP-OCR)",
+            "Auto-Scan (YOLO Python + RapidOCR)",
             [System.Windows.Forms.MessageBoxButtons]::OK,
             [System.Windows.Forms.MessageBoxIcon]::Warning
         )
@@ -17668,7 +18273,7 @@ function Invoke-AutoScanYoloPpOcr{
             "[Yes] = Xóa cũ và quét mới" + [Environment]::NewLine +
             "[No] = Giữ dữ liệu cũ và quét thêm tiếp" + [Environment]::NewLine +
             "[Cancel] = Hủy bỏ",
-            "Auto-Scan (YOLO + PP-OCR)",
+            "Auto-Scan (YOLO Python + RapidOCR)",
             [System.Windows.Forms.MessageBoxButtons]::YesNoCancel,
             [System.Windows.Forms.MessageBoxIcon]::Question
         )
@@ -17687,7 +18292,7 @@ function Invoke-AutoScanYoloPpOcr{
     $oldCursor = $form.Cursor
     $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
     if($txtOcrDebug){
-        $txtOcrDebug.Text = "⏳ Đang chạy Auto-Scan: YOLOv11 tìm kiếm + PP-OCR nhận diện chi tiết..."
+        $txtOcrDebug.Text = "Đang tìm vùng kích thước bằng YOLO..."
         [System.Windows.Forms.Application]::DoEvents()
     }
 
@@ -17697,86 +18302,15 @@ function Invoke-AutoScanYoloPpOcr{
     $tempErrLog = $null
 
     try{
-        $tempImgPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".png"))
-        $tempJsonPath = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_scan_" + [System.Guid]::NewGuid().ToString("N") + ".json"))
-        $tempOutLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_out_" + [System.Guid]::NewGuid().ToString("N") + ".log"))
-        $tempErrLog = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), ("rapidocr_err_" + [System.Guid]::NewGuid().ToString("N") + ".log"))
+        $selectedModelText = "RapidOCR Current"
+        $script:AutoScanSelectedModel = $selectedModelText
 
-        $script:sourceBitmap.Save($tempImgPath, [System.Drawing.Imaging.ImageFormat]::Png)
-
-        $bridgeScript = Join-Path $script:AppRoot "tools\autoscan_bridge.py"
-        if(-not (Test-Path -LiteralPath $bridgeScript)){
-            throw "Không tìm thấy file bridge: $bridgeScript"
-        }
-
-        $pythonExe = "python.exe"
-        $pyCandidates = @(
-            "C:\Users\IRS03-415\AppData\Local\Programs\Python\Python312\python.exe",
-            "C:\Users\IRS03-415\AppData\Local\Programs\Python\Python311\python.exe",
-            "C:\Python312\python.exe",
-            "C:\Python311\python.exe"
-        )
-        foreach($cand in $pyCandidates){
-            if(Test-Path -LiteralPath $cand){
-                $pythonExe = $cand
-                break
-            }
-        }
-
-        $selectedModelText = if($script:AutoScanSelectedModel){ $script:AutoScanSelectedModel } else { "PP-OCRv4 CAD (Fine-Tuned)" }
-        $bridgeModel = "v4"
-        $useBuiltinOcr = $false
-
-        if($selectedModelText -match "PP-OCRv4|Fine-Tuned"){
-            $bridgeModel = "v4"
-        }
-        elseif($selectedModelText -match "PP-OCRv6|Bản Gốc"){
-            $bridgeModel = "v6"
-        }
-        elseif($selectedModelText -match "Hybrid"){
-            $bridgeModel = "hybrid"
-        }
-        elseif($selectedModelText -match "RapidOCR|Hiện Hành"){
-            $bridgeModel = "boxes_only"
-            $useBuiltinOcr = $true
-        }
-
-        $argString = ('-X utf8 "{0}" --image "{1}" --out "{2}" --model {3}' -f $bridgeScript, $tempImgPath, $tempJsonPath, $bridgeModel)
-        $proc = Start-Process -FilePath $pythonExe `
-            -ArgumentList $argString `
-            -RedirectStandardOutput $tempOutLog `
-            -RedirectStandardError $tempErrLog `
-            -WindowStyle Hidden `
-            -PassThru
-
-        $sw = [System.Diagnostics.Stopwatch]::StartNew()
-        while(-not $proc.HasExited){
+        if($txtOcrDebug){
+            $txtOcrDebug.Text = "Đang tìm vùng kích thước bằng YOLO..."
             [System.Windows.Forms.Application]::DoEvents()
-            Start-Sleep -Milliseconds 150
-            $elapsedSec = [int]$sw.Elapsed.TotalSeconds
-            if($txtOcrDebug){
-                $txtOcrDebug.Text = "⏳ Đang chạy Auto-Scan [${selectedModelText}] (${elapsedSec}s)..."
-            }
         }
-        $proc.WaitForExit()
-
-        if($proc.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $tempJsonPath)){
-            $errDetail = ""
-            if(Test-Path -LiteralPath $tempErrLog){
-                try{
-                    $rawLines = [System.IO.File]::ReadAllLines($tempErrLog, [System.Text.Encoding]::UTF8)
-                    $cleanLines = @($rawLines | Where-Object { $_ -notmatch 'INFO:|Running PIR pass|print_statistics|UserWarning:' })
-                    $errDetail = ($cleanLines -join [Environment]::NewLine).Trim()
-                } catch{}
-            }
-            if([string]::IsNullOrWhiteSpace($errDetail) -and (Test-Path -LiteralPath $tempOutLog)){
-                try{ $errDetail = [System.IO.File]::ReadAllText($tempOutLog, [System.Text.Encoding]::UTF8).Trim() } catch{}
-            }
-            throw "Auto-Scan thất bại (Mã lỗi $($proc.ExitCode)): $errDetail"
-        }
-
-        $jsonRaw = [System.IO.File]::ReadAllText($tempJsonPath, [System.Text.Encoding]::UTF8)
-        $candidatesJson = $jsonRaw | ConvertFrom-Json
+        Start-RapidOcrWorker -NoWait | Out-Null
+        $candidatesJson = @(Get-PythonBridgeYoloScanItems $script:sourceBitmap)
 
         if(!$candidatesJson -or @($candidatesJson).Count -le 0){
             if($txtOcrDebug){
@@ -17805,43 +18339,31 @@ function Invoke-AutoScanYoloPpOcr{
             $tolPlus = ""
             $hasExplicitTol = $false
 
-            if($useBuiltinOcr){
-                if($txtOcrDebug){
-                    $txtOcrDebug.Text = "⏳ RapidOCR hiện hành đang quét ô $itemIdx / $totalItems..."
-                    [System.Windows.Forms.Application]::DoEvents()
-                }
-                try{
-                    $crop = $script:sourceBitmap.Clone($rect, $script:sourceBitmap.PixelFormat)
-                    $rawText = Run-OCR $crop
-                    $crop.Dispose()
-                }
-                catch{}
+            if($txtOcrDebug){
+                $txtOcrDebug.Text = "⏳ RapidOCR đang quét ô $itemIdx / $totalItems..."
+                [System.Windows.Forms.Application]::DoEvents()
+            }
+            try{
+                $crop = $script:sourceBitmap.Clone($rect, $script:sourceBitmap.PixelFormat)
+                $rawText = Run-FastOcr $crop
+                $crop.Dispose()
+            }
+            catch{}
 
-                if([string]::IsNullOrWhiteSpace($rawText)){ continue }
+            if([string]::IsNullOrWhiteSpace($rawText)){ continue }
 
-                $nom = Resolve-OcrTextAsMechanicalNominal $rawText $rect
-                $nomText = if($nom -and -not [string]::IsNullOrWhiteSpace($nom.Nominal)){ [string]$nom.Nominal } else { $rawText }
+            $nom = Resolve-OcrTextAsMechanicalNominal $rawText $rect
+            $nomText = if($nom -and -not [string]::IsNullOrWhiteSpace($nom.Nominal)){ [string]$nom.Nominal } else { $rawText }
 
-                $tol = Parse-ToleranceFull $rawText $nomText
-                if($tol -and $tol.Detected){
-                    $hasExplicitTol = $true
-                    $tolMinus = $tol.TolMinus
-                    $tolPlus = $tol.TolPlus
-                }
-                else{
-                    $tolMinus = 0
-                    $tolPlus = 0
-                }
+            $tol = Parse-ToleranceFull $rawText $nomText
+            if($tol -and $tol.Detected){
+                $hasExplicitTol = $true
+                $tolMinus = $tol.TolMinus
+                $tolPlus = $tol.TolPlus
             }
             else{
-                $nomText = [string]$item.nominal
-                if([string]::IsNullOrWhiteSpace($nomText)){
-                    $nomText = [string]$item.raw_text
-                }
-                $rawText = [string]$item.raw_text
-                $tolMinus = [string]$item.tol_minus
-                $tolPlus = [string]$item.tol_plus
-                $hasExplicitTol = (-not [string]::IsNullOrWhiteSpace($tolMinus) -or -not [string]::IsNullOrWhiteSpace($tolPlus))
+                $tolMinus = 0
+                $tolPlus = 0
             }
 
             $candObj = [PSCustomObject]@{
@@ -17849,7 +18371,7 @@ function Invoke-AutoScanYoloPpOcr{
                 Nominal = $nomText
                 RawText = $rawText
                 DuplicateCheckPassed = $true
-                Source = if($useBuiltinOcr){ "RapidOcrNet" } else { ("LocalAi_" + $bridgeModel) }
+                Source = "RapidOcrNet"
                 Tolerance = [PSCustomObject]@{
                     Detected = $hasExplicitTol
                     TolMinus = $tolMinus
@@ -17879,7 +18401,7 @@ function Invoke-AutoScanYoloPpOcr{
         }
 
         if($txtOcrDebug){
-            $txtOcrDebug.Text = "✔ Auto-Scan hoàn tất: Đã nhận diện được $addedCount kích thước (YOLOv11 + PP-OCR)."
+            $txtOcrDebug.Text = "Auto-Scan hoàn tất: Đã nhận diện được $addedCount kích thước (YOLO Python + RapidOCR)."
         }
     }
     catch{
@@ -17996,112 +18518,109 @@ function Test-BalloonCandidateClear($point,$avoidRadius,$edgeMargin,$balloonSpac
     return $true
 }
 
+function Arrange-CurrentPageBalloons{
+    if(!$script:sourceBitmap){ return }
+    $originalMarks = @($script:marks)
+    # Preserve identities and row order; only recalculate the balloon centers.
+    $script:marks = @()
+    try{
+        for($i=0; $i -lt $originalMarks.Count; $i++){
+            $mark = $originalMarks[$i]
+            if($mark -and $script:StepRects.ContainsKey($i)){
+                $p = Find-BalloonPositionNextToRect $script:StepRects[$i] $script:sourceBitmap.Width $script:sourceBitmap.Height (Get-MarkScale $mark)
+                $mark.X = $p.X
+                $mark.Y = $p.Y
+            }
+            $script:marks += $mark
+        }
+    }
+    finally{ $script:marks = $originalMarks }
+}
+
 function Find-BalloonPosition($rect,$imgW,$imgH,$preferTextMap = $false){
-
-    $cx = $rect.X + ($rect.Width/2)
-    $cy = $rect.Y + ($rect.Height/2)
-    $markRadius = Get-MarkImageRadius
-    $avoidRadius = [Math]::Max(($markRadius * 1.25),($markRadius + 8.0))
-    $edgeMargin = [int][Math]::Ceiling($avoidRadius + 4)
-    $balloonSpacing = [int][Math]::Ceiling(($avoidRadius * 2.0) + 18.0)
-    $rectPadding = [int][Math]::Ceiling($avoidRadius + 12.0)
-    $fallbackOffset = [int][Math]::Ceiling(($avoidRadius * 2.0) + 18.0)
-
-    $step = [int][Math]::Max(24,[Math]::Ceiling($avoidRadius * 0.75))
-    $max = [int][Math]::Max(260,[Math]::Ceiling($avoidRadius * 7.0))
-
-    if($preferTextMap){
-        $near = [Math]::Max(($avoidRadius * 2.4),28.0)
-        $preferredCandidates = @(
-            @{X=$rect.Left-$near;Y=$rect.Top-$near}
-            @{X=$rect.Right+$near;Y=$rect.Top-$near}
-            @{X=$rect.Left-$near;Y=$rect.Bottom+$near}
-            @{X=$rect.Right+$near;Y=$rect.Bottom+$near}
-            @{X=$rect.Left-$near;Y=$cy}
-            @{X=$rect.Right+$near;Y=$cy}
-            @{X=$cx;Y=$rect.Top-$near}
-            @{X=$cx;Y=$rect.Bottom+$near}
-        )
-
-        foreach($p in $preferredCandidates){
-            if(Test-BalloonCandidateClear $p $avoidRadius $edgeMargin $balloonSpacing $rectPadding $imgW $imgH){
-                return $p
-            }
-        }
-    }
-
-    for($r=$step;$r -le $max;$r+=$step){
-
-        $candidates = @(
-            @{X=$cx+$r;Y=$cy-$r}
-            @{X=$cx-$r;Y=$cy-$r}
-            @{X=$cx+$r;Y=$cy+$r}
-            @{X=$cx-$r;Y=$cy+$r}
-            @{X=$cx+$r;Y=$cy}
-            @{X=$cx-$r;Y=$cy}
-            @{X=$cx;Y=$cy-$r}
-            @{X=$cx;Y=$cy+$r}
-        )
-
-        foreach($p in $candidates){
-
-            if(Test-BalloonCandidateClear $p $avoidRadius $edgeMargin $balloonSpacing $rectPadding $imgW $imgH){
-                return $p
-            }
-        }
-
-    }
-
-    return @{X=$rect.Right+$fallbackOffset;Y=$rect.Top-$fallbackOffset}
+    return (Find-BalloonPositionNextToRect $rect $imgW $imgH (Get-CurrentPageBalloonScale))
 }
 
 function Find-BalloonPositionNextToRect($rect,$imgW,$imgH,$markScale = 1.0,$slotIndex = 0,$slotCount = 1){
-
     if(!$rect){ return @{X=0;Y=0} }
 
-    $markRadius = (Get-MarkImageRadius) * (Normalize-MarkScale $markScale)
-    $gap = [Math]::Max(1.0,[Math]::Min(4.0,($markRadius * 0.06)))
-    $edgeMargin = [int][Math]::Ceiling($markRadius + 3)
-    $cx = $rect.X + ($rect.Width / 2.0)
-    $cy = $rect.Y + ($rect.Height / 2.0)
-    $safeSlotCount = [Math]::Max(1,[int]$slotCount)
-    $safeSlotIndex = [Math]::Max(0,[Math]::Min(([int]$slotIndex),($safeSlotCount - 1)))
-    $slotOffset = 0.0
-    if($safeSlotCount -gt 1){
-        $slotOffset = (($safeSlotIndex - (($safeSlotCount - 1) / 2.0)) * ($markRadius * 2.25))
-    }
-    $slotY = $cy + $slotOffset
-    $slotY = [Math]::Max($edgeMargin,[Math]::Min(($imgH - $edgeMargin),$slotY))
-
-    $candidatePoints = @(
-        @{X=($rect.Right + $markRadius + $gap);Y=$slotY}
-        @{X=($rect.Left - $markRadius - $gap);Y=$slotY}
-        @{X=$cx;Y=($rect.Top - $markRadius - $gap + $slotOffset)}
-        @{X=$cx;Y=($rect.Bottom + $markRadius + $gap + $slotOffset)}
-        @{X=($rect.Right + $markRadius + $gap);Y=($rect.Top - $markRadius - $gap)}
-        @{X=($rect.Right + $markRadius + $gap);Y=($rect.Bottom + $markRadius + $gap)}
-        @{X=($rect.Left - $markRadius - $gap);Y=($rect.Top - $markRadius - $gap)}
-        @{X=($rect.Left - $markRadius - $gap);Y=($rect.Bottom + $markRadius + $gap)}
-    )
-
-    foreach($p in $candidatePoints){
-        $x = [double]$p.X
-        $y = [double]$p.Y
-        if($x -lt $edgeMargin -or $y -lt $edgeMargin -or $x -gt ($imgW - $edgeMargin) -or $y -gt ($imgH - $edgeMargin)){
-            continue
+    $radius = (Get-MarkImageRadius) * (Normalize-MarkScale $markScale)
+    $gap = [Math]::Max(1.0,$radius * 0.04)
+    $margin = $radius + 2
+    $cx = $rect.X + $rect.Width / 2.0
+    $cy = $rect.Y + $rect.Height / 2.0
+    $candidates = [Collections.Generic.List[object]]::new()
+    # Anchor to the blue-box edge; never send a balloon to a distant lane.
+    foreach($lane in @(0)){
+        $offset = $radius + $gap
+        $left = $rect.Left - $offset
+        $right = $rect.Right + $offset
+        $top = $rect.Top - $offset
+        $bottom = $rect.Bottom + $offset
+        if($rect.Height -gt $rect.Width){
+            $candidates.Add(@{X=$cx;Y=$top})
+            $candidates.Add(@{X=$cx;Y=$bottom})
         }
-        return @{X=$x;Y=$y}
+        else{
+            $candidates.Add(@{X=$left;Y=$cy})
+            $candidates.Add(@{X=$right;Y=$cy})
+        }
+        $xs = @($cx,$rect.Left,$rect.Right)
+        $ys = @($cy,$rect.Top,$rect.Bottom)
+        for($x=$rect.Left; $x -le $rect.Right; $x += (2*$radius+$gap)){ $xs += $x }
+        for($y=$rect.Top; $y -le $rect.Bottom; $y += (2*$radius+$gap)){ $ys += $y }
+        foreach($y in $ys){
+            $candidates.Add(@{X=$right;Y=$y})
+            $candidates.Add(@{X=$left;Y=$y})
+        }
+        foreach($x in $xs){
+            $candidates.Add(@{X=$x;Y=$top})
+            $candidates.Add(@{X=$x;Y=$bottom})
+        }
+        foreach($x in @($left,$right)){
+            foreach($y in @($top,$bottom)){ $candidates.Add(@{X=$x;Y=$y}) }
+        }
     }
-
+    $ranked = @($candidates | Sort-Object -Stable -Property @{
+        Expression = {
+            $dx = [Math]::Max(0,[Math]::Max($rect.Left-$_.X,$_.X-$rect.Right))
+            $dy = [Math]::Max(0,[Math]::Max($rect.Top-$_.Y,$_.Y-$rect.Bottom))
+            $dx*$dx + $dy*$dy
+        }
+    })
+    $fallback = $null
+    $leastOverlap = $null
+    $leastPenalty = [double]::PositiveInfinity
+    foreach($p in $ranked){
+        if($p.X -lt $margin -or $p.Y -lt $margin -or $p.X -gt $imgW-$margin -or $p.Y -gt $imgH-$margin){ continue }
+        $overlap = $false
+        $penalty = 0.0
+        foreach($mark in @($script:marks) + @($script:UiCopiedMarks)){
+            if(!$mark){ continue }
+            $spacing = $radius + (Get-MarkImageRadius)*(Get-MarkScale $mark) + $gap
+            $dx = $mark.X-$p.X
+            $dy = $mark.Y-$p.Y
+            $distance = [Math]::Sqrt($dx*$dx+$dy*$dy)
+            if($distance -lt $spacing){ $overlap = $true; $penalty += $spacing-$distance }
+        }
+        if($penalty -lt $leastPenalty){ $leastPenalty = $penalty; $leastOverlap = $p }
+        if($overlap){ continue }
+        if(!$fallback){ $fallback = $p }
+        if(Test-BalloonCandidateClear $p $radius $margin 0 $gap $imgW $imgH){ return $p }
+    }
+    # In dense drawings, prefer a nearby non-overlapping balloon over empty text space.
+    if($fallback){ return $fallback }
+    if($leastOverlap){ return $leastOverlap }
     return @{
-        X = [Math]::Max($edgeMargin,[Math]::Min(($imgW - $edgeMargin),($rect.Right + $markRadius + $gap)))
-        Y = $slotY
+        X = [Math]::Max($margin,[Math]::Min($imgW-$margin,$rect.Right+$radius+$gap))
+        Y = [Math]::Max($margin,[Math]::Min($imgH-$margin,$cy))
     }
 }
 
 function Draw-MarkBalloons($graphics,$renderScale,$showDuplicateHighlight = $false,$copyViewOnly = $false){
 
     if(!$graphics){ return }
+    if(-not [bool]$script:ShowBalloons){ return }
     $hasOriginalMarks = ($script:marks -and $script:marks.Count -gt 0)
     $hasCopiedMarks = ($script:UiCopiedMarks -and $script:UiCopiedMarks.Count -gt 0)
     if(!$hasOriginalMarks -and !$hasCopiedMarks){ return }

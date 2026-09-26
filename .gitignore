@@ -22,3 +22,7 @@ ocrtool-pdfscan-render-cache/
 *.json
 *.lnk
 paddleocrv6_cad_finetuned*/
+
+# C# build artifacts
+**/obj/
+**/bin/

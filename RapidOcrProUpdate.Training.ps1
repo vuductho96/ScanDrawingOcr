@@ -985,7 +985,7 @@ function Get-TrainingReadinessDebugSummary($snapshot){
 function Update-TrainingReadinessUi{
     if(-not $grpOcrDebug){ return }
     $snapshot = Get-TrainingReadinessSnapshot
-    $grpOcrDebug.Text = ("OCR Debug | Ready {0}%" -f $snapshot.Percent)
+    $grpOcrDebug.Text = ""
     if($txtOcrDebug){
         $singleLineSummary = "Training: {0}% | Crop: {1} | Nominal: {2} | Tol: {3} | Auto: {4}" -f $snapshot.Percent, $snapshot.Manual, $snapshot.Nominal, $snapshot.Tol, $snapshot.Auto
         $fullSummary = Get-TrainingReadinessDebugSummary $snapshot

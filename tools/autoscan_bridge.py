@@ -29,12 +29,27 @@ if AUTOSCAN_DIR not in sys.path:
     sys.path.insert(0, AUTOSCAN_DIR)
 
 try:
-    from local_ai_service import LocalAIService
     from tolerance_parser import ToleranceParser
-    from google_ai_web_service import GoogleAiWebService
 except Exception as e:
-    print(f"ERROR: Khong the import service tu {AUTOSCAN_DIR}: {e}", file=sys.stderr)
+    print(f"ERROR: Khong the import tolerance_parser tu {AUTOSCAN_DIR}: {e}", file=sys.stderr)
     sys.exit(1)
+
+LocalAIService = None
+GoogleAiWebService = None
+
+def load_local_ai_service():
+    global LocalAIService
+    if LocalAIService is None:
+        from local_ai_service import LocalAIService as _LocalAIService
+        LocalAIService = _LocalAIService
+    return LocalAIService
+
+def load_google_ai_web_service():
+    global GoogleAiWebService
+    if GoogleAiWebService is None:
+        from google_ai_web_service import GoogleAiWebService as _GoogleAiWebService
+        GoogleAiWebService = _GoogleAiWebService
+    return GoogleAiWebService
 
 def is_valid_nominal(nom_val):
     if hasattr(ToleranceParser, "is_valid_cad_nominal"):
@@ -103,6 +118,7 @@ def main():
     parser.add_argument("--image", required=True, help="Duong dan file anh trang can scan")
     parser.add_argument("--out", required=True, help="Duong dan file JSON luu ket qua")
     parser.add_argument("--model", default="v6", choices=["v6", "v4", "hybrid", "boxes_only", "google_ai_web"], help="Mo hinh OCR (v6 goc mac dinh, v4 cad, hybrid, boxes_only, hoac google_ai_web qua Playwright)")
+    parser.add_argument("--yolo-model", default=None, help="Duong dan file YOLO ONNX dung cho boxes_only/google_ai_web")
     args = parser.parse_args()
 
     image_path = os.path.abspath(args.image)
@@ -121,7 +137,11 @@ def main():
     # Che do Fast YOLO (chi can YOLO, khong can nap mo hinh PP-OCR ton thoi gian)
     if args.model in ["boxes_only", "google_ai_web"]:
         from test_trained_yolo_onnx import YOLOCADDetector
-        yolo_path = os.path.join(AUTOSCAN_DIR, "AutoScan_YOLO_Trained_Model", "best.onnx")
+        yolo_path = args.yolo_model or os.path.join(AUTOSCAN_DIR, "AutoScan_YOLO_Trained_Model", "best.onnx")
+        yolo_path = os.path.abspath(yolo_path)
+        if not os.path.exists(yolo_path):
+            print(f"ERROR: Khong tim thay YOLO ONNX model: {yolo_path}", file=sys.stderr)
+            sys.exit(4)
         print("[*] YOLOv11 dang quet tim cac o kich thuoc...", flush=True)
         detector = YOLOCADDetector(onnx_path=yolo_path, imgsz=1024, conf_thres=0.28, iou_thres=0.45)
         raw_boxes, infer_time = detector.detect(img_bgr)
@@ -174,10 +194,7 @@ def main():
             sys.exit(0)
 
         if args.model == "google_ai_web":
-            if GoogleAiWebService is None:
-                print("ERROR: Khong the khoi tao GoogleAiWebService", file=sys.stderr)
-                sys.exit(4)
-
+            GoogleAiWebService = load_google_ai_web_service()
             web_service = GoogleAiWebService.get_instance()
             ai_results = web_service.process_crops(img_bgr, candidates, headless=False)
 
@@ -195,6 +212,7 @@ def main():
             sys.exit(0)
 
     # Che do Scan bang PP-OCR offline (v4 fine-tuned, v6 goc, hoac hybrid)
+    LocalAIService = load_local_ai_service()
     service = LocalAIService.get_instance(model_name=args.model)
     if args.model in ["v4", "v6", "hybrid"]:
         service.set_ocr_model(args.model)

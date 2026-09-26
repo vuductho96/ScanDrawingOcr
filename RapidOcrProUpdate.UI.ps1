@@ -210,7 +210,8 @@ $lblPreviewTitle.Location = New-Object Drawing.Point(1240,170)
 $lblPreviewTitle.Visible = $false
 $tabDraw.Controls.Add($lblPreviewTitle)
 $grpOcrDebug = New-Object Windows.Forms.GroupBox
-$grpOcrDebug.Text = "OCR Debug"
+$grpOcrDebug.Text = ""
+$grpOcrDebug.Visible = $false
 $grpOcrDebug.Font = $groupFont
 $grpOcrDebug.Location = New-Object Drawing.Point(1240,320)
 $grpOcrDebug.Size = New-Object Drawing.Size(400,120)
@@ -368,6 +369,15 @@ $grpPreset.Size = New-Object Drawing.Size(400,188)
 
 $tabDraw.Controls.Add($grpPreset)
 
+$chkPresetEdit = New-Object Windows.Forms.CheckBox
+$chkPresetEdit.Appearance = [Windows.Forms.Appearance]::Button
+$chkPresetEdit.Text = "⚙ Edit"
+$chkPresetEdit.TextAlign = [Drawing.ContentAlignment]::MiddleCenter
+$chkPresetEdit.Size = New-Object Drawing.Size(76,23)
+$chkPresetEdit.Anchor = [Windows.Forms.AnchorStyles]'Top,Right'
+$chkPresetEdit.Location = New-Object Drawing.Point(($grpPreset.Width - 84),0)
+$grpPreset.Controls.Add($chkPresetEdit)
+
 $presetValues = @(
 0.5,0.3,0.2,0.1,
 0.05,0.03,0.02,0.01,
@@ -390,7 +400,7 @@ foreach($val in $presetValues){
     $btn.Tag = $val
 
     $btn.Add_Click({
-        Apply-Tolerance $this.Tag
+        Invoke-PresetButtonClick $this
     })
 
     $grpPreset.Controls.Add($btn)
@@ -447,6 +457,7 @@ $btnTranslateLens = New-Object Windows.Forms.Button
 $btnTranslateLens.Text = "Translator"
 $btnTranslateLens.Font = $uiFont
 $btnTranslateLens.Visible = $false
+$btnTranslateLens.Enabled = $false
 $tabDraw.Controls.Add($btnTranslateLens)
 
 $btnAdvance = New-Object Windows.Forms.Button
@@ -466,11 +477,15 @@ $tabDraw.Controls.Add($btnToggleSidePanel)
 $btnYellowPen = New-Object Windows.Forms.Button
 $btnYellowPen.Text = "Yellow Pen Off"
 $btnYellowPen.Font = $uiFont
+$btnYellowPen.Visible = $false
+$btnYellowPen.Enabled = $false
 $tabDraw.Controls.Add($btnYellowPen)
 
 $btnEraser = New-Object Windows.Forms.Button
 $btnEraser.Text = "Eraser Off"
 $btnEraser.Font = $uiFont
+$btnEraser.Visible = $false
+$btnEraser.Enabled = $false
 $tabDraw.Controls.Add($btnEraser)
 
 $advanceMenu = New-Object Windows.Forms.ContextMenuStrip
@@ -480,7 +495,7 @@ $advanceMenu = New-Object Windows.Forms.ContextMenuStrip
 # ===============================
 $miOptionViewMenu = New-Object Windows.Forms.ToolStripMenuItem("View")
 
-$miOptionBalloon = New-Object Windows.Forms.ToolStripMenuItem("Balloon")
+$miOptionBalloon = New-Object Windows.Forms.ToolStripMenuItem("Balloon (B)")
 $miOptionBalloon.ShortcutKeyDisplayString = "B"
 $miOptionBalloon.CheckOnClick = $true
 $miOptionBalloon.Checked = $true
@@ -490,7 +505,7 @@ $miOptionLeaderLine.ShortcutKeyDisplayString = "L"
 $miOptionLeaderLine.CheckOnClick = $true
 $miOptionLeaderLine.Checked = $false
 
-$miOptionTextZone = New-Object Windows.Forms.ToolStripMenuItem("Text Zone")
+$miOptionTextZone = New-Object Windows.Forms.ToolStripMenuItem("Text Zone (T)")
 $miOptionTextZone.ShortcutKeyDisplayString = "T"
 $miOptionTextZone.CheckOnClick = $true
 $miOptionTextZone.Checked = $false
@@ -498,11 +513,19 @@ $miOptionTextZone.Checked = $false
 $miAdvancePdfTextZones = $miOptionTextZone
 $miAdvanceCopyView = New-Object Windows.Forms.ToolStripMenuItem("Copy View (C)")
 $miAdvanceCopyView.ShortcutKeyDisplayString = "C"
+$miAdvanceSortSteps = New-Object Windows.Forms.ToolStripMenuItem("Sort Step (S)")
+$miAdvanceSortSteps.ShortcutKeyDisplayString = "S"
+$miAdvanceRotatePage = New-Object Windows.Forms.ToolStripMenuItem("Rotate PDF (R)")
+$miAdvanceRotatePage.ShortcutKeyDisplayString = "R"
+$miOptionDefaultTol = New-Object Windows.Forms.ToolStripMenuItem("Default Tol")
+$miOptionDefaultTol.CheckOnClick = $true
+$miOptionDefaultTol.Checked = $true
 
 $miAdvanceToggleSidePanel = New-Object Windows.Forms.ToolStripMenuItem("Hide Side Panel")
 $miAdvanceToggleSidePanel.ShortcutKeyDisplayString = "Ctrl+B"
 
 $miAdvanceClearGray = New-Object Windows.Forms.ToolStripMenuItem("Clear Gray Boxes")
+$miAdvanceClearGray.Visible = $false
 
 $miAdvanceBalloonColor = New-Object Windows.Forms.ToolStripMenuItem("Balloon Color")
 $miAdvanceBalloonWhite = New-Object Windows.Forms.ToolStripMenuItem("White")
@@ -521,6 +544,9 @@ $miAdvanceBalloonOrange = New-Object Windows.Forms.ToolStripMenuItem("Orange")
 [void]$miOptionViewMenu.DropDownItems.Add($miOptionTextZone)
 [void]$miOptionViewMenu.DropDownItems.Add((New-Object Windows.Forms.ToolStripSeparator))
 [void]$miOptionViewMenu.DropDownItems.Add($miAdvanceCopyView)
+[void]$miOptionViewMenu.DropDownItems.Add($miAdvanceSortSteps)
+[void]$miOptionViewMenu.DropDownItems.Add($miAdvanceRotatePage)
+[void]$miOptionViewMenu.DropDownItems.Add($miOptionDefaultTol)
 [void]$miOptionViewMenu.DropDownItems.Add($miAdvanceToggleSidePanel)
 [void]$miOptionViewMenu.DropDownItems.Add($miAdvanceBalloonColor)
 [void]$miOptionViewMenu.DropDownItems.Add($miAdvanceClearGray)
@@ -530,19 +556,15 @@ $miAdvanceBalloonOrange = New-Object Windows.Forms.ToolStripMenuItem("Orange")
 # ===============================
 $miOptionSettingMenu = New-Object Windows.Forms.ToolStripMenuItem("Setting")
 
-$miOptionDefaultTol = New-Object Windows.Forms.ToolStripMenuItem("Default Tol (±)")
-$miOptionDefaultTol.CheckOnClick = $true
-$miOptionDefaultTol.Checked = $true
-
 $miAdvanceTemplate = New-Object Windows.Forms.ToolStripMenuItem("Choose Template")
 
 $miAdvanceAiModel = New-Object Windows.Forms.ToolStripMenuItem("AI Model")
+$miAdvanceAiModel.Visible = $false
 $miAdvanceAiModelQwen = New-Object Windows.Forms.ToolStripMenuItem("Qwen2.5VL 3B")
 $miAdvanceAiModelMiniCpm = New-Object Windows.Forms.ToolStripMenuItem("MiniCPM-V")
 [void]$miAdvanceAiModel.DropDownItems.Add($miAdvanceAiModelQwen)
 [void]$miAdvanceAiModel.DropDownItems.Add($miAdvanceAiModelMiniCpm)
 
-[void]$miOptionSettingMenu.DropDownItems.Add($miOptionDefaultTol)
 [void]$miOptionSettingMenu.DropDownItems.Add($miAdvanceTemplate)
 [void]$miOptionSettingMenu.DropDownItems.Add($miAdvanceAiModel)
 
@@ -565,29 +587,45 @@ $miOptionOpenTrainFolder = New-Object Windows.Forms.ToolStripMenuItem("Open Data
 # ===============================
 # SUBMENU 4: EDIT (CHỈNH SỬA BƯỚC)
 # ===============================
-$miAdvanceEditMenu = New-Object Windows.Forms.ToolStripMenuItem("Edit")
+$miAdvanceEditMenu = New-Object Windows.Forms.ToolStripMenuItem("Stores")
 $miAdvanceEditSteps = New-Object Windows.Forms.ToolStripMenuItem("Edit Steps")
 $miAdvanceSearchSessions = New-Object Windows.Forms.ToolStripMenuItem("Search Sessions")
-$miAdvanceSortSteps = New-Object Windows.Forms.ToolStripMenuItem("Sort Steps")
+$miAdvanceSearchSessions.Visible = $false
 [void]$miAdvanceEditMenu.DropDownItems.Add($miAdvanceEditSteps)
 [void]$miAdvanceEditMenu.DropDownItems.Add($miAdvanceSearchSessions)
-[void]$miAdvanceEditMenu.DropDownItems.Add($miAdvanceSortSteps)
 
 # Aliases and compatibility references
 $miAdvanceTranslate = New-Object Windows.Forms.ToolStripMenuItem("Translate")
 $miAdvanceYellowPen = New-Object Windows.Forms.ToolStripMenuItem("Yellow Pen Off")
 $miAdvanceEraser = New-Object Windows.Forms.ToolStripMenuItem("Eraser Off")
 $miAdvanceAutoMapPdf = New-Object Windows.Forms.ToolStripMenuItem("Auto Map PDF")
+$miAdvanceTranslate.Visible = $false
+$miAdvanceYellowPen.Visible = $false
+$miAdvanceEraser.Visible = $false
+$miAdvanceAutoMapPdf.Visible = $false
 $miAdvanceAutoYolo = New-Object Windows.Forms.ToolStripMenuItem("Scan")
-$miAdvanceAutoYolo.ShortcutKeyDisplayString = "Ctrl+Y"
+$miAdvanceAutoScan = $miAdvanceAutoYolo
 $miAdvanceTrainingExport = New-Object Windows.Forms.ToolStripMenuItem("Training Save/Export On")
 $miAdvanceViewMenu = $miOptionViewMenu
 $miAdvanceOcrMenu = New-Object Windows.Forms.ToolStripMenuItem("OCR")
+$miAdvanceOcrMenu.Visible = $false
+$miOcrModelV4 = New-Object Windows.Forms.ToolStripMenuItem("PP-OCRv4 CAD (Fine-Tuned)")
+$miOcrModelV6 = New-Object Windows.Forms.ToolStripMenuItem("PP-OCRv6 (Original)")
+$miOcrModelHybrid = New-Object Windows.Forms.ToolStripMenuItem("Hybrid")
+$miOcrModelBuiltin = New-Object Windows.Forms.ToolStripMenuItem("RapidOCR Current")
+$miOcrModelV4.Visible = $false
+$miOcrModelV6.Visible = $false
+$miOcrModelHybrid.Visible = $false
+$miOcrModelBuiltin.Checked = $true
+[void]$miAdvanceOcrMenu.DropDownItems.Add($miOcrModelV4)
+[void]$miAdvanceOcrMenu.DropDownItems.Add($miOcrModelV6)
+[void]$miAdvanceOcrMenu.DropDownItems.Add($miOcrModelHybrid)
 $miAdvanceDevMenu = New-Object Windows.Forms.ToolStripMenuItem("Developer")
 $miAdvanceDangerMenu = New-Object Windows.Forms.ToolStripMenuItem("Danger")
 
 # Add to main Option menu
 [void]$advanceMenu.Items.Add($miOptionViewMenu)
+[void]$advanceMenu.Items.Add($miAdvanceOcrMenu)
 [void]$advanceMenu.Items.Add($miOptionSettingMenu)
 [void]$advanceMenu.Items.Add($miOptionTrainMenu)
 [void]$advanceMenu.Items.Add($miAdvanceEditMenu)
@@ -618,6 +656,7 @@ $btnAutoYolo = New-Object System.Windows.Forms.Button
 $btnAutoYolo.Text = "Scan"
 $btnAutoYolo.Font = $uiBoldFont
 $btnAutoYolo.BackColor = [System.Drawing.Color]::FromArgb(232, 245, 233)
+$btnAutoScan = $btnAutoYolo
 $tabDraw.Controls.Add($btnAutoYolo)
 
 # ==============================
@@ -642,18 +681,24 @@ $btnAutoMapPdf.Text = "Auto Map PDF"
 $btnAutoMapPdf.Font = $uiFont
 $btnAutoMapPdf.Size = New-Object System.Drawing.Size(150,28)
 $btnAutoMapPdf.Location = New-Object System.Drawing.Point(1250,146)
+$btnAutoMapPdf.Visible = $false
+$btnAutoMapPdf.Enabled = $false
 
 $btnPdfTextZones = New-Object System.Windows.Forms.Button
 $btnPdfTextZones.Text = "Text Zones Off"
 $btnPdfTextZones.Font = $uiFont
 $btnPdfTextZones.Size = New-Object System.Drawing.Size(150,28)
 $btnPdfTextZones.Location = New-Object System.Drawing.Point(1410,146)
+$btnPdfTextZones.Visible = $false
+$btnPdfTextZones.Enabled = $false
 
 $btnClearGrayZones = New-Object System.Windows.Forms.Button
 $btnClearGrayZones.Text = "Clear Gray Boxes"
 $btnClearGrayZones.Font = $uiFont
 $btnClearGrayZones.Size = New-Object System.Drawing.Size(150,28)
 $btnClearGrayZones.Location = New-Object System.Drawing.Point(1250,178)
+$btnClearGrayZones.Visible = $false
+$btnClearGrayZones.Enabled = $false
 
 # =========================
 # Save MarkImage
